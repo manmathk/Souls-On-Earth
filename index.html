@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Souls on Earth — History Warrior Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --obsidian:#0a0807;
+    --obsidian-2:#140f0c;
+    --ember:#ff6a2b;
+    --ember-hot:#ffc257;
+    --gold:#e8b86d;
+    --blood:#7a1f1f;
+    --blood-bright:#b23a2f;
+    --bone:#f4ecdb;
+    --smoke:#6b6459;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0; height:100%; overflow:hidden; background:#000;}
+  body{
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    color:var(--bone);
+  }
+
+  /* ============ THE STAGE — locked 9:16 broadcast frame ============ */
+  .stage{
+    position:relative;
+    width:100vw;
+    height:100dvh;
+    max-width:calc(100dvh * 0.5625);
+    max-height:100dvh;
+    aspect-ratio:9/16;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 65% at 50% 108%, rgba(255,106,43,0.28), transparent 60%),
+      radial-gradient(90% 40% at 50% -5%, rgba(232,184,109,0.10), transparent 60%),
+      linear-gradient(180deg, var(--obsidian) 0%, var(--obsidian-2) 55%, #1c130d 100%);
+  }
+
+  /* cracked-fault texture */
+  .fault{
+    position:absolute; inset:0; pointer-events:none; opacity:0.5; mix-blend-mode:screen;
+    background-image:
+      linear-gradient(115deg, transparent 46%, rgba(255,140,60,0.10) 47%, transparent 48%),
+      linear-gradient(70deg, transparent 62%, rgba(255,140,60,0.07) 63%, transparent 64%),
+      linear-gradient(150deg, transparent 30%, rgba(255,140,60,0.06) 31%, transparent 32%);
+  }
+
+  .vignette{
+    position:absolute; inset:0; pointer-events:none;
+    box-shadow: inset 0 0 140px 40px rgba(0,0,0,0.75);
+  }
+
+  /* ember particles */
+  .embers{position:absolute; inset:0; pointer-events:none; overflow:hidden;}
+  .ember-p{
+    position:absolute; bottom:-10px;
+    width:3px; height:3px; border-radius:50%;
+    background:var(--ember-hot);
+    box-shadow:0 0 6px 2px rgba(255,140,60,0.8);
+    animation:rise linear infinite;
+    opacity:0;
+  }
+  @keyframes rise{
+    0%{ transform:translateY(0) translateX(0); opacity:0; }
+    8%{ opacity:0.9; }
+    85%{ opacity:0.5; }
+    100%{ transform:translateY(-115vh) translateX(var(--drift,20px)); opacity:0; }
+  }
+
+  /* ============ HUD TOP ============ */
+  .hud-top{
+    position:absolute; top:0; left:0; right:0;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 0;
+    z-index:5;
+  }
+  .live-tag{
+    display:flex; align-items:center; gap:6px;
+    background:rgba(122,31,31,0.35);
+    border:1px solid rgba(255,140,60,0.4);
+    border-radius:20px;
+    padding:5px 10px 5px 8px;
+    font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--ember-hot);
+  }
+  .live-tag .dot{
+    width:6px;height:6px;border-radius:50%;background:var(--blood-bright);
+    box-shadow:0 0 8px var(--blood-bright);
+    animation:blink 1.3s ease-in-out infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.15;}}
+  .clock{
+    font-size:11px; letter-spacing:1px; color:var(--smoke);
+  }
+  .gear{
+    background:rgba(20,15,12,0.55);
+    border:1px solid rgba(232,184,109,0.35);
+    border-radius:50%;
+    width:26px; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--gold);
+    font-size:13px;
+    cursor:pointer;
+  }
+  .hud-top-right{display:flex; align-items:center; gap:8px;}
+
+  /* ============ HERO ============ */
+  .hero{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:0 16px;
+    z-index:3;
+  }
+  .eyebrow{
+    font-family:'Cinzel', serif;
+    font-size:11px;
+    letter-spacing:5px;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:6px;
+  }
+  .eyebrow::before, .eyebrow::after{ content:"✦"; color:var(--ember); margin:0 8px; font-size:9px; vertical-align:middle;}
+  .mega{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:clamp(46px, 13vw, 68px);
+    line-height:0.95;
+    letter-spacing:1px;
+    color:var(--bone);
+    text-shadow:
+      0 0 18px rgba(255,140,60,0.55),
+      0 0 46px rgba(255,106,43,0.35);
+    white-space:nowrap;
+  }
+  .crackline{
+    width:64%;
+    height:2px;
+    margin:14px auto 12px;
+    background:linear-gradient(90deg, transparent, var(--ember), var(--ember-hot), var(--ember), transparent);
+    box-shadow:0 0 14px 2px rgba(255,140,60,0.6);
+    animation:glow 2.4s ease-in-out infinite;
+  }
+  @keyframes glow{0%,100%{opacity:0.5;}50%{opacity:1;}}
+  .rate-line{
+    font-size:11px; letter-spacing:0.5px; color:var(--smoke);
+    margin-bottom:22px;
+  }
+  .rate-line b{color:var(--ember-hot); font-weight:600;}
+
+  .twin{
+    display:flex; gap:10px;
+  }
+  .rune{
+    background:rgba(20,15,12,0.55);
+    border:1px solid rgba(232,184,109,0.28);
+    border-radius:8px;
+    padding:10px 16px;
+    min-width:118px;
+  }
+  .rune .k{
+    font-family:'Cinzel', serif;
+    font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--smoke); margin-bottom:4px;
+  }
+  .rune .v{
+    font-family:'JetBrains Mono', monospace;
+    font-size:16px; font-weight:700;
+  }
+  .rune.born .v{color:#bcd98f;}
+  .rune.gone .v{color:var(--blood-bright);}
+
+  /* ============ LOWER THIRD — channel banner ============ */
+  .lower{
+    position:absolute; left:0; right:0; bottom:34px;
+    z-index:5;
+    padding:0 14px;
+  }
+  .banner{
+    background:linear-gradient(135deg, rgba(122,31,31,0.35), rgba(20,15,12,0.85));
+    border:1px solid rgba(232,184,109,0.4);
+    border-radius:12px;
+    padding:10px 14px;
+    display:flex; align-items:center; gap:10px;
+    backdrop-filter:blur(2px);
+  }
+  .crest{
+    width:26px;height:26px;flex:none;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--ember-hot), var(--ember) 55%, #7a3a12 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+    box-shadow:0 0 8px rgba(255,140,60,0.6);
+  }
+  .banner-mid{flex:1; min-width:0;}
+  .banner-mid .h{
+    font-family:'Cinzel', serif; font-size:11px; letter-spacing:1px; color:var(--bone);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .banner-mid .u{ font-size:9px; color:var(--smoke); }
+  .banner-subs{
+    text-align:right; flex:none;
+  }
+  .banner-subs .num{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:22px; color:var(--ember-hot); letter-spacing:0.5px;
+  }
+  .banner-subs .lab{
+    font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:var(--smoke);
+  }
+
+  /* ============ TICKER ============ */
+  .ticker-wrap{
+    position:absolute; left:0; right:0; bottom:0;
+    height:34px; z-index:5;
+    background:rgba(10,8,7,0.85);
+    border-top:1px solid rgba(232,184,109,0.3);
+    overflow:hidden;
+    display:flex; align-items:center;
+  }
+  .ticker-track{
+    display:flex; gap:26px; white-space:nowrap;
+    animation:scroll 42s linear infinite;
+    padding-left:100%;
+  }
+  @keyframes scroll{
+    0%{ transform:translateX(0); }
+    100%{ transform:translateX(-100%); }
+  }
+  .ticker-item{
+    font-size:11px; color:var(--bone);
+    display:flex; align-items:center; gap:6px;
+  }
+  .ticker-item .flag{font-size:13px;}
+  .ticker-item .n{color:var(--smoke); font-size:9px;}
+  .ticker-item .p{color:var(--ember-hot);}
+
+  /* ============ SETTINGS OVERLAY ============ */
+  .settings{
+    position:absolute; inset:0; z-index:20;
+    background:rgba(6,4,3,0.94);
+    display:none;
+    flex-direction:column;
+    padding:calc(env(safe-area-inset-top,0px) + 20px) 20px 24px;
+  }
+  .settings.open{display:flex;}
+  .settings h2{
+    font-family:'Cinzel', serif; font-size:15px; letter-spacing:2px; color:var(--gold);
+    margin:0 0 4px;
+  }
+  .settings .sub{font-size:10px; color:var(--smoke); margin-bottom:18px; line-height:1.6;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block; font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--smoke); margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    background:#171210;
+    border:1px solid rgba(232,184,109,0.3);
+    border-radius:6px;
+    color:var(--bone);
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    padding:11px 12px;
+  }
+  .field input:focus{outline:none; border-color:var(--ember-hot);}
+  .settings-btns{display:flex; gap:10px; margin-top:6px;}
+  button.primary{
+    flex:1;
+    background:linear-gradient(180deg, var(--ember-hot), var(--ember));
+    border:none; color:#1a0f08; font-family:'Cinzel', serif; font-weight:700;
+    font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:12px; border-radius:6px; cursor:pointer;
+  }
+  button.ghost{
+    flex:1;
+    background:transparent;
+    border:1px solid rgba(232,184,109,0.35);
+    color:var(--gold); font-family:'Cinzel', serif; font-weight:700;
+    font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:12px; border-radius:6px; cursor:pointer;
+  }
+  a.watch{
+    display:block; text-align:center; margin-top:16px;
+    font-size:11px; letter-spacing:1px; color:var(--ember-hot);
+    text-decoration:none; border:1px solid rgba(232,184,109,0.3);
+    border-radius:6px; padding:11px;
+  }
+  .settings .foot-note{
+    margin-top:auto;
+    font-size:9.5px; color:var(--smoke); line-height:1.6; text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="fault"></div>
+  <div class="embers" id="embers"></div>
+  <div class="vignette"></div>
+
+  <div class="hud-top">
+    <div class="live-tag"><span class="dot"></span> Live</div>
+    <div class="hud-top-right">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="gear" id="gearBtn">⚙</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Souls on Earth</div>
+    <div class="mega" id="popMega">—</div>
+    <div class="crackline"></div>
+    <div class="rate-line">net <b id="rateLine">+0.00</b> / second, worldwide</div>
+    <div class="twin">
+      <div class="rune born">
+        <div class="k">Born Today</div>
+        <div class="v" id="birthsToday">—</div>
+      </div>
+      <div class="rune gone">
+        <div class="k">Departed</div>
+        <div class="v" id="deathsToday">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lower">
+    <div class="banner">
+      <div class="crest">⚔️</div>
+      <div class="banner-mid">
+        <div class="h">History Warrior</div>
+        <div class="u">@HistoryWarrior77</div>
+      </div>
+      <div class="banner-subs">
+        <div class="num" id="subCount">0</div>
+        <div class="lab">Subscribers</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+
+  <div class="settings" id="settingsPanel">
+    <h2>Battalion Settings</h2>
+    <div class="sub">YouTube has no public keyless feed for a live subscriber count, so set it by hand from Studio → Analytics → Realtime. It'll tick smoothly on its own between visits.</div>
+    <div class="field">
+      <label for="subInput">Current subscriber count</label>
+      <input type="number" id="subInput" placeholder="e.g. 1250" min="0">
+    </div>
+    <div class="field">
+      <label for="rateInput">Estimated new subs / day</label>
+      <input type="number" id="rateInput" placeholder="e.g. 15" min="0">
+    </div>
+    <div class="settings-btns">
+      <button class="ghost" id="closeBtn">Close</button>
+      <button class="primary" id="saveBtn">Save</button>
+    </div>
+    <a class="watch" href="https://www.youtube.com/@historywarrior77" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+    <div class="foot-note">World figures: live interpolation from UN / US Census 2026 rates (≈5.44 births/sec, ≈2.08 deaths/sec) — the same method Worldometer uses. Not a literal real-time census.</div>
+  </div>
+</div>
+
+<script>
+// ---------------- clock ----------------
+function updateClock(){
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleTimeString('en-US', {hour12:false});
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ---------------- ember particles ----------------
+const embersEl = document.getElementById('embers');
+const EMBER_COUNT = 26;
+for(let i=0;i<EMBER_COUNT;i++){
+  const p = document.createElement('div');
+  p.className = 'ember-p';
+  const left = Math.random()*100;
+  const dur = 6 + Math.random()*7;
+  const delay = Math.random()*dur;
+  const drift = (Math.random()*40-20).toFixed(0)+'px';
+  const size = (2 + Math.random()*2.5).toFixed(1);
+  p.style.left = left+'%';
+  p.style.width = size+'px';
+  p.style.height = size+'px';
+  p.style.animationDuration = dur+'s';
+  p.style.animationDelay = '-'+delay+'s';
+  p.style.setProperty('--drift', drift);
+  embersEl.appendChild(p);
+}
+
+// ---------------- world population engine ----------------
+const BASELINE_POP = 8306575777;
+const BASELINE_TIME = new Date('2026-08-01T00:00:00Z').getTime();
+const BIRTHS_PER_SEC = 470113 / 86400;
+const DEATHS_PER_SEC = 179603 / 86400;
+const NET_PER_SEC = BIRTHS_PER_SEC - DEATHS_PER_SEC;
+
+function currentPopulation(){
+  const elapsedSec = (Date.now() - BASELINE_TIME) / 1000;
+  return Math.floor(BASELINE_POP + elapsedSec * NET_PER_SEC);
+}
+function secondsSinceLocalMidnight(){
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return (now - midnight) / 1000;
+}
+
+const popMega = document.getElementById('popMega');
+const birthsEl = document.getElementById('birthsToday');
+const deathsEl = document.getElementById('deathsToday');
+const rateLine = document.getElementById('rateLine');
+rateLine.textContent = '+' + NET_PER_SEC.toFixed(2);
+
+let lastSecond = -1;
+function tick(){
+  const nowSec = Math.floor(Date.now()/1000);
+  if(nowSec !== lastSecond){
+    lastSecond = nowSec;
+    popMega.textContent = currentPopulation().toLocaleString('en-US');
+    const secToday = secondsSinceLocalMidnight();
+    birthsEl.textContent = Math.floor(secToday * BIRTHS_PER_SEC).toLocaleString('en-US');
+    deathsEl.textContent = Math.floor(secToday * DEATHS_PER_SEC).toLocaleString('en-US');
+    updateTicker();
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+// ---------------- subscriber counter ----------------
+const subCountEl = document.getElementById('subCount');
+const subInput = document.getElementById('subInput');
+const rateInput = document.getElementById('rateInput');
+const saveBtn = document.getElementById('saveBtn');
+const closeBtn = document.getElementById('closeBtn');
+const gearBtn = document.getElementById('gearBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+
+let subState = { base: 0, ratePerDay: 0, savedAt: Date.now() };
+
+function currentSubs(){
+  const elapsedDays = (Date.now() - subState.savedAt) / 86400000;
+  return Math.max(0, subState.base + elapsedDays * subState.ratePerDay);
+}
+function renderSubs(){
+  subCountEl.textContent = Math.floor(currentSubs()).toLocaleString('en-US');
+}
+async function loadSubState(){
+  try{
+    const res = await window.storage.get('history-warrior-subs', false);
+    if(res && res.value){
+      subState = JSON.parse(res.value);
+      subInput.value = Math.floor(currentSubs());
+      rateInput.value = subState.ratePerDay;
+    }
+  }catch(e){}
+  renderSubs();
+}
+async function saveSubState(){
+  const base = parseFloat(subInput.value);
+  const rate = parseFloat(rateInput.value);
+  subState = {
+    base: isNaN(base) ? currentSubs() : base,
+    ratePerDay: isNaN(rate) ? 0 : rate,
+    savedAt: Date.now()
+  };
+  try{ await window.storage.set('history-warrior-subs', JSON.stringify(subState), false); }catch(e){}
+  renderSubs();
+  settingsPanel.classList.remove('open');
+}
+gearBtn.addEventListener('click', () => {
+  subInput.value = Math.floor(currentSubs());
+  rateInput.value = subState.ratePerDay;
+  settingsPanel.classList.add('open');
+});
+closeBtn.addEventListener('click', () => settingsPanel.classList.remove('open'));
+saveBtn.addEventListener('click', saveSubState);
+loadSubState();
+setInterval(renderSubs, 1000);
+
+// ---------------- ticker (each country ticks on its own est. annual growth rate) ----------------
+// [flag, name, basePopulation, annualGrowthPct] — growth % are recent UN-order-of-magnitude estimates
+const roster = [
+  ["🇮🇳","India",1484346289,0.68],["🇨🇳","China",1412730262,-0.10],["🇺🇸","U.S.A.",349954626,0.50],
+  ["🇮🇩","Indonesia",289173567,0.70],["🇵🇰","Pakistan",262057188,1.50],["🇳🇬","Nigeria",245556882,2.40],
+  ["🇧🇷","Brazil",214114145,0.40],["🇧🇩","Bangladesh",178737176,1.00],["🇷🇺","Russia",143210631,-0.20],
+  ["🇪🇹","Ethiopia",140740450,2.50],["🇲🇽","Mexico",133549137,0.60],["🇯🇵","Japan",122060077,-0.50],
+  ["🇪🇬","Egypt",121020307,1.60],["🇵🇭","Philippines",118643603,1.30],["🇻🇳","Vietnam",102545084,0.70],
+  ["🇮🇷","Iran",93536150,0.70],["🇹🇷","Turkey",88201821,0.50],["🇩🇪","Germany",83607492,-0.10],
+  ["🇬🇧","United Kingdom",70060206,0.50],["🇫🇷","France",66819931,0.20],["🇿🇦","South Africa",65747206,0.80]
+];
+const SEC_PER_YEAR = 365*86400;
+function countryPop(row, nowMs){
+  const [,,base,pct] = row;
+  const perSec = base * (pct/100) / SEC_PER_YEAR;
+  const elapsedSec = (nowMs - BASELINE_TIME) / 1000;
+  return Math.floor(base + elapsedSec * perSec);
+}
+const track = document.getElementById('tickerTrack');
+let tickerSpans = [];
+function buildTicker(){
+  track.innerHTML = '';
+  tickerSpans = [];
+  const list = [...roster, ...roster]; // duplicate for seamless loop
+  list.forEach((row, i) => {
+    const el = document.createElement('div');
+    el.className = 'ticker-item';
+    const pSpan = document.createElement('span');
+    pSpan.className = 'p';
+    pSpan.textContent = countryPop(row, Date.now()).toLocaleString('en-US');
+    el.innerHTML = `<span class="flag">${row[0]}</span><span>${row[1]}</span><span class="n">·</span>`;
+    el.appendChild(pSpan);
+    track.appendChild(el);
+    tickerSpans.push({row, span:pSpan});
+  });
+}
+function updateTicker(){
+  const now = Date.now();
+  tickerSpans.forEach(({row, span}) => {
+    span.textContent = countryPop(row, now).toLocaleString('en-US');
+  });
+}
+buildTicker();
+</script>
+</body>
+  </html>
