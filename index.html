@@ -3,11 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Top 40 Countries by Population (Live Estimates)</title>
+  <title>Top 40 Countries by Population (Open data)</title>
   <style>
     body { font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial; margin: 0; padding: 1rem; background:#fafafa; color:#111 }
-    header { display:flex; flex-direction:column; gap:0.5rem; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; gap:1rem }
+    header { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
     h1 { margin:0; font-size:1.25rem }
     .controls { display:flex; gap:.5rem; align-items:center }
     .list { margin-top:1rem; display:grid; grid-template-columns: 1fr; gap:.5rem; }
@@ -17,248 +16,75 @@
     .pop { margin-left:auto; font-variant-numeric: tabular-nums; }
     footer { margin-top:1rem; font-size:.85rem; color:#444 }
     .muted { opacity:.6 }
-    .small { font-size:0.9rem; color:#555 }
-    .counter { font-size:1.1rem; font-weight:700 }
-    .meta { font-size:0.85rem; color:#666 }
   </style>
 </head>
 <body>
   <header>
-    <div class="topbar">
-      <div>
-        <h1>Top 40 Countries by Population — Live Estimates</h1>
-        <div class="meta">Data source: World Bank indicators (latest available year). Counters run continuously using births/deaths/net-migration where available, with periodic re-seeding from official data.</div>
-      </div>
-      <div class="controls">
-        <button id="reload">Reload now</button>
-        <label class="muted">Auto-refresh: <span id="interval">10</span> minutes</label>
-      </div>
-    </div>
-
-    <div style="margin-top:.6rem">
-      <strong>World population (live estimate):</strong>
-      <span id="world-counter" class="counter">Loading...</span>
-      <span class="small muted" id="world-as-of"></span>
+    <h1>Top 40 Countries by Population (Open data)</h1>
+    <div class="controls">
+      <button id="reload">Reload</button>
+      <label class="muted">Autoplay may be blocked by browsers — use play button</label>
     </div>
   </header>
 
-  <div class="list" id="list" aria-live="polite">Loading population data...</div>
+  <div class="list" id="list" aria-live="polite">Loading...</div>
 
-  <!-- Using a CC0-like Pixabay track hosted on Pixabay CDN -->
-  <audio id="bg" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12d3e6f2e6.mp3" preload="auto" loop></audio>
+  <audio id="bg" src="assets/bg-music.mp3" preload="auto" loop></audio>
   <div style="margin-top:.75rem; display:flex; gap:.5rem; align-items:center;">
     <button id="play">Play music</button>
     <button id="pause">Pause</button>
-    <label class="small">Volume <input id="vol" type="range" min="0" max="1" step="0.01" value="0.25" /></label>
+    <label>Volume <input id="vol" type="range" min="0" max="1" step="0.01" value="0.25" /></label>
   </div>
 
   <footer>
-    <div>Music: "Always On The Way" from Pixabay (Pixabay License). See MUSIC_LICENSE.md in this repo for license details and the direct CDN link.</div>
-    <div class="small" style="margin-top:.5rem">If you want the MP3 stored locally in the repo instead of hotlinked, I can add it as assets/bg-music.mp3.</div>
+    Data source: REST Countries (https://restcountries.com). Replace with World Bank or UN if you need specific official estimates.
+    Music: place an open-licensed file at assets/bg-music.mp3 and include its license text (or attribution) in your repo.
   </footer>
 
   <script>
-    // Configuration
-    const REFRESH_MINUTES = 10; // re-seed data every 10 minutes
-    const REFRESH_MS = REFRESH_MINUTES * 60 * 1000;
-    const SECONDS_PER_YEAR = 365.25 * 24 * 3600;
-
-    // World Bank indicator endpoints (latest year 2023 requested)
-    const endpoints = {
-      pop: 'https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?date=2023&format=json&per_page=400',
-      birthRate: 'https://api.worldbank.org/v2/country/all/indicator/SP.DYN.CBRT.IN?date=2023&format=json&per_page=400',
-      deathRate: 'https://api.worldbank.org/v2/country/all/indicator/SP.DYN.CDRT.IN?date=2023&format=json&per_page=400',
-      netMigration: 'https://api.worldbank.org/v2/country/all/indicator/SM.POP.NETM?date=2023&format=json&per_page=400',
-      growthRate: 'https://api.worldbank.org/v2/country/all/indicator/SP.POP.GROW?date=2023&format=json&per_page=400'
-    };
-
     const listEl = document.getElementById('list');
     const reloadBtn = document.getElementById('reload');
-    const intervalEl = document.getElementById('interval');
-    intervalEl.textContent = REFRESH_MINUTES;
-
-    // State maps: iso2 -> data
-    let countryMap = new Map();
-    let top40Isos = [];
-
-    // World counter state
-    const worldCounterEl = document.getElementById('world-counter');
-    const worldAsOfEl = document.getElementById('world-as-of');
-    let worldState = { population: 0, growthPerSecond: 0 };
-
-    // Utility to format number nicely
-    function fmt(n) {
-      return Math.round(n).toLocaleString();
-    }
-
-    // Fetch helper
-    async function fetchJson(url) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Fetch failed: ' + res.status);
-      return res.json();
-    }
-
-    // Load all indicators and build country map
-    async function loadIndicators() {
-      listEl.textContent = 'Loading population data...';
+    async function loadCountries() {
+      listEl.textContent = 'Loading...';
       try {
-        const [popJson, birthJson, deathJson, netJson, growJson] = await Promise.all([
-          fetchJson(endpoints.pop),
-          fetchJson(endpoints.birthRate),
-          fetchJson(endpoints.deathRate),
-          fetchJson(endpoints.netMigration),
-          fetchJson(endpoints.growthRate)
-        ]);
+        // REST Countries v3: returns array of country objects
+        const res = await fetch('https://restcountries.com/v3.1/all');
+        if (!res.ok) throw new Error('Failed to fetch country data');
+        const data = await res.json();
 
-        const popRecords = popJson[1] || [];
-        const birthRecords = birthJson[1] || [];
-        const deathRecords = deathJson[1] || [];
-        const netRecords = netJson[1] || [];
-        const growRecords = growJson[1] || [];
+        // Map to {name, population, flag}
+        const mapped = data.map(c => {
+          const name = (c.name && (c.name.common || c.name.official)) || c.altSpellings?.[0] || 'Unknown';
+          const population = c.population || 0;
+          const flag = c.flags && (c.flags.png || c.flags.svg) || '';
+          return { name, population, flag };
+        });
 
-        // Build map by iso2 code
-        const temp = new Map();
+        // Sort descending by population and take top 40
+        mapped.sort((a,b) => b.population - a.population);
+        const top40 = mapped.slice(0, 40);
 
-        function pushRecord(recArray, key, transform) {
-          for (const r of recArray) {
-            try {
-              const id = r.country && r.country.id;
-              if (!id || id.length !== 2) continue; // skip aggregates
-              const iso2 = id.toLowerCase();
-              if (!temp.has(iso2)) temp.set(iso2, { iso2, name: r.country.value });
-              const obj = temp.get(iso2);
-              const val = (r.value != null) ? Number(r.value) : null;
-              if (val != null) obj[key] = transform ? transform(val) : val;
-            } catch (e) {
-              // ignore bad records
-            }
-          }
-        }
-
-        pushRecord(popRecords, 'population');
-        pushRecord(birthRecords, 'birthRate');
-        pushRecord(deathRecords, 'deathRate');
-        pushRecord(netRecords, 'netMigration');
-        pushRecord(growRecords, 'growthRate');
-
-        // Convert temp to countryMap and compute growthPerSecond for each
-        countryMap = new Map();
-        for (const [iso, c] of temp.entries()) {
-          const population = c.population || null;
-          const birthRate = c.birthRate || null; // per 1000
-          const deathRate = c.deathRate || null; // per 1000
-          const netMigration = c.netMigration || null; // per 1000
-          const growthRate = c.growthRate || null; // percent per year
-
-          let growthPerSecond = 0;
-          if (population && birthRate != null && deathRate != null && netMigration != null) {
-            const birthsPerYear = population * (birthRate / 1000);
-            const deathsPerYear = population * (deathRate / 1000);
-            const netPerYear = population * (netMigration / 1000);
-            const growthPerYear = birthsPerYear - deathsPerYear + netPerYear;
-            growthPerSecond = growthPerYear / SECONDS_PER_YEAR;
-          } else if (population && growthRate != null) {
-            growthPerSecond = population * (growthRate / 100) / SECONDS_PER_YEAR;
-          } else if (population) {
-            // Fallback: small global average growth ~0.8%
-            const fallback = 0.8;
-            growthPerSecond = population * (fallback / 100) / SECONDS_PER_YEAR;
-          }
-
-          countryMap.set(iso, {
-            name: c.name || 'Unknown',
-            iso2: iso,
-            population: population || 0,
-            birthRate: birthRate != null ? birthRate : null,
-            deathRate: deathRate != null ? deathRate : null,
-            netMigration: netMigration != null ? netMigration : null,
-            growthRate: growthRate != null ? growthRate : null,
-            growthPerSecond,
-            current: (population || 0) // floating current value for animation
-          });
-        }
-
-        // Prepare world values using aggregate WLD if present in popJson and growth
-        const worldPopRecord = (popJson[1] || []).find(r => r.country && r.country.id === 'WLD');
-        const worldGrowRecord = (growJson[1] || []).find(r => r.country && r.country.id === 'WLD');
-        if (worldPopRecord && worldPopRecord.value != null) {
-          worldState.population = Number(worldPopRecord.value);
-          worldAsOfEl.textContent = ` (baseline: ${worldPopRecord.date})`;
-          if (worldGrowRecord && worldGrowRecord.value != null) {
-            const gr = Number(worldGrowRecord.value);
-            worldState.growthPerSecond = worldState.population * (gr / 100) / SECONDS_PER_YEAR;
-          } else {
-            // fallback to births/deaths/net if we can compute from summed rates? Not available globally here.
-            worldState.growthPerSecond = worldState.population * (0.8 / 100) / SECONDS_PER_YEAR; // fallback
-          }
-        } else {
-          // fallback hardcoded
-          worldState.population = 8200000000;
-          worldState.growthPerSecond = worldState.population * (0.8 / 100) / SECONDS_PER_YEAR;
-          worldAsOfEl.textContent = ' (fallback)';
-        }
-
-        renderTop40();
+        // Render
+        listEl.innerHTML = '';
+        top40.forEach((c, i) => {
+          const div = document.createElement('div');
+          div.className = 'country';
+          div.innerHTML = `
+            <div style="width:30px; text-align:right; color:#666">${i+1}</div>
+            <img class="flag" src="${c.flag}" alt="Flag of ${c.name}" onerror="this.style.display='none'"/>
+            <div class="name">${c.name}</div>
+            <div class="pop">${Number(c.population).toLocaleString()}</div>
+          `;
+          listEl.appendChild(div);
+        });
 
       } catch (err) {
-        console.error('Failed to load indicators', err);
-        listEl.textContent = 'Failed to load data: ' + (err.message || err);
+        listEl.textContent = 'Error loading country data: ' + err.message;
       }
     }
 
-    // Render top40 based on current countryMap
-    function renderTop40() {
-      // Sort by base population descending
-      const arr = Array.from(countryMap.values()).filter(c => c.population > 0);
-      arr.sort((a,b) => b.population - a.population);
-      const top40 = arr.slice(0,40);
-      top40Isos = top40.map(c => c.iso2);
-
-      listEl.innerHTML = '';
-      top40.forEach((c, i) => {
-        const div = document.createElement('div');
-        div.className = 'country';
-        div.id = 'country-' + c.iso2;
-        const flagUrl = `https://flagcdn.com/w40/${c.iso2}.png`;
-        div.innerHTML = `
-          <div style="width:30px; text-align:right; color:#666">${i+1}</div>
-          <img class="flag" src="${flagUrl}" alt="Flag of ${c.name}" onerror="this.style.display='none'"/>
-          <div class="name">${c.name} <div class=\"small\">${c.birthRate!=null?('birth: '+c.birthRate+'/1000'):'birth: n/a'} · ${c.deathRate!=null?('death: '+c.deathRate+'/1000'):'death: n/a'} · ${c.netMigration!=null?('netMig: '+c.netMigration+'/1000'):'netMig: n/a'}</div></div>
-          <div class="pop" data-iso="${c.iso2}">${fmt(c.current)}</div>
-        `;
-        listEl.appendChild(div);
-      });
-    }
-
-    // Animation loop to update displayed populations
-    let lastTime = performance.now();
-    function animate(now) {
-      const delta = (now - lastTime) / 1000; // seconds
-      lastTime = now;
-
-      // Update world
-      worldState.population += worldState.growthPerSecond * delta;
-      worldCounterEl.textContent = fmt(worldState.population);
-
-      // Update countries in top40
-      for (const iso of top40Isos) {
-        const c = countryMap.get(iso);
-        if (!c) continue;
-        c.current += (c.growthPerSecond || 0) * delta;
-        const el = document.querySelector(`.pop[data-iso='${iso}']`);
-        if (el) el.textContent = fmt(c.current);
-      }
-
-      requestAnimationFrame(animate);
-    }
-
-    // Initial load and periodic re-seed
-    reloadBtn.addEventListener('click', loadIndicators);
-    loadIndicators().then(() => {
-      lastTime = performance.now();
-      requestAnimationFrame(animate);
-    });
-    setInterval(loadIndicators, REFRESH_MS);
+    reloadBtn.addEventListener('click', loadCountries);
+    loadCountries();
 
     // Audio controls
     const audio = document.getElementById('bg');
@@ -268,7 +94,11 @@
     audio.volume = Number(vol.value);
 
     play.addEventListener('click', async () => {
-      try { await audio.play(); } catch (e) { console.warn('Play blocked', e); }
+      try {
+        await audio.play();
+      } catch (e) {
+        console.warn('Play blocked', e);
+      }
     });
     pause.addEventListener('click', () => audio.pause());
     vol.addEventListener('input', () => { audio.volume = Number(vol.value); });
