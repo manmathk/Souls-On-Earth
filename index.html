@@ -44,7 +44,7 @@
     <div class="topbar">
       <div>
         <h1>Top 40 Countries by Population (Live)</h1>
-        <div class="muted">Data: REST Countries (live). Music: local file (assets/bg-music.mp3).</div>
+        <div class="muted">Data: REST Countries (live). Music: archived CC0-like track (hotlinked).</div>
       </div>
       <div class="controls">
         <button id="reload">Reload</button>
@@ -58,7 +58,8 @@
     <section class="column" id="col-right" aria-label="Countries 21 to 40"></section>
   </main>
 
-  <audio id="bg" src="assets/bg-music.mp3" preload="auto" loop></audio>
+  <!-- Using an archived/hotlinked MP3 from Pixabay CDN (no file committed to repo) -->
+  <audio id="bg" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12d3e6f2e6.mp3" preload="auto" loop></audio>
   <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
     <button id="play">Play</button>
     <button id="pause">Pause</button>
