@@ -5,81 +5,118 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Top 40 Countries by Population (Open data)</title>
   <style>
-    body { font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial; margin: 0; padding: 1rem; background:#fafafa; color:#111 }
-    header { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
-    h1 { margin:0; font-size:1.25rem }
+    :root{
+      --bg:#fafafa; --card:#fff; --muted:#666; --accent:#e53935;
+      --radius:8px; --gap:12px; --flag-w:42px;
+      --pop-font: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    *{box-sizing:border-box}
+    body { font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial; margin: 0; padding: 1rem; background:var(--bg); color:#111 }
+    header { display:flex; flex-direction:column; gap:0.5rem; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:1rem }
+    h1 { margin:0; font-size:1.2rem }
     .controls { display:flex; gap:.5rem; align-items:center }
-    .list { margin-top:1rem; display:grid; grid-template-columns: 1fr; gap:.5rem; }
-    .country { display:flex; gap:0.75rem; align-items:center; padding:.5rem; background:white; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,.04) }
-    .flag { width:36px; height:24px; object-fit:cover; border-radius:3px; }
-    .name { font-weight:600; min-width:180px; }
-    .pop { margin-left:auto; font-variant-numeric: tabular-nums; }
+    .muted { color:var(--muted); font-size:0.92rem }
+
+    /* Layout: two-column list for wide screens, single column on narrow */
+    .grid { margin-top:1rem; display:grid; gap:var(--gap); grid-template-columns: 1fr; }
+    @media(min-width:900px){ .grid { grid-template-columns: 1fr 1fr; } }
+
+    .column { display:flex; flex-direction:column; gap:var(--gap); }
+    .country { display:flex; gap:0.75rem; align-items:center; padding:.6rem; background:var(--card); border-radius:var(--radius); box-shadow:0 1px 3px rgba(0,0,0,.04); }
+
+    .rank { width:44px; text-align:right; color:var(--muted); font-weight:700; font-size:1.1rem }
+    .flag { width:var(--flag-w); height:28px; object-fit:cover; border-radius:4px; flex-shrink:0 }
+    .meta { display:flex; flex-direction:column; gap:0.08rem }
+    .name { font-weight:600 }
+    .sub { font-size:0.85rem; color:var(--muted) }
+
+    .population { margin-left:auto; font-family:var(--pop-font); font-weight:700; font-size:1rem }
+
     footer { margin-top:1rem; font-size:.85rem; color:#444 }
-    .muted { opacity:.6 }
+
+    /* Compact view for very small screens */
+    @media(max-width:420px){ .flag{width:34px;height:20px} .rank{width:32px;font-size:1rem} .population{font-size:0.95rem} }
   </style>
 </head>
 <body>
   <header>
-    <h1>Top 40 Countries by Population (Open data)</h1>
-    <div class="controls">
-      <button id="reload">Reload</button>
-      <label class="muted">Autoplay may be blocked by browsers — use play button</label>
+    <div class="topbar">
+      <div>
+        <h1>Top 40 Countries by Population (Live)</h1>
+        <div class="muted">Data: REST Countries (live). Music: local file (assets/bg-music.mp3).</div>
+      </div>
+      <div class="controls">
+        <button id="reload">Reload</button>
+        <span class="muted">Autoplay may be blocked — press Play</span>
+      </div>
     </div>
   </header>
 
-  <div class="list" id="list" aria-live="polite">Loading...</div>
+  <main class="grid" aria-live="polite">
+    <section class="column" id="col-left" aria-label="Countries 1 to 20">Loading...</section>
+    <section class="column" id="col-right" aria-label="Countries 21 to 40"></section>
+  </main>
 
   <audio id="bg" src="assets/bg-music.mp3" preload="auto" loop></audio>
-  <div style="margin-top:.75rem; display:flex; gap:.5rem; align-items:center;">
-    <button id="play">Play music</button>
+  <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+    <button id="play">Play</button>
     <button id="pause">Pause</button>
-    <label>Volume <input id="vol" type="range" min="0" max="1" step="0.01" value="0.25" /></label>
+    <label class="muted">Volume <input id="vol" type="range" min="0" max="1" step="0.01" value="0.25" /></label>
   </div>
 
   <footer>
-    Data source: REST Countries (https://restcountries.com). Replace with World Bank or UN if you need specific official estimates.
-    Music: place an open-licensed file at assets/bg-music.mp3 and include its license text (or attribution) in your repo.
+    <div>Notes: The page fetches country data from REST Countries (https://restcountries.com). If you want official population numbers by year, replace with World Bank or UN API.</div>
   </footer>
 
   <script>
-    const listEl = document.getElementById('list');
+    const leftCol = document.getElementById('col-left');
+    const rightCol = document.getElementById('col-right');
     const reloadBtn = document.getElementById('reload');
-    async function loadCountries() {
-      listEl.textContent = 'Loading...';
-      try {
-        // REST Countries v3: returns array of country objects
+
+    async function loadCountries(){
+      leftCol.textContent = 'Loading...';
+      rightCol.textContent = '';
+      try{
         const res = await fetch('https://restcountries.com/v3.1/all');
-        if (!res.ok) throw new Error('Failed to fetch country data');
+        if(!res.ok) throw new Error('Failed to fetch country data: ' + res.status);
         const data = await res.json();
 
-        // Map to {name, population, flag}
         const mapped = data.map(c => {
           const name = (c.name && (c.name.common || c.name.official)) || c.altSpellings?.[0] || 'Unknown';
-          const population = c.population || 0;
-          const flag = c.flags && (c.flags.png || c.flags.svg) || '';
-          return { name, population, flag };
+          const population = Number(c.population || 0);
+          const flag = (c.flags && (c.flags.png || c.flags.svg)) || '';
+          const iso2 = (c.cca2 || '').toLowerCase();
+          return { name, population, flag, iso2 };
         });
 
-        // Sort descending by population and take top 40
         mapped.sort((a,b) => b.population - a.population);
-        const top40 = mapped.slice(0, 40);
+        const top40 = mapped.slice(0,40);
 
-        // Render
-        listEl.innerHTML = '';
-        top40.forEach((c, i) => {
-          const div = document.createElement('div');
-          div.className = 'country';
-          div.innerHTML = `
-            <div style="width:30px; text-align:right; color:#666">${i+1}</div>
-            <img class="flag" src="${c.flag}" alt="Flag of ${c.name}" onerror="this.style.display='none'"/>
-            <div class="name">${c.name}</div>
-            <div class="pop">${Number(c.population).toLocaleString()}</div>
+        // Split into two columns: 0-19 left, 20-39 right
+        leftCol.innerHTML = '';
+        rightCol.innerHTML = '';
+        top40.forEach((c, idx) => {
+          const el = document.createElement('div');
+          el.className = 'country';
+          // flag fallback to flagcdn by iso2 if REST flag missing
+          const flagUrl = c.flag || (c.iso2 ? `https://flagcdn.com/w80/${c.iso2}.png` : '');
+          el.innerHTML = `
+            <div class="rank">${idx+1}</div>
+            ${flagUrl ? `<img class="flag" src="${flagUrl}" alt="Flag of ${c.name}" onerror="this.style.display='none'"/>` : ''}
+            <div class="meta">
+              <div class="name">${c.name}</div>
+              <div class="sub">Population</div>
+            </div>
+            <div class="population">${Number(c.population).toLocaleString()}</div>
           `;
-          listEl.appendChild(div);
+          if(idx < 20) leftCol.appendChild(el); else rightCol.appendChild(el);
         });
 
-      } catch (err) {
-        listEl.textContent = 'Error loading country data: ' + err.message;
+      }catch(err){
+        leftCol.textContent = 'Error loading country data: ' + (err.message || err);
+        rightCol.textContent = '';
+        console.error(err);
       }
     }
 
@@ -92,16 +129,9 @@
     const pause = document.getElementById('pause');
     const vol = document.getElementById('vol');
     audio.volume = Number(vol.value);
-
-    play.addEventListener('click', async () => {
-      try {
-        await audio.play();
-      } catch (e) {
-        console.warn('Play blocked', e);
-      }
-    });
-    pause.addEventListener('click', () => audio.pause());
-    vol.addEventListener('input', () => { audio.volume = Number(vol.value); });
+    play.addEventListener('click', async () => { try{ await audio.play(); }catch(e){ console.warn('Play blocked', e); } });
+    pause.addEventListener('click', ()=> audio.pause());
+    vol.addEventListener('input', ()=> { audio.volume = Number(vol.value); });
   </script>
 </body>
 </html>
