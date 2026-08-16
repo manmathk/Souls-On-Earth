@@ -109,6 +109,18 @@
   }
   .hud-top-right{display:flex; align-items:center; gap:8px;}
 
+  /* background-toggle button (matches gear style) */
+  .bg-btn{
+    background:rgba(20,15,12,0.55);
+    border:1px solid rgba(232,184,109,0.35);
+    border-radius:50%;
+    width:26px; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--gold);
+    font-size:13px;
+    cursor:pointer;
+  }
+
   /* ============ HERO ============ */
   .hero{
     position:absolute; inset:0;
@@ -308,6 +320,7 @@
     <div class="live-tag"><span class="dot"></span> Live</div>
     <div class="hud-top-right">
       <div class="clock" id="clock">--:--:--</div>
+      <div class="bg-btn" id="bgToggle" title="Play background music">▶</div>
       <div class="gear" id="gearBtn">⚙</div>
     </div>
   </div>
@@ -514,7 +527,7 @@ function buildTicker(){
     const pSpan = document.createElement('span');
     pSpan.className = 'p';
     pSpan.textContent = countryPop(row, Date.now()).toLocaleString('en-US');
-    el.innerHTML = `<span class="flag">${row[0]}</span><span>${row[1]}</span><span class="n">·</span>`;
+    el.innerHTML = `<span class=\"flag\">${row[0]}</span><span>${row[1]}</span><span class=\"n\">·</span>`;
     el.appendChild(pSpan);
     track.appendChild(el);
     tickerSpans.push({row, span:pSpan});
@@ -539,26 +552,63 @@ buildTicker();
   // start low so it's not intrusive when unmuted
   audio.volume = 0.18;
 
-  function enableBackgroundMusic(){
+  // UI toggle in the HUD
+  const btn = document.getElementById('bgToggle');
+  function updateButton(){
+    if(!btn) return;
     try{
-      audio.muted = false;
-      // Some browsers require play() to be called from user gesture — call and ignore rejections
-      audio.play().catch(()=>{});
+      btn.textContent = audio.paused ? '▶' : '⏸';
+      btn.title = audio.paused ? 'Play background music' : 'Pause background music';
     }catch(e){}
-    document.removeEventListener('click', enableBackgroundMusic);
-    document.removeEventListener('keydown', enableBackgroundMusic);
-    document.removeEventListener('touchstart', enableBackgroundMusic);
   }
 
-  document.addEventListener('click', enableBackgroundMusic, { once: true });
-  document.addEventListener('keydown', enableBackgroundMusic, { once: true });
-  document.addEventListener('touchstart', enableBackgroundMusic, { once: true });
+  async function playMusic(){
+    audio.muted = false;
+    try{ await audio.play(); }catch(e){ /* play may fail until user gesture allowed */ }
+    updateButton();
+    try{ localStorage.setItem('bg-music-playing', '1'); }catch(e){}
+  }
+  function pauseMusic(){
+    audio.pause();
+    // keep it muted while paused to avoid accidental autoplay
+    audio.muted = true;
+    updateButton();
+    try{ localStorage.setItem('bg-music-playing', '0'); }catch(e){}
+  }
+
+  // Button click handler
+  if(btn){
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(audio.paused) playMusic(); else pauseMusic();
+    });
+  }
+
+  // Also unmute/play on first global user gesture if user previously asked for music
+  const wanted = (function(){ try{ return localStorage.getItem('bg-music-playing') === '1'; }catch(e){return false;} })();
+  function gestureHandler(){
+    if(wanted){
+      playMusic();
+    }
+    // remove listeners after first gesture to avoid redundant calls
+    document.removeEventListener('click', gestureHandler);
+    document.removeEventListener('keydown', gestureHandler);
+    document.removeEventListener('touchstart', gestureHandler);
+  }
+  document.addEventListener('click', gestureHandler, { once: true });
+  document.addEventListener('keydown', gestureHandler, { once: true });
+  document.addEventListener('touchstart', gestureHandler, { once: true });
 
   // Optional: expose a simple toggle for debugging from console: window.toggleBgMusic()
   window.toggleBgMusic = function(){
-    if(audio.paused) audio.play().catch(()=>{});
-    else audio.pause();
+    if(audio.paused) playMusic();
+    else pauseMusic();
   };
+
+  // reflect play/pause if changed elsewhere
+  audio.addEventListener('play', updateButton);
+  audio.addEventListener('pause', updateButton);
+  updateButton();
 })();
 </script>
 </body>
