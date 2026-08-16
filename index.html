@@ -528,5 +528,38 @@ function updateTicker(){
 }
 buildTicker();
 </script>
+
+<!-- Background music: replace "bg-music.mp3" with the path you uploaded. Autoplay starts muted; on first user interaction we unmute and lower the volume for unobtrusive background playback. -->
+<audio id="bg-music" src="bg-music.mp3" loop autoplay muted preload="auto"></audio>
+
+<script>
+(function(){
+  const audio = document.getElementById('bg-music');
+  if(!audio) return;
+  // start low so it's not intrusive when unmuted
+  audio.volume = 0.18;
+
+  function enableBackgroundMusic(){
+    try{
+      audio.muted = false;
+      // Some browsers require play() to be called from user gesture — call and ignore rejections
+      audio.play().catch(()=>{});
+    }catch(e){}
+    document.removeEventListener('click', enableBackgroundMusic);
+    document.removeEventListener('keydown', enableBackgroundMusic);
+    document.removeEventListener('touchstart', enableBackgroundMusic);
+  }
+
+  document.addEventListener('click', enableBackgroundMusic, { once: true });
+  document.addEventListener('keydown', enableBackgroundMusic, { once: true });
+  document.addEventListener('touchstart', enableBackgroundMusic, { once: true });
+
+  // Optional: expose a simple toggle for debugging from console: window.toggleBgMusic()
+  window.toggleBgMusic = function(){
+    if(audio.paused) audio.play().catch(()=>{});
+    else audio.pause();
+  };
+})();
+</script>
 </body>
   </html>
