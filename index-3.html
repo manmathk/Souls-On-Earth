@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Souls On Earth — World Population Live</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222}
+body{display:flex;justify-content:center}
+.app{width:100%;height:100%;max-width:900px;background:#fff;overflow:hidden;display:flex;flex-direction:column}
+
+/* Header / channel bar */
+.channel{
+  height:72px;display:flex;align-items:center;padding:8px 14px;
+  border-bottom:1px solid #e7e7e7;gap:10px;flex-shrink:0;background:#fff
+}
+.avatar{width:46px;height:46px;border-radius:50%;background:
+ radial-gradient(circle at 50% 38%,#9a7650 0 14%,transparent 15%),
+ radial-gradient(circle at 50% 50%,#251a10 0 43%,#6b4a29 44% 67%,#111 68%);
+ border:2px solid #222;flex-shrink:0}
+.channel-info{min-width:0;flex:1}
+.channel-name{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.channel-sub{font-size:13px;color:#777;margin-top:2px}
+.subscribe{border:0;border-radius:24px;background:#f1f1f1;padding:11px 18px;font-size:14px;font-weight:700;white-space:nowrap}
+.more{font-size:24px;line-height:1;margin-left:3px;color:#555}
+
+/* Live summary */
+.summary{display:grid;grid-template-columns:33% 67%;min-height:154px;border-bottom:1px solid #eee}
+.today{padding:12px 12px 8px;border-right:1px solid #eee;text-align:center}
+.today-title{font-weight:800;font-size:13px;margin-bottom:8px}
+.stat{margin:7px 0}
+.stat-label{font-size:12px;color:#777}
+.stat-value{font-size:19px;font-weight:800;margin-top:1px}
+.growth{color:#179447}
+.deaths{color:#d62c2c}
+.hero{text-align:center;padding:18px 10px 10px}
+.hero-title{font-size:18px;color:#555;margin-bottom:5px}
+.world-pop{font-size:clamp(34px,7vw,58px);line-height:1;font-weight:800;letter-spacing:-1.5px}
+.live-row{display:flex;justify-content:center;gap:12px;margin-top:13px}
+.live{background:#ff0808;color:white;font-weight:800;border-radius:5px;padding:9px 25px;font-size:14px}
+.live:before{content:"";display:inline-block;width:7px;height:7px;background:white;border-radius:50%;margin-right:7px;vertical-align:1px}
+.yt{background:#ffe7e7;color:#ff4d4d;font-weight:800;border-radius:5px;padding:9px 25px;font-size:14px}
+
+/* Banner */
+.comment{
+  height:39px;background:#ff0808;color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;letter-spacing:.2px;box-shadow:0 1px 4px rgba(0,0,0,.2);flex-shrink:0
+}
+
+/* Ranking */
+.rank-head{
+  height:39px;background:#fafafa;border-bottom:1px solid #ddd;display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;font-size:13px;font-weight:800;color:#777;text-transform:uppercase;flex-shrink:0
+}
+.rank-head div{padding-left:15px}
+.rank-wrap{flex:1;overflow:hidden;background:#fff}
+.rank-grid{display:grid;grid-template-columns:1fr 1fr;height:100%}
+.col{min-width:0}
+.col:first-child{border-right:1px solid #eee}
+.country{
+  height:42px;display:grid;grid-template-columns:28px 31px minmax(0,1fr) auto;align-items:center;
+  padding:0 9px 0 8px;border-bottom:1px solid #ededed;font-size:14px
+}
+.rank{color:#777;text-align:center;font-size:12px}
+.flag{font-size:20px;text-align:center}
+.name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:6px}
+.pop{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px;margin-left:5px}
+.country:nth-child(-n+3) .name{font-weight:700}
+
+/* mobile adjustments */
+@media(max-width:520px){
+ .channel{height:68px;padding:7px 10px}
+ .avatar{width:43px;height:43px}
+ .channel-name{font-size:15px}
+ .subscribe{padding:10px 16px;font-size:13px}
+ .summary{min-height:151px}
+ .today{padding:10px 5px}
+ .today-title{font-size:12px}
+ .stat-label{font-size:11px}
+ .stat-value{font-size:17px}
+ .hero-title{font-size:16px}
+ .world-pop{font-size:clamp(29px,8.7vw,44px)}
+ .live-row{gap:8px;margin-top:10px}
+ .live,.yt{padding:8px 16px;font-size:12px}
+ .comment{font-size:13px;height:37px}
+ .rank-head{font-size:11px;height:36px}
+ .country{height:40px;grid-template-columns:23px 27px minmax(0,1fr) auto;padding:0 5px 0 3px}
+ .name{font-size:12px;padding-left:4px}
+ .pop{font-size:11px}
+ .flag{font-size:17px}
+}
+
+.music-btn{position:fixed;right:12px;top:12px;z-index:50;border:1px solid #ddd;background:#fff;color:#333;border-radius:22px;padding:8px 12px;font-weight:700;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.12);cursor:pointer}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="channel">
+    <div class="avatar">🔱</div>
+    <div class="channel-info">
+      <div class="channel-name">History Warrior</div>
+      <div class="channel-sub">🔴 &nbsp;♙ 172 &nbsp; 👍 820</div>
+    </div>
+    <button class="subscribe">Subscribe</button>
+    <div class="more">•••</div>
+  </div>
+
+  <div class="summary">
+    <div class="today">
+      <div class="today-title">TODAY</div>
+      <div class="stat">
+        <div class="stat-label">Births today</div>
+        <div class="stat-value growth" id="births">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Deaths today</div>
+        <div class="stat-value deaths" id="deaths">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Population Growth today</div>
+        <div class="stat-value growth" id="growth">—</div>
+      </div>
+    </div>
+    <div class="hero">
+      <div class="hero-title">Current World Population</div>
+      <div class="world-pop" id="world">—</div>
+      <div class="live-row">
+        <div class="live">LIVE</div>
+        <div class="yt">▶ SUBSCRIBE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comment">👇 COMMENT YOUR COUNTRY IN THE CHAT! 👇</div>
+
+  <div class="rank-head">
+    <div>TOP 40 LARGEST COUNTRIES BY POPULATION (LIVE)</div>
+    <div></div>
+  </div>
+
+  <div class="rank-wrap">
+    <div class="rank-grid">
+      <div class="col" id="left"></div>
+      <div class="col" id="right"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Approximate 2026 population baselines. The UI continuously interpolates
+   between updates to create a live-counter presentation. */
+const countries=[
+["🇮🇳","India",1484346289,0.68],["🇨🇳","China",1412730262,-0.10],
+["🇺🇸","U.S.A.",349954626,0.50],["🇮🇩","Indonesia",289173567,0.70],
+["🇵🇰","Pakistan",262057188,1.50],["🇳🇬","Nigeria",245556882,2.40],
+["🇧🇷","Brazil",214114145,0.40],["🇧🇩","Bangladesh",178737176,1.00],
+["🇷🇺","Russia",143210631,-0.20],["🇪🇹","Ethiopia",140740450,2.50],
+["🇲🇽","Mexico",133549137,0.60],["🇯🇵","Japan",122060077,-0.50],
+["🇪🇬","Egypt",121020307,1.60],["🇵🇭","Philippines",118643603,1.30],
+["🇨🇩","DR Congo",116452162,3.20],["🇻🇳","Vietnam",102545084,0.70],
+["🇮🇷","Iran",93536150,0.70],["🇹🇷","Turkey",88201821,0.50],
+["🇩🇪","Germany",83607492,-0.10],["🇹🇿","Tanzania",73666739,2.90],
+["🇹🇭","Thailand",71614761,-0.10],["🇬🇧","United Kingdom",70060206,0.50],
+["🇫🇷","France",66819931,0.20],["🇿🇦","South Africa",65747206,0.80],
+["🇰🇪","Kenya",59187891,2.00],["🇮🇹","Italy",58834252,-0.20],
+["🇲🇲","Myanmar",55368645,0.60],["🇨🇴","Colombia",54046521,0.70],
+["🇸🇩","Sudan",54018025,2.40],["🇺🇬","Uganda",53496775,3.30],
+["🇰🇷","South Korea",51582005,-0.20],["🇮🇶","Iraq",48558916,2.20],
+["🇩🇿","Algeria",48395987,1.40],["🇪🇸","Spain",47832410,0.10],
+["🇦🇷","Argentina",46187560,0.50],["🇦🇫","Afghanistan",45598548,2.80],
+["🇾🇪","Yemen",42300306,2.90],["🇦🇴","Angola",40950485,3.00],
+["🇨🇦","Canada",40706702,1.20],["🇲🇦","Morocco",38706896,1.00]
+];
+
+const WORLD_BASE=8306575777;
+const WORLD_BASE_DATE=new Date("2026-08-01T00:00:00Z").getTime();
+const BIRTHS_PER_SEC=5.44;
+const DEATHS_PER_SEC=2.08;
+const NET_PER_SEC=BIRTHS_PER_SEC-DEATHS_PER_SEC;
+
+function worldPopulation(){
+ return Math.floor(WORLD_BASE+(Date.now()-WORLD_BASE_DATE)/1000*NET_PER_SEC);
+}
+function todaySeconds(){
+ const d=new Date(), m=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+ return (Date.now()-m.getTime())/1000;
+}
+function countryPopulation(c){
+ const elapsed=(Date.now()-WORLD_BASE_DATE)/1000;
+ return Math.floor(c[2]+elapsed*(c[2]*(c[3]/100)/(365*86400)));
+}
+
+function countryRow(c,i){
+ return `<div class="country">
+   <div class="rank">${i+1}</div>
+   <div class="flag">${c[0]}</div>
+   <div class="name">${c[1]}</div>
+   <div class="pop" data-i="${i}">${countryPopulation(c).toLocaleString()}</div>
+ </div>`;
+}
+
+function build(){
+ document.getElementById("left").innerHTML=countries.slice(0,20).map((c,i)=>countryRow(c,i)).join("");
+ document.getElementById("right").innerHTML=countries.slice(20).map((c,i)=>countryRow(c,i+20)).join("");
+}
+build();
+
+function update(){
+ const t=todaySeconds();
+ document.getElementById("world").textContent=worldPopulation().toLocaleString();
+ document.getElementById("births").textContent=Math.floor(t*BIRTHS_PER_SEC).toLocaleString();
+ document.getElementById("deaths").textContent=Math.floor(t*DEATHS_PER_SEC).toLocaleString();
+ document.getElementById("growth").textContent=Math.floor(t*NET_PER_SEC).toLocaleString();
+
+ document.querySelectorAll(".pop").forEach(el=>{
+   const i=Number(el.dataset.i);
+   el.textContent=countryPopulation(countries[i]).toLocaleString();
+ });
+}
+update();
+setInterval(update,1000);
+</script>
+
+<audio id="bgMusic" src="Felt Keys for Marchers.mp3" loop preload="auto" muted></audio>
+<button class="music-btn" id="musicBtn" type="button">🔇 Music</button>
+<script>
+(function(){
+  const audio=document.getElementById("bgMusic");
+  const btn=document.getElementById("musicBtn");
+  if(!audio||!btn)return;
+  audio.volume=0.18;
+
+  function render(){
+    btn.textContent=audio.paused ? "🔇 Music" : "🔊 Music";
+  }
+
+  async function play(){
+    audio.muted=false;
+    try{await audio.play();}catch(e){}
+    render();
+  }
+
+  function pause(){
+    audio.pause();
+    render();
+  }
+
+  btn.addEventListener("click",function(e){
+    e.stopPropagation();
+    if(audio.paused) play(); else pause();
+  });
+
+  // Browsers block audible autoplay. If music was enabled previously,
+  // start it after the first user interaction.
+  let wanted=false;
+  try{wanted=localStorage.getItem("souls-music")!=="off";}catch(e){wanted=true}
+
+  function firstGesture(){
+    if(wanted) play();
+    document.removeEventListener("click",firstGesture);
+    document.removeEventListener("touchstart",firstGesture);
+    document.removeEventListener("keydown",firstGesture);
+  }
+  document.addEventListener("click",firstGesture,{once:true});
+  document.addEventListener("touchstart",firstGesture,{once:true});
+  document.addEventListener("keydown",firstGesture,{once:true});
+
+  btn.addEventListener("click",function(){
+    try{localStorage.setItem("souls-music",audio.paused?"on":"off");}catch(e){}
+  });
+
+  audio.addEventListener("play",render);
+  audio.addEventListener("pause",render);
+  render();
+})();
+</script>
+
+</body>
+</html>
