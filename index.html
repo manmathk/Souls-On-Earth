@@ -15,10 +15,7 @@ body{display:flex;justify-content:center}
   height:72px;display:flex;align-items:center;padding:8px 14px;
   border-bottom:1px solid #e7e7e7;gap:10px;flex-shrink:0;background:#fff
 }
-.avatar{width:46px;height:46px;border-radius:50%;background:
- radial-gradient(circle at 50% 38%,#9a7650 0 14%,transparent 15%),
- radial-gradient(circle at 50% 50%,#251a10 0 43%,#6b4a29 44% 67%,#111 68%);
- border:2px solid #222;flex-shrink:0}
+.avatar{width:46px;height:46px;border-radius:50%;background:#f0f0f0;flex-shrink:0;object-fit:cover}
 .channel-info{min-width:0;flex:1}
 .channel-name{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .channel-sub{font-size:13px;color:#777;margin-top:2px}
@@ -99,7 +96,7 @@ body{display:flex;justify-content:center}
 <div class="app">
 
   <div class="channel">
-    <div class="avatar">🔱</div>
+    <img class="avatar" src="logo.png" alt="History Warrior Logo">
     <div class="channel-info">
       <div class="channel-name">History Warrior</div>
       <div class="channel-sub">🔴 &nbsp;♙ 172 &nbsp; 👍 820</div>
