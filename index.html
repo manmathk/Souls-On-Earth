@@ -134,7 +134,7 @@ body{display:flex;justify-content:center}
   <div class="comment">👇 COMMENT YOUR COUNTRY IN THE CHAT! 👇</div>
 
   <div class="rank-head">
-    <div>TOP 40 LARGEST COUNTRIES BY POPULATION (LIVE)</div>
+    <div>TOP 20 LARGEST COUNTRIES BY POPULATION (LIVE)</div>
     <div></div>
   </div>
 
@@ -157,19 +157,9 @@ const countries=[
 ["🇷🇺","Russia",143210631,-0.20],["🇪🇹","Ethiopia",140740450,2.50],
 ["🇲🇽","Mexico",133549137,0.60],["🇯🇵","Japan",122060077,-0.50],
 ["🇪🇬","Egypt",121020307,1.60],["🇵🇭","Philippines",118643603,1.30],
-["🇨🇩","DR Congo",116452162,3.20],["🇻🇳","Vietnam",102545084,0.70],
-["🇮🇷","Iran",93536150,0.70],["🇹🇷","Turkey",88201821,0.50],
-["🇩🇪","Germany",83607492,-0.10],["🇹🇿","Tanzania",73666739,2.90],
-["🇹🇭","Thailand",71614761,-0.10],["🇬🇧","United Kingdom",70060206,0.50],
-["🇫🇷","France",66819931,0.20],["🇿🇦","South Africa",65747206,0.80],
-["🇰🇪","Kenya",59187891,2.00],["🇮🇹","Italy",58834252,-0.20],
-["🇲🇲","Myanmar",55368645,0.60],["🇨🇴","Colombia",54046521,0.70],
-["🇸🇩","Sudan",54018025,2.40],["🇺🇬","Uganda",53496775,3.30],
-["🇰🇷","South Korea",51582005,-0.20],["🇮🇶","Iraq",48558916,2.20],
-["🇩🇿","Algeria",48395987,1.40],["🇪🇸","Spain",47832410,0.10],
-["🇦🇷","Argentina",46187560,0.50],["🇦🇫","Afghanistan",45598548,2.80],
-["🇾🇪","Yemen",42300306,2.90],["🇦🇴","Angola",40950485,3.00],
-["🇨🇦","Canada",40706702,1.20],["🇲🇦","Morocco",38706896,1.00]
+["🇻🇳","Vietnam",102545084,0.70],["🇮🇷","Iran",93536150,0.70],
+["🇹🇷","Turkey",88201821,0.50],["🇩🇪","Germany",83607492,-0.10],
+["🇬🇧","United Kingdom",70060206,0.50],["🇫🇷","France",66819931,0.20]
 ];
 
 const WORLD_BASE=8306575777;
@@ -200,8 +190,8 @@ function countryRow(c,i){
 }
 
 function build(){
- document.getElementById("left").innerHTML=countries.slice(0,20).map((c,i)=>countryRow(c,i)).join("");
- document.getElementById("right").innerHTML=countries.slice(20).map((c,i)=>countryRow(c,i+20)).join("");
+ document.getElementById("left").innerHTML=countries.slice(0,10).map((c,i)=>countryRow(c,i)).join("");
+ document.getElementById("right").innerHTML=countries.slice(10,20).map((c,i)=>countryRow(c,i+10)).join("");
 }
 build();
 
