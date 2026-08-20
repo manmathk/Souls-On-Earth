@@ -6,6 +6,14 @@
 <title>Souls On Earth — World Population Live</title>
 <style>
 *{box-sizing:border-box}
+
+/* --- YouTube mobile safe area ---------------------------------------------
+   On a phone the YouTube player draws its own chrome over the video: action
+   buttons down the right edge and the progress bar across the bottom. These
+   insets hold the right-hand population figures and the last table row clear
+   of it. Raise --safe-x / --safe-bottom if data still sits under the overlay.
+   -------------------------------------------------------------------------- */
+:root{--pad-x:14px;--safe-x:10px;--safe-bottom:14px}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222}
 body{display:flex;justify-content:center}
 .app{width:100%;height:100%;max-width:900px;background:#fff;overflow:hidden;display:flex;flex-direction:column}
@@ -47,23 +55,28 @@ body{display:flex;justify-content:center}
 
 /* Ranking */
 .rank-head{
-  height:39px;background:#fafafa;border-bottom:1px solid #ddd;display:grid;grid-template-columns:1fr 1fr;
-  align-items:center;font-size:13px;font-weight:800;color:#777;text-transform:uppercase;flex-shrink:0
+  min-height:42px;background:#fafafa;border-bottom:1px solid #ddd;display:flex;
+  align-items:center;justify-content:center;text-align:center;padding:7px 14px;
+  font-size:13px;font-weight:800;color:#777;text-transform:uppercase;flex-shrink:0;letter-spacing:.3px
 }
-.rank-head div{padding-left:15px}
-.rank-wrap{flex:1;overflow:hidden;background:#fff}
-.rank-grid{display:grid;grid-template-columns:1fr 1fr;height:100%}
-.col{min-width:0}
+.rank-wrap{flex:1;min-height:0;overflow:hidden;background:#fff;padding-bottom:var(--safe-bottom)}
+.rank-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr;height:100%}
+.col{min-width:0;min-height:0;display:flex;flex-direction:column}
 .col:first-child{border-right:1px solid #eee}
+/* Rows share the available height, so all 15 per column stay on screen
+   no matter how short the viewport is — padding never pushes a row out. */
 .country{
-  height:42px;display:grid;grid-template-columns:28px 31px minmax(0,1fr) auto;align-items:center;
-  padding:0 9px 0 8px;border-bottom:1px solid #ededed;font-size:14px
+  flex:1;min-height:0;overflow:hidden;display:grid;grid-template-columns:28px 30px minmax(0,1fr) auto;
+  align-items:center;gap:8px;padding:clamp(3px,0.7vh,9px) var(--pad-x);
+  border-bottom:1px solid #ededed;font-size:14px;line-height:1.2
 }
+/* Column two runs to the screen edge, so it carries the extra right inset. */
+#right .country{padding-right:calc(var(--pad-x) + var(--safe-x))}
 .rank{color:#777;text-align:center;font-size:12px}
 .flag{font-size:20px;text-align:center}
-.name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:6px}
-.pop{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px;margin-left:5px}
-.country:nth-child(-n+3) .name{font-weight:700}
+.name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pop{font-variant-numeric:tabular-nums;font-weight:700;font-size:13.5px}
+#left .country:nth-child(-n+3) .name{font-weight:700}
 
 /* mobile adjustments */
 @media(max-width:520px){
@@ -81,11 +94,31 @@ body{display:flex;justify-content:center}
  .live-row{gap:8px;margin-top:10px}
  .live,.yt{padding:8px 16px;font-size:12px}
  .comment{font-size:13px;height:37px}
- .rank-head{font-size:11px;height:36px}
- .country{height:40px;grid-template-columns:23px 27px minmax(0,1fr) auto;padding:0 5px 0 3px}
- .name{font-size:12px;padding-left:4px}
- .pop{font-size:11px}
- .flag{font-size:17px}
+ .rank-head{font-size:11px;min-height:40px;padding:7px 10px;line-height:1.25}
+ :root{--pad-x:8px;--safe-x:9px;--safe-bottom:16px}
+ .country{grid-template-columns:17px 21px minmax(0,1fr) auto;gap:5px;padding:clamp(1.5px,0.5vh,8px) var(--pad-x)}
+ .rank{font-size:10px}
+ .name{font-size:clamp(10.5px,2.95vw,12.5px);letter-spacing:-.2px}
+ .pop{font-size:clamp(10px,2.85vw,12px)}
+ .flag{font-size:min(15px,2.2vh)}
+}
+
+/* Narrow handsets: claw back a few px of gutter so the longest names
+   ("Bangladesh", "Philippines") still render in full next to 9-digit counts. */
+@media(max-width:395px){
+ :root{--pad-x:7px}
+ .country{grid-template-columns:16px 20px minmax(0,1fr) auto;gap:4px;padding:clamp(1.5px,0.5vh,8px) var(--pad-x)}
+ .name{letter-spacing:-.25px}
+}
+
+/* Smallest screens still in use (320px). Two columns leave ~160px per row,
+   so the gutters and the counter shrink again to keep names off the ellipsis. */
+@media(max-width:340px){
+ :root{--pad-x:5px;--safe-x:7px;--safe-bottom:12px}
+ .country{grid-template-columns:14px 17px minmax(0,1fr) auto;gap:3px;padding:clamp(1px,0.4vh,7px) var(--pad-x)}
+ .name{font-size:clamp(9.8px,2.95vw,12.5px);letter-spacing:-.3px}
+ .pop{font-size:clamp(9.1px,2.85vw,12px)}
+ .flag{font-size:min(13px,2vh)}
 }
 
 .music-btn{position:fixed;right:12px;top:12px;z-index:50;border:1px solid #ddd;background:#fff;color:#333;border-radius:22px;padding:8px 12px;font-weight:700;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
@@ -133,10 +166,7 @@ body{display:flex;justify-content:center}
 
   <div class="comment">👇 COMMENT YOUR COUNTRY IN THE CHAT! 👇</div>
 
-  <div class="rank-head">
-    <div>TOP 20 LARGEST COUNTRIES BY POPULATION (LIVE)</div>
-    <div></div>
-  </div>
+  <div class="rank-head">TOP 30 LARGEST COUNTRIES BY POPULATION (LIVE)</div>
 
   <div class="rank-wrap">
     <div class="rank-grid">
@@ -147,37 +177,107 @@ body{display:flex;justify-content:center}
 </div>
 
 <script>
-/* Approximate 2026 population baselines. The UI continuously interpolates
-   between updates to create a live-counter presentation. */
-const countries=[
-["🇮🇳","India",1484346289,0.68],["🇨🇳","China",1412730262,-0.10],
-["🇺🇸","U.S.A.",349954626,0.50],["🇮🇩","Indonesia",289173567,0.70],
-["🇵🇰","Pakistan",262057188,1.50],["🇳🇬","Nigeria",245556882,2.40],
-["🇧🇷","Brazil",214114145,0.40],["🇧🇩","Bangladesh",178737176,1.00],
-["🇷🇺","Russia",143210631,-0.20],["🇪🇹","Ethiopia",140740450,2.50],
-["🇲🇽","Mexico",133549137,0.60],["🇯🇵","Japan",122060077,-0.50],
-["🇪🇬","Egypt",121020307,1.60],["🇵🇭","Philippines",118643603,1.30],
-["🇻🇳","Vietnam",102545084,0.70],["🇮🇷","Iran",93536150,0.70],
-["🇹🇷","Turkey",88201821,0.50],["🇩🇪","Germany",83607492,-0.10],
-["🇬🇧","United Kingdom",70060206,0.50],["🇫🇷","France",66819931,0.20]
-];
+/* ---------------------------------------------------------------------------
+   Baseline data.
 
-const WORLD_BASE=8306575777;
-const WORLD_BASE_DATE=new Date("2026-08-01T00:00:00Z").getTime();
-const BIRTHS_PER_SEC=5.44;
-const DEATHS_PER_SEC=2.08;
-const NET_PER_SEC=BIRTHS_PER_SEC-DEATHS_PER_SEC;
+   The counters are driven by real time, not by page load, so they never reset
+   on deploy or refresh: every figure is its baseline plus the elapsed time
+   since that baseline's anchor date. What DOES go stale is the baseline
+   itself, so the page refreshes it at runtime from World Bank open data
+   (keyless, CORS-enabled, cached for a day) and re-ranks the table from it.
+   No redeploy needed to stay current.
+
+   SNAPSHOT below is the built-in mid-2026 UN/Worldometer baseline. It paints
+   the first frame instantly, covers the offline case, and stays in charge for
+   as long as it is more current than what the live source offers.
+   --------------------------------------------------------------------------- */
+
+const SECS_PER_YEAR=365.25*86400;
+
+const SNAPSHOT={
+ year:2026,                    // anchored to 1 July of this year
+ source:"built-in UN WPP 2024 snapshot",
+ world:8300678395,             // Worldometer mid-2026
+ birthsPerYear:132503469,      // UN WPP 2024 projection for 2026
+ deathsPerYear:63637314,       // net ~68.9M/yr, matching the published 0.84%
+ countries:[
+["🇮🇳","India",1476625576,0.87],["🇨🇳","China",1412914089,-0.22],
+["🇺🇸","U.S.A.",349035494,0.51],["🇮🇩","Indonesia",287886782,0.76],
+["🇵🇰","Pakistan",259299791,1.60],["🇳🇬","Nigeria",242431832,2.06],
+["🇧🇷","Brazil",213562666,0.35],["🇧🇩","Bangladesh",177818044,1.21],
+["🇷🇺","Russia",143394458,-0.42],["🇪🇹","Ethiopia",138902185,2.53],
+["🇲🇽","Mexico",132997658,0.80],["🇯🇵","Japan",122427731,-0.55],
+["🇪🇬","Egypt",120101175,1.47],["🇵🇭","Philippines",117724471,0.80],
+["🇨🇩","DR Congo",116452162,3.21],["🇻🇳","Vietnam",102177431,0.57],
+["🇮🇷","Iran",93168497,0.81],["🇹🇷","Turkey",87926082,0.27],
+["🇩🇪","Germany",83644258,-0.51],["🇹🇿","Tanzania",72563780,2.86],
+["🇹🇭","Thailand",71559614,-0.08],["🇬🇧","U.K.",69931528,0.55],
+["🇫🇷","France",66746401,0.14],["🇿🇦","South Africa",65453084,1.09],
+["🇮🇹","Italy",58926166,-0.37],["🇰🇪","Kenya",58636412,1.92],
+["🇲🇲","Myanmar",55184819,0.61],["🇨🇴","Colombia",53936226,0.96],
+["🇸🇩","Sudan",53282719,3.14],["🇺🇬","Uganda",52761469,2.68]
+ ]
+};
+
+const SHOW=30;   // rows rendered, split evenly across the two columns
+
+/* Candidate pool for the live feed, deliberately wider than SHOW so the
+   ranking can reshuffle on its own as countries overtake each other.
+   ISO3 code -> [flag, display name]. Names are kept short to fit a phone. */
+const POOL={
+ IND:["🇮🇳","India"],        CHN:["🇨🇳","China"],       USA:["🇺🇸","U.S.A."],
+ IDN:["🇮🇩","Indonesia"],    PAK:["🇵🇰","Pakistan"],    NGA:["🇳🇬","Nigeria"],
+ BRA:["🇧🇷","Brazil"],       BGD:["🇧🇩","Bangladesh"],  RUS:["🇷🇺","Russia"],
+ ETH:["🇪🇹","Ethiopia"],     MEX:["🇲🇽","Mexico"],      JPN:["🇯🇵","Japan"],
+ EGY:["🇪🇬","Egypt"],        PHL:["🇵🇭","Philippines"], COD:["🇨🇩","DR Congo"],
+ VNM:["🇻🇳","Vietnam"],      IRN:["🇮🇷","Iran"],        TUR:["🇹🇷","Turkey"],
+ DEU:["🇩🇪","Germany"],      TZA:["🇹🇿","Tanzania"],    THA:["🇹🇭","Thailand"],
+ GBR:["🇬🇧","U.K."],         FRA:["🇫🇷","France"],      ZAF:["🇿🇦","South Africa"],
+ ITA:["🇮🇹","Italy"],        KEN:["🇰🇪","Kenya"],       MMR:["🇲🇲","Myanmar"],
+ COL:["🇨🇴","Colombia"],     SDN:["🇸🇩","Sudan"],       UGA:["🇺🇬","Uganda"],
+ KOR:["🇰🇷","South Korea"],  ESP:["🇪🇸","Spain"],       DZA:["🇩🇿","Algeria"],
+ IRQ:["🇮🇶","Iraq"],         AFG:["🇦🇫","Afghanistan"], ARG:["🇦🇷","Argentina"],
+ YEM:["🇾🇪","Yemen"],        CAN:["🇨🇦","Canada"],      AGO:["🇦🇴","Angola"],
+ UZB:["🇺🇿","Uzbekistan"],   MAR:["🇲🇦","Morocco"],     POL:["🇵🇱","Poland"],
+ MOZ:["🇲🇿","Mozambique"],   PER:["🇵🇪","Peru"],        MYS:["🇲🇾","Malaysia"],
+ SAU:["🇸🇦","Saudi Arabia"], GHA:["🇬🇭","Ghana"],       NPL:["🇳🇵","Nepal"],
+ VEN:["🇻🇪","Venezuela"],    CIV:["🇨🇮","Ivory Coast"]
+};
+
+const CACHE_KEY="souls-baseline-v1";
+const CACHE_TTL=864e5;   // re-check the live source once a day
+
+/* Prefer whichever baseline is anchored to the later year. Right now the
+   built-in 2026 snapshot beats the World Bank's 2025 release; once the Bank
+   publishes 2026 the live feed takes over by itself. */
+const newer=(a,b)=>(b&&b.year>a.year)?b:a;
+
+let data=SNAPSHOT;
+try{
+ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
+ if(c&&c.year&&c.countries&&c.countries.length) data=newer(data,c);
+}catch(e){}
+
+/* Always group in thousands. A bare toLocaleString() follows the device
+   locale, so en-IN phones rendered 1,47,66,25,576 instead of 1,476,625,576. */
+const nf=new Intl.NumberFormat("en-US");
+const fmt=n=>nf.format(n);
+
+const anchor=()=>Date.UTC(data.year,6,1);          // 1 July of the data year
+const elapsed=()=>(Date.now()-anchor())/1000;
+const birthsPerSec=()=>data.birthsPerYear/SECS_PER_YEAR;
+const deathsPerSec=()=>data.deathsPerYear/SECS_PER_YEAR;
+const netPerSec=()=>birthsPerSec()-deathsPerSec();
 
 function worldPopulation(){
- return Math.floor(WORLD_BASE+(Date.now()-WORLD_BASE_DATE)/1000*NET_PER_SEC);
+ return Math.floor(data.world+elapsed()*netPerSec());
 }
 function todaySeconds(){
  const d=new Date(), m=new Date(d.getFullYear(),d.getMonth(),d.getDate());
  return (Date.now()-m.getTime())/1000;
 }
 function countryPopulation(c){
- const elapsed=(Date.now()-WORLD_BASE_DATE)/1000;
- return Math.floor(c[2]+elapsed*(c[2]*(c[3]/100)/(365*86400)));
+ return Math.floor(c[2]+elapsed()*(c[2]*(c[3]/100)/SECS_PER_YEAR));
 }
 
 function countryRow(c,i){
@@ -185,30 +285,99 @@ function countryRow(c,i){
    <div class="rank">${i+1}</div>
    <div class="flag">${c[0]}</div>
    <div class="name">${c[1]}</div>
-   <div class="pop" data-i="${i}">${countryPopulation(c).toLocaleString()}</div>
+   <div class="pop" data-i="${i}">${fmt(countryPopulation(c))}</div>
  </div>`;
 }
 
 function build(){
- document.getElementById("left").innerHTML=countries.slice(0,10).map((c,i)=>countryRow(c,i)).join("");
- document.getElementById("right").innerHTML=countries.slice(10,20).map((c,i)=>countryRow(c,i+10)).join("");
+ const list=data.countries.slice(0,SHOW), half=Math.ceil(list.length/2);
+ document.getElementById("left").innerHTML=list.slice(0,half).map((c,i)=>countryRow(c,i)).join("");
+ document.getElementById("right").innerHTML=list.slice(half).map((c,i)=>countryRow(c,i+half)).join("");
 }
-build();
 
 function update(){
  const t=todaySeconds();
- document.getElementById("world").textContent=worldPopulation().toLocaleString();
- document.getElementById("births").textContent=Math.floor(t*BIRTHS_PER_SEC).toLocaleString();
- document.getElementById("deaths").textContent=Math.floor(t*DEATHS_PER_SEC).toLocaleString();
- document.getElementById("growth").textContent=Math.floor(t*NET_PER_SEC).toLocaleString();
+ document.getElementById("world").textContent=fmt(worldPopulation());
+ document.getElementById("births").textContent=fmt(Math.floor(t*birthsPerSec()));
+ document.getElementById("deaths").textContent=fmt(Math.floor(t*deathsPerSec()));
+ document.getElementById("growth").textContent=fmt(Math.floor(t*netPerSec()));
 
  document.querySelectorAll(".pop").forEach(el=>{
-   const i=Number(el.dataset.i);
-   el.textContent=countryPopulation(countries[i]).toLocaleString();
+   el.textContent=fmt(countryPopulation(data.countries[Number(el.dataset.i)]));
  });
 }
+
+build();
 update();
 setInterval(update,1000);
+
+/* --- Live baseline refresh ------------------------------------------------
+   World Bank open data: no key, CORS-enabled, ~1 request per indicator.
+   Growth is a CAGR across the returned years rather than a single-year
+   delta, so one revised release cannot distort a country's rate.
+   Any failure here is silent by design -- the page keeps whatever baseline
+   it is already showing. */
+const WB="https://api.worldbank.org/v2/country/";
+const get=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+const one=j=>(j&&j[1]&&j[1][0]&&typeof j[1][0].value==="number")?j[1][0].value:null;
+
+async function fetchBaseline(){
+ const codes=Object.keys(POOL).join(";");
+ const [pop,wld,cbrt,cdrt]=await Promise.all([
+  get(`${WB}${codes}/indicator/SP.POP.TOTL?format=json&mrv=4&per_page=500`),
+  get(`${WB}WLD/indicator/SP.POP.TOTL?format=json&mrv=1`),
+  get(`${WB}WLD/indicator/SP.DYN.CBRT.IN?format=json&mrv=1`),
+  get(`${WB}WLD/indicator/SP.DYN.CDRT.IN?format=json&mrv=1`)
+ ]);
+
+ const world=one(wld), br=one(cbrt), dr=one(cdrt);
+ if(!world||!br||!dr||br<=dr) throw new Error("bad world figures");
+
+ const by={};
+ for(const r of (pop[1]||[])){
+  if(typeof r.value==="number" && POOL[r.countryiso3code])
+   (by[r.countryiso3code]||(by[r.countryiso3code]={}))[+r.date]=r.value;
+ }
+
+ const rows=[];
+ for(const code in by){
+  const v=by[code], ys=Object.keys(v).map(Number).sort((a,b)=>a-b);
+  if(ys.length<2) continue;
+  const lo=ys[0], hi=ys[ys.length-1];
+  const growth=(Math.pow(v[hi]/v[lo],1/(hi-lo))-1)*100;
+  rows.push({code,year:hi,pop:v[hi],growth:+growth.toFixed(2)});
+ }
+
+ // Rank only on the most recent year every country actually reports.
+ const year=Math.max(...rows.map(r=>r.year));
+ const ranked=rows.filter(r=>r.year===year).sort((a,b)=>b.pop-a.pop);
+ if(ranked.length<SHOW) throw new Error("not enough countries");
+
+ return {
+  year, source:"World Bank open data",
+  world, birthsPerYear:br/1000*world, deathsPerYear:dr/1000*world,
+  countries:ranked.slice(0,SHOW).map(r=>[POOL[r.code][0],POOL[r.code][1],r.pop,r.growth])
+ };
+}
+
+async function refresh(){
+ let stamp=0;
+ try{stamp=+(localStorage.getItem(CACHE_KEY+":at")||0)}catch(e){}
+ if(Date.now()-stamp<CACHE_TTL) return;
+ try{
+  const live=await fetchBaseline();
+  try{
+   localStorage.setItem(CACHE_KEY,JSON.stringify(live));
+   localStorage.setItem(CACHE_KEY+":at",String(Date.now()));
+  }catch(e){}
+  const chosen=newer(data,live);
+  if(chosen!==data){ data=chosen; build(); update(); }
+ }catch(e){/* offline or API hiccup: keep the current baseline */}
+}
+refresh();
+
+// Inspect the active baseline from the console: __souls.data.source / .year
+window.__souls={get data(){return data},refresh,SNAPSHOT};
 </script>
 
 <audio id="bgMusic" src="Felt Keys for Marchers.mp3" loop preload="auto" muted></audio>
