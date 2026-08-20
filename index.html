@@ -138,7 +138,7 @@ body{display:flex;justify-content:center}
     <img class="avatar" src="channels4_profile.jpg" alt="History Warrior Logo">
     <div class="channel-info">
       <div class="channel-name">History Warrior</div>
-      <div class="channel-sub">🔴 &nbsp;♙ 200 &nbsp; 👍 820</div>
+      <div class="channel-sub">🔴 &nbsp;♙ 289 &nbsp; 👍 820</div>
     </div>
     <button class="subscribe">Subscribe</button>
     <div class="more">•••</div>
@@ -193,19 +193,23 @@ body{display:flex;justify-content:center}
    (keyless, CORS-enabled, cached for a day) and re-ranks the table from it.
    No redeploy needed to stay current.
 
-   SNAPSHOT below is the built-in mid-2026 UN/Worldometer baseline. It paints
-   the first frame instantly, covers the offline case, and stays in charge for
-   as long as it is more current than what the live source offers.
+   SNAPSHOT below is the built-in mid-2026 UN baseline. It paints the first
+   frame instantly, covers the offline case, and stays in charge for as long
+   as it is more current than what the live source offers.
+
+   Every baseline carries an asOf date -- the day its figures are true for --
+   and that date, not the page load or the deploy, is where the clock starts.
    --------------------------------------------------------------------------- */
 
 const SECS_PER_YEAR=365.25*86400;
 
 const SNAPSHOT={
- year:2026,                    // anchored to 1 July of this year
+ year:2026,
+ asOf:"2026-07-01",            // the date every figure below is true for
  source:"built-in UN WPP 2024 snapshot",
- world:8300678395,             // Worldometer mid-2026
+ world:8300678395,             // UN WPP 2024 medium variant, 1 July 2026
  birthsPerYear:132503469,      // UN WPP 2024 projection for 2026
- deathsPerYear:63637314,       // net ~68.9M/yr, matching the published 0.84%
+ deathsPerYear:63637314,       // net 68,866,155/yr = 0.83% of the world figure
  countries:[
 ["🇮🇳","India",1476625576,0.87],["🇨🇳","China",1412914089,-0.22],
 ["🇺🇸","U.S.A.",349035494,0.51],["🇮🇩","Indonesia",287886782,0.76],
@@ -250,13 +254,32 @@ const POOL={
  VEN:["🇻🇪","Venezuela"],    CIV:["🇨🇮","Ivory Coast"]
 };
 
-const CACHE_KEY="souls-baseline-v1";
+const CACHE_KEY="souls-baseline-v2";   // v1 cached a mis-anchored world total
 const CACHE_TTL=864e5;   // re-check the live source once a day
+
+/* UN WPP projections stay the source of truth for growth rates: a projection
+   looks forward, where a World Bank CAGR can only average the years already
+   on record. So when the live feed wins on freshness we take its observed
+   levels and its ranking, but restore the snapshot's projected rate for every
+   country the snapshot covers. The other POOL countries keep the feed's own
+   CAGR -- there is no UN figure here to prefer. Matched on display name,
+   which is the only key the two lists share. */
+const UN_RATES=new Map(SNAPSHOT.countries.map(c=>[c[1],c[3]]));
+
+function withUnRates(b){
+ let kept=0;
+ const countries=b.countries.map(c=>{
+  if(!UN_RATES.has(c[1])) return c;
+  kept++;
+  return [c[0],c[1],c[2],UN_RATES.get(c[1])];
+ });
+ return {...b,countries,rates:`UN WPP for ${kept}/${countries.length}, World Bank CAGR for the rest`};
+}
 
 /* Prefer whichever baseline is anchored to the later year. Right now the
    built-in 2026 snapshot beats the World Bank's 2025 release; once the Bank
-   publishes 2026 the live feed takes over by itself. */
-const newer=(a,b)=>(b&&b.year>a.year)?b:a;
+   publishes 2026 the live feed takes over -- carrying UN rates with it. */
+const newer=(a,b)=>(b&&b.year>a.year)?withUnRates(b):a;
 
 let data=SNAPSHOT;
 try{
@@ -269,7 +292,14 @@ try{
 const nf=new Intl.NumberFormat("en-US");
 const fmt=n=>nf.format(n);
 
-const anchor=()=>Date.UTC(data.year,6,1);          // 1 July of the data year
+/* Growth is measured from the date the baseline is actually true for, so use
+   its asOf stamp. Older cached baselines have no stamp, so fall back to
+   1 July -- the mid-year reference date both the UN and the World Bank
+   publish against. */
+function anchor(){
+ const t=data.asOf?Date.parse(data.asOf+"T00:00:00Z"):NaN;
+ return Number.isFinite(t)?t:Date.UTC(data.year,6,1);
+}
 const elapsed=()=>(Date.now()-anchor())/1000;
 const birthsPerSec=()=>data.birthsPerYear/SECS_PER_YEAR;
 const deathsPerSec=()=>data.deathsPerYear/SECS_PER_YEAR;
@@ -282,23 +312,47 @@ function todaySeconds(){
  const d=new Date(), m=new Date(d.getFullYear(),d.getMonth(),d.getDate());
  return (Date.now()-m.getTime())/1000;
 }
+/* Compound the country's annual rate over the time since the anchor, so a
+   positive rate grows and a negative one shrinks at a rate proportional to
+   what is left. Applying the rate to the frozen baseline instead makes a
+   shrinking country fall linearly -- past zero, given a stale enough
+   baseline -- and drifts millions off a growing one within a few years. */
 function countryPopulation(c){
- return Math.floor(c[2]+elapsed()*(c[2]*(c[3]/100)/SECS_PER_YEAR));
+ return Math.floor(c[2]*Math.pow(1+c[3]/100,elapsed()/SECS_PER_YEAR));
 }
 
-function countryRow(c,i){
+/* Row order follows the live figures, not the baseline order, so a country
+   that overtakes another actually changes rank on screen. Without this the
+   numbers keep moving while the ranks stay frozen at whatever the baseline
+   said -- one year past the anchor the snapshot already has Egypt above
+   Japan and DR Congo above the Philippines. */
+function ranking(){
+ const live=data.countries.map(countryPopulation);
+ return data.countries.map((c,i)=>i)
+  .sort((a,b)=>live[b]-live[a])
+  .slice(0,SHOW);
+}
+let order=[];
+
+function countryRow(idx,rank){
+ const c=data.countries[idx];
  return `<div class="country">
-   <div class="rank">${i+1}</div>
+   <div class="rank">${rank+1}</div>
    <div class="flag">${c[0]}</div>
    <div class="name">${c[1]}</div>
-   <div class="pop" data-i="${i}">${fmt(countryPopulation(c))}</div>
+   <div class="pop" data-i="${idx}">${fmt(countryPopulation(c))}</div>
  </div>`;
 }
 
+function render(){
+ const half=Math.ceil(order.length/2);
+ document.getElementById("left").innerHTML=order.slice(0,half).map((idx,r)=>countryRow(idx,r)).join("");
+ document.getElementById("right").innerHTML=order.slice(half).map((idx,r)=>countryRow(idx,r+half)).join("");
+}
+
 function build(){
- const list=data.countries.slice(0,SHOW), half=Math.ceil(list.length/2);
- document.getElementById("left").innerHTML=list.slice(0,half).map((c,i)=>countryRow(c,i)).join("");
- document.getElementById("right").innerHTML=list.slice(half).map((c,i)=>countryRow(c,i+half)).join("");
+ order=ranking();
+ render();
 }
 
 function update(){
@@ -307,6 +361,15 @@ function update(){
  document.getElementById("births").textContent=fmt(Math.floor(t*birthsPerSec()));
  document.getElementById("deaths").textContent=fmt(Math.floor(t*deathsPerSec()));
  document.getElementById("growth").textContent=fmt(Math.floor(t*netPerSec()));
+
+ /* A full re-render only when someone has actually changed places -- every
+    other tick just repaints the figures already in the right rows. */
+ const next=ranking();
+ if(next.length!==order.length||next.some((idx,i)=>idx!==order[i])){
+  order=next;
+  render();
+  return;
+ }
 
  document.querySelectorAll(".pop").forEach(el=>{
    el.textContent=fmt(countryPopulation(data.countries[Number(el.dataset.i)]));
@@ -325,19 +388,31 @@ setInterval(update,1000);
    it is already showing. */
 const WB="https://api.worldbank.org/v2/country/";
 const get=u=>fetch(u).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
-const one=j=>(j&&j[1]&&j[1][0]&&typeof j[1][0].value==="number")?j[1][0].value:null;
+
+/* A World Bank response reduced to {year:value}. */
+function series(j){
+ const out={};
+ for(const r of ((j&&j[1])||[])) if(typeof r.value==="number") out[+r.date]=r.value;
+ return out;
+}
+/* The value for `year`, else the closest earlier year on record. The crude
+   rate indicators trail the population series by one release, so this keeps
+   a refresh usable instead of discarding it. */
+function at(s,year){
+ const ys=Object.keys(s).map(Number).filter(y=>y<=year).sort((a,b)=>b-a);
+ return ys.length?s[ys[0]]:null;
+}
 
 async function fetchBaseline(){
  const codes=Object.keys(POOL).join(";");
  const [pop,wld,cbrt,cdrt]=await Promise.all([
   get(`${WB}${codes}/indicator/SP.POP.TOTL?format=json&mrv=4&per_page=500`),
-  get(`${WB}WLD/indicator/SP.POP.TOTL?format=json&mrv=1`),
-  get(`${WB}WLD/indicator/SP.DYN.CBRT.IN?format=json&mrv=1`),
-  get(`${WB}WLD/indicator/SP.DYN.CDRT.IN?format=json&mrv=1`)
+  get(`${WB}WLD/indicator/SP.POP.TOTL?format=json&mrv=4`),
+  get(`${WB}WLD/indicator/SP.DYN.CBRT.IN?format=json&mrv=4`),
+  get(`${WB}WLD/indicator/SP.DYN.CDRT.IN?format=json&mrv=4`)
  ]);
 
- const world=one(wld), br=one(cbrt), dr=one(cdrt);
- if(!world||!br||!dr||br<=dr) throw new Error("bad world figures");
+ const wldPop=series(wld), cbr=series(cbrt), cdr=series(cdrt);
 
  const by={};
  for(const r of (pop[1]||[])){
@@ -354,13 +429,22 @@ async function fetchBaseline(){
   rows.push({code,year:hi,pop:v[hi],growth:+growth.toFixed(2)});
  }
 
- // Rank only on the most recent year every country actually reports.
- const year=Math.max(...rows.map(r=>r.year));
+ /* One year has to govern the whole baseline, because that year's 1 July is
+    the date everything gets extrapolated from. Take the newest year reported
+    by both the country pool and the world series: pairing a 2026 world total
+    with a 2025 anchor would double-count a year of growth (~70 million). */
+ const shared=rows.map(r=>r.year).filter(y=>y in wldPop);
+ if(!shared.length) throw new Error("no shared year");
+ const year=Math.max(...shared);
+
+ const world=wldPop[year], br=at(cbr,year), dr=at(cdr,year);
+ if(!world||!br||!dr||br<=dr) throw new Error("bad world figures");
+
  const ranked=rows.filter(r=>r.year===year).sort((a,b)=>b.pop-a.pop);
  if(ranked.length<SHOW) throw new Error("not enough countries");
 
  return {
-  year, source:"World Bank open data",
+  year, asOf:`${year}-07-01`, source:"World Bank open data",
   world, birthsPerYear:br/1000*world, deathsPerYear:dr/1000*world,
   countries:ranked.slice(0,SHOW).map(r=>[POOL[r.code][0],POOL[r.code][1],r.pop,r.growth])
  };
