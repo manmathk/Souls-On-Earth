@@ -11,9 +11,16 @@
    On a phone the YouTube player draws its own chrome over the video: action
    buttons down the right edge and the progress bar across the bottom. These
    insets hold the right-hand population figures and the last table row clear
-   of it. Raise --safe-x / --safe-bottom if data still sits under the overlay.
+   of it. --safe-x insets BOTH outer edges (the left column's ranks and the
+   right column's figures); --pad-x is the interior gutter either side of the
+   centre divider, which nothing can cover. Raise --safe-x / --safe-bottom if
+   data still sits under the overlay -- the rows absorb it automatically.
+
+   If --safe-x has to go so wide that country names start truncating, buy the
+   room back by dropping --num (the population figure's type size). Those two
+   knobs trade against each other; nothing else needs touching.
    -------------------------------------------------------------------------- */
-:root{--pad-x:14px;--safe-x:10px;--safe-bottom:14px}
+:root{--pad-x:12px;--safe-x:24px;--safe-bottom:14px;--num:13.5px}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222}
 body{display:flex;justify-content:center}
 .app{width:100%;height:100%;max-width:900px;background:#fff;overflow:hidden;display:flex;flex-direction:column}
@@ -70,12 +77,13 @@ body{display:flex;justify-content:center}
   align-items:center;gap:8px;padding:clamp(3px,0.7vh,9px) var(--pad-x);
   border-bottom:1px solid #ededed;font-size:14px;line-height:1.2
 }
-/* Column two runs to the screen edge, so it carries the extra right inset. */
+/* Each column has one edge at the frame boundary: that side takes the inset. */
+#left .country{padding-left:calc(var(--pad-x) + var(--safe-x))}
 #right .country{padding-right:calc(var(--pad-x) + var(--safe-x))}
 .rank{color:#777;text-align:center;font-size:12px}
 .flag{font-size:20px;text-align:center}
 .name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pop{font-variant-numeric:tabular-nums;font-weight:700;font-size:13.5px}
+.pop{font-variant-numeric:tabular-nums;font-weight:700;font-size:var(--num)}
 #left .country:nth-child(-n+3) .name{font-weight:700}
 
 /* mobile adjustments */
@@ -95,30 +103,28 @@ body{display:flex;justify-content:center}
  .live,.yt{padding:8px 16px;font-size:12px}
  .comment{font-size:13px;height:37px}
  .rank-head{font-size:11px;min-height:40px;padding:7px 10px;line-height:1.25}
- :root{--pad-x:8px;--safe-x:9px;--safe-bottom:16px}
- .country{grid-template-columns:17px 21px minmax(0,1fr) auto;gap:5px;padding:clamp(1.5px,0.5vh,8px) var(--pad-x)}
+ :root{--pad-x:5px;--safe-x:20px;--safe-bottom:16px;--num:clamp(11px,3.05vw,12.5px)}
+ .country{grid-template-columns:15px 19px minmax(0,1fr) auto;gap:4px;padding:clamp(1.5px,0.5vh,8px) var(--pad-x)}
  .rank{font-size:10px}
- .name{font-size:clamp(10.5px,2.95vw,12.5px);letter-spacing:-.2px}
- .pop{font-size:clamp(10px,2.85vw,12px)}
- .flag{font-size:min(15px,2.2vh)}
+ .name{font-size:clamp(10.5px,2.9vw,12.5px);letter-spacing:-.2px}
+ .flag{font-size:min(14px,2.2vh)}
 }
 
 /* Narrow handsets: claw back a few px of gutter so the longest names
    ("Bangladesh", "Philippines") still render in full next to 9-digit counts. */
 @media(max-width:395px){
- :root{--pad-x:7px}
- .country{grid-template-columns:16px 20px minmax(0,1fr) auto;gap:4px;padding:clamp(1.5px,0.5vh,8px) var(--pad-x)}
- .name{letter-spacing:-.25px}
+ :root{--pad-x:4px;--safe-x:18px}
+ .country{grid-template-columns:13px 16px minmax(0,1fr) auto;gap:3px;padding:clamp(1.5px,0.5vh,8px) var(--pad-x)}
+ .name{letter-spacing:-.3px}
 }
 
 /* Smallest screens still in use (320px). Two columns leave ~160px per row,
    so the gutters and the counter shrink again to keep names off the ellipsis. */
 @media(max-width:340px){
- :root{--pad-x:5px;--safe-x:7px;--safe-bottom:12px}
- .country{grid-template-columns:14px 17px minmax(0,1fr) auto;gap:3px;padding:clamp(1px,0.4vh,7px) var(--pad-x)}
- .name{font-size:clamp(9.8px,2.95vw,12.5px);letter-spacing:-.3px}
- .pop{font-size:clamp(9.1px,2.85vw,12px)}
- .flag{font-size:min(13px,2vh)}
+ :root{--pad-x:3px;--safe-x:13px;--safe-bottom:12px;--num:clamp(10.2px,3.05vw,12.5px)}
+ .country{grid-template-columns:12px 15px minmax(0,1fr) auto;gap:2px;padding:clamp(1px,0.4vh,7px) var(--pad-x)}
+ .name{font-size:clamp(9.6px,2.9vw,12.5px);letter-spacing:-.3px}
+ .flag{font-size:min(12px,2vh)}
 }
 
 .music-btn{position:fixed;right:12px;top:12px;z-index:50;border:1px solid #ddd;background:#fff;color:#333;border-radius:22px;padding:8px 12px;font-weight:700;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
@@ -132,7 +138,7 @@ body{display:flex;justify-content:center}
     <img class="avatar" src="channels4_profile.jpg" alt="History Warrior Logo">
     <div class="channel-info">
       <div class="channel-name">History Warrior</div>
-      <div class="channel-sub">🔴 &nbsp;♙ 284 &nbsp; 👍 820</div>
+      <div class="channel-sub">🔴 &nbsp;♙ 200 &nbsp; 👍 820</div>
     </div>
     <button class="subscribe">Subscribe</button>
     <div class="more">•••</div>
