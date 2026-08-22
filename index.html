@@ -488,7 +488,7 @@ window.__souls={get data(){return data},refresh,SNAPSHOT};
 </script>
 
 <audio id="bgMusic" src="Felt Keys for Marchers.mp3" loop preload="auto" muted></audio>
-<button class="music-btn" id="musicBtn" type="button">🔇 Music</button>
+<button class="music-btn" id="musicBtn" type="button">🔇</button>
 <script>
 (function(){
   const audio=document.getElementById("bgMusic");
@@ -503,7 +503,7 @@ window.__souls={get data(){return data},refresh,SNAPSHOT};
   audio.volume=0.18;
 
   function render(){
-    btn.textContent=audio.paused ? "🔇 Music" : "🔊 Music";
+    btn.textContent=audio.paused ? "🔇" : "🔊";
   }
 
   async function play(){
@@ -547,7 +547,7 @@ window.__souls={get data(){return data},refresh,SNAPSHOT};
 })();
 </script>
 
-<button class="music-btn" id="voiceBtn" type="button" style="top:52px">🎙 Voice</button>
+<button class="music-btn" id="voiceBtn" type="button" style="top:52px">🎙</button>
 <script type="module" src="js/narrator.js"></script>
 
 </body>
