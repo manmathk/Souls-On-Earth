@@ -1,10 +1,10 @@
 // js/narrator.js
 
-const MUSIC_REST = 0.18;
+const MUSIC_REST = 0.2;
 const MUSIC_DUCKED = 0.05;
 /* Narration sits at 30% rather than unity. Still well clear of the ducked bed
    at 0.05, so a line stays intelligible over the music. */
-const VOICE_LEVEL = 0.30;
+const VOICE_LEVEL = 0.2;
 const DUCK_MS = 350;
 const TAIL_MS = 500;
 
