@@ -1,0 +1,23 @@
+{
+ "voice": "en-US-GuyNeural",
+ "lines": [
+  {
+   "id": "wry-0001",
+   "file": "wry-0001.mp3",
+   "category": "wry",
+   "hash": "ba4ef316928d7e0f"
+  },
+  {
+   "id": "fact-0001",
+   "file": "fact-0001.mp3",
+   "category": "fact",
+   "hash": "a06ae19dcb53df7a"
+  },
+  {
+   "id": "chat-0001",
+   "file": "chat-0001.mp3",
+   "category": "chat",
+   "hash": "d205f247d6d669bc"
+  }
+ ]
+}

@@ -368,12 +368,29 @@ function update(){
  if(next.length!==order.length||next.some((idx,i)=>idx!==order[i])){
   order=next;
   render();
+  /* The narrator listens for this; nothing else does. Kept as a plain event so
+     a narration fault can never reach the counter. */
+  document.dispatchEvent(new CustomEvent("souls:tick",{detail:{
+    births:Math.floor(t*birthsPerSec()),
+    deaths:Math.floor(t*deathsPerSec()),
+    growth:Math.floor(t*netPerSec()),
+    order:order.map(i=>data.countries[i][1])
+  }}));
   return;
  }
 
  document.querySelectorAll(".pop").forEach(el=>{
    el.textContent=fmt(countryPopulation(data.countries[Number(el.dataset.i)]));
  });
+
+ /* The narrator listens for this; nothing else does. Kept as a plain event so
+    a narration fault can never reach the counter. */
+ document.dispatchEvent(new CustomEvent("souls:tick",{detail:{
+   births:Math.floor(t*birthsPerSec()),
+   deaths:Math.floor(t*deathsPerSec()),
+   growth:Math.floor(t*netPerSec()),
+   order:order.map(i=>data.countries[i][1])
+ }}));
 }
 
 build();
@@ -477,6 +494,12 @@ window.__souls={get data(){return data},refresh,SNAPSHOT};
   const audio=document.getElementById("bgMusic");
   const btn=document.getElementById("musicBtn");
   if(!audio||!btn)return;
+  // Pre-unlock fallback only: this listener can fire before narrator.js's
+  // module script runs unlock() and connects musicGain, so the element could
+  // otherwise play a beat at full volume. This is a no-op on iOS and roughly
+  // correct on Android in that gap. Once unlock() runs, musicGain owns the
+  // audible level (it sets audio.volume=1 first, so there is no double
+  // attenuation) and this line stops mattering.
   audio.volume=0.18;
 
   function render(){
@@ -523,6 +546,9 @@ window.__souls={get data(){return data},refresh,SNAPSHOT};
   render();
 })();
 </script>
+
+<button class="music-btn" id="voiceBtn" type="button" style="top:52px">🎙 Voice</button>
+<script type="module" src="js/narrator.js"></script>
 
 </body>
 </html>
