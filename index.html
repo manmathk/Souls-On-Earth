@@ -21,38 +21,101 @@
    knobs trade against each other; nothing else needs touching.
    -------------------------------------------------------------------------- */
 :root{--pad-x:12px;--safe-x:24px;--safe-bottom:14px;--num:13.5px}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222}
+
+/* --- Themes ----------------------------------------------------------------
+   Every neutral in this file is a token so the whole page can be recoloured
+   from one block. The semantic accents are NOT themed away: the LIVE red, and
+   the green/red on the birth and death counters, carry meaning, so they only
+   shift enough to keep their contrast on a dark ground.
+
+   The two gradient themes set --app to transparent so the body gradient shows
+   through, and give the panels a faint veil instead of an opaque fill.
+   -------------------------------------------------------------------------- */
+:root{
+ --bg:#fff; --app:#fff; --panel:#fff; --panel-alt:#fafafa;
+ --chip:#f1f1f1; --avatar:#f0f0f0;
+ --text:#222; --text-mid:#555; --text-dim:#777;
+ --line:#e7e7e7; --line-soft:#eee; --line-row:#ededed; --line-strong:#ddd;
+ --growth:#179447; --deaths:#d62c2c;
+ --yt-bg:#ffe7e7; --yt-fg:#ff4d4d;
+ --btn-bg:#fff; --btn-fg:#333;
+ --mote-rgb:91,124,196;
+}
+html[data-theme="dark"]{
+ --bg:#0f0f0f; --app:#0f0f0f; --panel:#0f0f0f; --panel-alt:#1c1c1c;
+ --chip:#272727; --avatar:#272727;
+ --text:#f1f1f1; --text-mid:#c9c9c9; --text-dim:#a3a3a3;
+ --line:#2c2c2c; --line-soft:#262626; --line-row:#242424; --line-strong:#333;
+ --growth:#3ddc84; --deaths:#ff6b6b;
+ --yt-bg:#2c1517; --yt-fg:#ff8a8a;
+ --btn-bg:#202020; --btn-fg:#f1f1f1;
+ --mote-rgb:150,190,255;
+}
+html[data-theme="ocean"]{
+ --bg:linear-gradient(165deg,#08172e 0%,#0e2f52 55%,#123f63 100%);
+ --app:transparent; --panel:rgba(4,16,34,.42); --panel-alt:rgba(4,16,34,.60);
+ --chip:rgba(255,255,255,.16); --avatar:rgba(255,255,255,.12);
+ --text:#eaf3ff; --text-mid:#c8dcf2; --text-dim:#a8c6e2;
+ --line:rgba(255,255,255,.15); --line-soft:rgba(255,255,255,.10);
+ --line-row:rgba(255,255,255,.09); --line-strong:rgba(255,255,255,.20);
+ --growth:#5ce8a4; --deaths:#ff8f8f;
+ --yt-bg:rgba(255,255,255,.14); --yt-fg:#ffc0c0;
+ --btn-bg:rgba(255,255,255,.16); --btn-fg:#eaf3ff;
+ --mote-rgb:175,220,255;
+}
+html[data-theme="sunset"]{
+ --bg:linear-gradient(165deg,#210b28 0%,#5c2338 52%,#8d3f2b 100%);
+ --app:transparent; --panel:rgba(24,6,14,.46); --panel-alt:rgba(24,6,14,.62);
+ --chip:rgba(255,255,255,.17); --avatar:rgba(255,255,255,.13);
+ --text:#fff4ec; --text-mid:#f4d6c8; --text-dim:#e6bdac;
+ --line:rgba(255,255,255,.16); --line-soft:rgba(255,255,255,.11);
+ --line-row:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.21);
+ --growth:#8ceeb0; --deaths:#ffc2b6;
+ --yt-bg:rgba(255,255,255,.15); --yt-fg:#ffd0c6;
+ --btn-bg:rgba(255,255,255,.17); --btn-fg:#fff4ec;
+ --mote-rgb:255,216,175;
+}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
 body{display:flex;justify-content:center}
-.app{width:100%;height:100%;max-width:900px;background:#fff;overflow:hidden;display:flex;flex-direction:column}
+.app{width:100%;height:100%;max-width:900px;background:var(--app);overflow:hidden;display:flex;flex-direction:column}
 
 /* Header / channel bar */
 .channel{
   height:72px;display:flex;align-items:center;padding:8px 14px;
-  border-bottom:1px solid #e7e7e7;gap:10px;flex-shrink:0;background:#fff
+  border-bottom:1px solid var(--line);gap:10px;flex-shrink:0;background:var(--panel)
 }
-.avatar{width:46px;height:46px;border-radius:50%;background:#f0f0f0;flex-shrink:0;object-fit:cover;border:2px solid #e7e7e7}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--avatar);flex-shrink:0;object-fit:cover;border:2px solid var(--line)}
 .channel-info{min-width:0;flex:1}
 .channel-name{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.channel-sub{font-size:13px;color:#777;margin-top:2px}
-.subscribe{border:0;border-radius:24px;background:#f1f1f1;padding:11px 18px;font-size:14px;font-weight:700;white-space:nowrap}
-.more{font-size:24px;line-height:1;margin-left:3px;color:#555}
+.channel-sub{font-size:13px;color:var(--text-dim);margin-top:2px}
+.subscribe{border:0;border-radius:24px;background:var(--chip);color:var(--text);padding:11px 18px;font-size:16px;font-weight:700;white-space:nowrap;cursor:pointer;line-height:1}
+.more{font-size:24px;line-height:1;margin-left:3px;color:var(--text-mid)}
 
 /* Live summary */
-.summary{display:grid;grid-template-columns:33% 67%;min-height:154px;border-bottom:1px solid #eee}
-.today{padding:12px 12px 8px;border-right:1px solid #eee;text-align:center}
+.summary{display:grid;grid-template-columns:33% 67%;min-height:154px;background:var(--panel);border-bottom:1px solid var(--line-soft)}
+.today{padding:12px 12px 8px;border-right:1px solid var(--line-soft);text-align:center}
 .today-title{font-weight:800;font-size:13px;margin-bottom:8px}
 .stat{margin:7px 0}
-.stat-label{font-size:12px;color:#777}
+.stat-label{font-size:12px;color:var(--text-dim)}
 .stat-value{font-size:19px;font-weight:800;margin-top:1px}
-.growth{color:#179447}
-.deaths{color:#d62c2c}
+.growth{color:var(--growth)}
+.deaths{color:var(--deaths)}
 .hero{text-align:center;padding:18px 10px 10px}
-.hero-title{font-size:18px;color:#555;margin-bottom:5px}
+.hero-title{font-size:18px;color:var(--text-mid);margin-bottom:5px}
 .world-pop{font-size:clamp(34px,7vw,58px);line-height:1;font-weight:800;letter-spacing:-1.5px}
+/* Each character of the counter is its own box so a single digit can be
+   transformed without disturbing its neighbours. tabular-nums keeps the number
+   from shuffling sideways as the digits change width. */
+.world-pop .digit{display:inline-block;font-variant-numeric:tabular-nums}
 .live-row{display:flex;justify-content:center;gap:12px;margin-top:13px}
 .live{background:#ff0808;color:white;font-weight:800;border-radius:5px;padding:9px 25px;font-size:14px}
-.live:before{content:"";display:inline-block;width:7px;height:7px;background:white;border-radius:50%;margin-right:7px;vertical-align:1px}
-.yt{background:#ffe7e7;color:#ff4d4d;font-weight:800;border-radius:5px;padding:9px 25px;font-size:14px}
+.live:before{content:"";display:inline-block;width:7px;height:7px;background:white;border-radius:50%;margin-right:7px;vertical-align:1px;animation:live-pulse 2s ease-in-out infinite}
+/* One element pulsing, so it costs almost nothing -- unlike animating the
+   per-second counters, which would run continuously for the life of the
+   stream. */
+@keyframes live-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.live:before{animation:none}}
+.yt{background:var(--yt-bg);color:var(--yt-fg);font-weight:800;border-radius:5px;padding:9px 25px;font-size:14px}
 
 /* Banner */
 .comment{
@@ -62,14 +125,14 @@ body{display:flex;justify-content:center}
 
 /* Ranking */
 .rank-head{
-  min-height:42px;background:#fafafa;border-bottom:1px solid #ddd;display:flex;
+  min-height:42px;background:var(--panel-alt);border-bottom:1px solid var(--line-strong);display:flex;
   align-items:center;justify-content:center;text-align:center;padding:7px 14px;
-  font-size:13px;font-weight:800;color:#777;text-transform:uppercase;flex-shrink:0;letter-spacing:.3px
+  font-size:13px;font-weight:800;color:var(--text-dim);text-transform:uppercase;flex-shrink:0;letter-spacing:.3px
 }
-.rank-wrap{flex:1;min-height:0;overflow:hidden;background:#fff;padding-bottom:var(--safe-bottom)}
+.rank-wrap{flex:1;min-height:0;overflow:hidden;background:var(--panel);padding-bottom:var(--safe-bottom)}
 .rank-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr;height:100%}
 .col{min-width:0;min-height:0;display:flex;flex-direction:column}
-.col:first-child{border-right:1px solid #eee}
+.col:first-child{border-right:1px solid var(--line-soft)}
 /* Rows share the available height, so all 25 per column stay on screen no
    matter how short the viewport is — padding never pushes a row out. At 25
    rows a phone gives each one under 19px, so the flag (the tallest thing in
@@ -78,12 +141,12 @@ body{display:flex;justify-content:center}
 .country{
   flex:1;min-height:0;overflow:hidden;display:grid;grid-template-columns:28px 30px minmax(0,1fr) auto;
   align-items:center;gap:8px;padding:clamp(0.5px,0.25vh,9px) var(--pad-x);
-  border-bottom:1px solid #ededed;font-size:14px;line-height:1.2
+  border-bottom:1px solid var(--line-row);font-size:14px;line-height:1.2
 }
 /* Each column has one edge at the frame boundary: that side takes the inset. */
 #left .country{padding-left:calc(var(--pad-x) + var(--safe-x))}
 #right .country{padding-right:calc(var(--pad-x) + var(--safe-x))}
-.rank{color:#777;text-align:center;font-size:12px}
+.rank{color:var(--text-dim);text-align:center;font-size:12px}
 .flag{font-size:min(20px,1.5vh);text-align:center}
 .name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pop{font-variant-numeric:tabular-nums;font-weight:700;font-size:var(--num)}
@@ -137,7 +200,38 @@ body{display:flex;justify-content:center}
 }
 
 
-.music-btn{position:fixed;right:12px;top:12px;z-index:50;border:1px solid #ddd;background:#fff;color:#333;border-radius:50%;width:34px;height:34px;padding:0;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
+/* --- Ambient drift ---------------------------------------------------------
+   Layered OVER the page, not behind it: every panel here paints an opaque
+   white background, so particles underneath would never be seen at all.
+
+   Pure CSS on the compositor -- no canvas, no requestAnimationFrame. On a
+   phone that is also encoding video for the stream, a per-frame JS loop
+   competes with the encoder and makes heat; these are transform/opacity only
+   and cost the main thread nothing.
+
+   Faint by design: 50 rows of names and 9-digit figures sit underneath, and
+   they are what the viewer is meant to read. -------------------------------- */
+/* Longhand rather than inset:0 -- the shorthand needs Safari 14.1, and this
+   page has to survive whatever handset is running the stream. A collapsed
+   layer plus overflow:hidden would silently show nothing at all. */
+.souls{position:fixed;top:0;right:0;bottom:0;left:0;z-index:40;pointer-events:none;overflow:hidden}
+.souls i{
+  position:absolute;bottom:-10vh;left:var(--x);width:var(--s);height:var(--s);
+  border-radius:50%;opacity:0;
+  background:radial-gradient(circle,rgba(var(--mote-rgb),.95) 0%,rgba(var(--mote-rgb),0) 70%);
+  animation:soul-rise var(--t) linear var(--d) infinite
+}
+@keyframes soul-rise{
+  0%{transform:translate(0,0);opacity:0}
+  14%{opacity:.42}
+  50%{transform:translate(9px,-58vh)}
+  86%{opacity:.42}
+  100%{transform:translate(-7px,-118vh);opacity:0}
+}
+/* Decorative only, so it simply goes away rather than degrading. */
+@media(prefers-reduced-motion:reduce){.souls{display:none}}
+
+.music-btn{position:fixed;right:12px;top:12px;z-index:50;border:1px solid var(--line-strong);background:var(--btn-bg);color:var(--btn-fg);border-radius:50%;width:34px;height:34px;padding:0;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
 /* Each button keeps one constant icon and signals off by dimming. Swapping in
    a muted-speaker glyph would give both buttons the same off-state icon, and
    with the text labels gone there would be nothing left to tell them apart. */
@@ -152,9 +246,9 @@ body{display:flex;justify-content:center}
     <img class="avatar" src="channels4_profile.jpg" alt="History Warrior Logo">
     <div class="channel-info">
       <div class="channel-name">History Warrior</div>
-      <div class="channel-sub">🔴 &nbsp;♙ 1201 &nbsp; 👍 820</div>
+      <div class="channel-sub">🔴 &nbsp;♙ 1287 &nbsp; 👍 820</div>
     </div>
-    <button class="subscribe">Subscribe</button>
+    <button class="subscribe" id="themeBtn" type="button" aria-label="Change theme">🎨</button>
     <div class="more">•••</div>
   </div>
 
@@ -196,7 +290,10 @@ body{display:flex;justify-content:center}
   </div>
 </div>
 
-<script>
+<script type="module">
+import { computeShifts } from "./js/flip.js";
+import { diffDigits } from "./js/digits.js";
+
 /* ---------------------------------------------------------------------------
    Baseline data.
 
@@ -381,7 +478,7 @@ let order=[];
 
 function countryRow(idx,rank){
  const c=data.countries[idx];
- return `<div class="country">
+ return `<div class="country" data-i="${idx}">
    <div class="rank">${rank+1}</div>
    <div class="flag">${c[0]}</div>
    <div class="name">${c[1]}</div>
@@ -389,12 +486,74 @@ function countryRow(idx,rank){
  </div>`;
 }
 
+const MOVE_MS=380;
+const TINT="rgba(255,196,0,.5)";
+
+/* Where every row currently sits, keyed by country.
+
+   offsetLeft/offsetTop rather than getBoundingClientRect(): a client rect
+   folds in any transform still in flight from a previous swap, so a second
+   overtake arriving mid-animation would measure a displaced row and animate
+   from a corrupted origin. Layout offsets ignore transforms entirely. */
+function rowPositions(){
+ const m=new Map();
+ for(const el of document.querySelectorAll(".country")){
+  m.set(Number(el.dataset.i),{x:el.offsetLeft,y:el.offsetTop});
+ }
+ return m;
+}
+
+/* Rows are thrown away wholesale by the re-render below, and an animation on a
+   detached row keeps ticking against the document timeline. Cancel them first
+   so nothing accumulates over the weeks this page stays open -- and so a swap
+   landing mid-animation starts from a settled layout. */
+function stopRowAnimations(){
+ for(const el of document.querySelectorAll(".country")){
+  if(el.getAnimations) for(const a of el.getAnimations()) a.cancel();
+ }
+}
+
+/* An overtake is the one moment this table is genuinely live rather than just
+   counting upward, and a wholesale innerHTML re-render turns it into a jump
+   cut nobody notices. So: animate each moved row from where it used to be to
+   where it landed, and tint it briefly so the eye catches which pair crossed.
+   Transform only, so none of this costs a layout. */
+function animateShifts(shifts){
+ if(!shifts.size) return;
+ for(const el of document.querySelectorAll(".country")){
+  const s=shifts.get(Number(el.dataset.i));
+  if(!s||!el.animate) continue;   // no WAAPI on very old WebKit: no animation, same table
+  /* Web Animations rather than a transition class: each animation cleans
+     itself up, which is what matters on a page left open for weeks. */
+  el.animate([{transform:`translate(${s.dx}px,${s.dy}px)`},{transform:"none"}],
+   {duration:MOVE_MS,easing:"cubic-bezier(.22,.61,.36,1)"});
+  el.animate([{backgroundColor:TINT},{backgroundColor:"transparent"}],
+   {duration:MOVE_MS*2,easing:"ease-out"});
+ }
+}
+
+const STILL=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)");
+
+/* A hidden page freezes the animation timeline, which would park an animation
+   on its first keyframe until the browser came forward. An un-animated repaint
+   is always correct, just less pretty. */
+function motionOk(){
+ return !((STILL&&STILL.matches)||document.hidden);
+}
+
 function render(){
  const half=Math.ceil(order.length/2);
+ stopRowAnimations();
+ const before=rowPositions();
  document.getElementById("left").innerHTML=order.slice(0,half).map((idx,r)=>countryRow(idx,r)).join("");
  document.getElementById("right").innerHTML=order.slice(half).map((idx,r)=>countryRow(idx,r+half)).join("");
  document.getElementById("rankHead").textContent=
   `TOP ${order.length} LARGEST COUNTRIES BY POPULATION (LIVE)`;
+ /* Skipped when the page is hidden: a backgrounded tab freezes the animation
+    timeline, and a swap animated there would leave its rows parked at the
+    start keyframe -- visibly displaced -- until the phone brought the browser
+    back. An un-animated re-render is always correct, just less pretty. */
+ if(motionOk()) animateShifts(computeShifts(before,rowPositions()));
 }
 
 function build(){
@@ -402,9 +561,48 @@ function build(){
  render();
 }
 
+const DIGIT_MS=260;
+const worldEl=document.getElementById("world");
+let worldSpans=[];
+let worldText="";
+
+/* The counter is the one thing on this page that changes every single second,
+   so it is where motion is actually visible -- the rank swaps it sits above
+   only happen every week or so. Only the characters that moved get animated;
+   at roughly two souls a second that is the last digit or two, not all
+   thirteen. */
+function paintWorld(text){
+ const {rebuild,changed}=diffDigits(worldText,text);
+ worldText=text;
+ if(rebuild){
+  worldEl.textContent="";
+  worldSpans=[...text].map(ch=>{
+   const el=document.createElement("span");
+   el.className="digit";
+   el.textContent=ch;
+   worldEl.appendChild(el);
+   return el;
+  });
+  return;
+ }
+ const moving=motionOk();
+ for(const i of changed){
+  const el=worldSpans[i];
+  el.textContent=text[i];
+  if(!moving||!el.animate) continue;
+  /* This runs about ninety thousand times a day, so a digit whose previous
+     roll has not finished -- a throttled timeline, low power mode -- must not
+     be allowed to stack a second one on top. */
+  for(const a of el.getAnimations()) a.cancel();
+  /* Rolls up into place from just below the baseline. */
+  el.animate([{transform:"translateY(0.42em)",opacity:0.35},{transform:"none",opacity:1}],
+   {duration:DIGIT_MS,easing:"cubic-bezier(.2,.7,.3,1)"});
+ }
+}
+
 function update(){
  const t=todaySeconds();
- document.getElementById("world").textContent=fmt(worldPopulation());
+ paintWorld(fmt(worldPopulation()));
  document.getElementById("births").textContent=fmt(Math.floor(t*birthsPerSec()));
  document.getElementById("deaths").textContent=fmt(Math.floor(t*deathsPerSec()));
  document.getElementById("growth").textContent=fmt(Math.floor(t*netPerSec()));
@@ -533,9 +731,60 @@ async function refresh(){
 }
 refresh();
 
+/* Theme cycles on tap and persists, the same shape as the music and voice
+   toggles. "light" clears the attribute rather than setting it, so the default
+   palette lives in :root alone and there is no duplicate light theme block. */
+const THEMES=["light","dark","ocean","sunset"];
+let themeAt=0;
+try{
+ const saved=localStorage.getItem("souls-theme");
+ if(THEMES.indexOf(saved)>0) themeAt=THEMES.indexOf(saved);
+}catch(e){}
+
+function applyTheme(){
+ const name=THEMES[themeAt];
+ if(name==="light") document.documentElement.removeAttribute("data-theme");
+ else document.documentElement.setAttribute("data-theme",name);
+ try{localStorage.setItem("souls-theme",name);}catch(e){}
+}
+
+const themeBtn=document.getElementById("themeBtn");
+if(themeBtn){
+ /* Deliberately not stopping propagation: the tap should also count as the
+    first user gesture that unlocks audio. */
+ themeBtn.addEventListener("click",()=>{
+  themeAt=(themeAt+1)%THEMES.length;
+  applyTheme();
+ });
+}
+applyTheme();
+
 // Inspect the active baseline from the console: __souls.data.source / .year
 window.__souls={get data(){return data},refresh,SNAPSHOT};
 </script>
+
+<div class="souls" aria-hidden="true">
+<i style="--x:4%;--s:16px;--t:31s;--d:-2s"></i>
+<i style="--x:11%;--s:11px;--t:24s;--d:-14s"></i>
+<i style="--x:17%;--s:22px;--t:37s;--d:-6s"></i>
+<i style="--x:23%;--s:9px;--t:21s;--d:-19s"></i>
+<i style="--x:29%;--s:14px;--t:28s;--d:-9s"></i>
+<i style="--x:35%;--s:12px;--t:34s;--d:-25s"></i>
+<i style="--x:41%;--s:19px;--t:26s;--d:-4s"></i>
+<i style="--x:47%;--s:10px;--t:23s;--d:-16s"></i>
+<i style="--x:53%;--s:15px;--t:33s;--d:-11s"></i>
+<i style="--x:59%;--s:26px;--t:39s;--d:-29s"></i>
+<i style="--x:64%;--s:12px;--t:25s;--d:-7s"></i>
+<i style="--x:70%;--s:17px;--t:30s;--d:-21s"></i>
+<i style="--x:76%;--s:9px;--t:22s;--d:-13s"></i>
+<i style="--x:81%;--s:21px;--t:36s;--d:-3s"></i>
+<i style="--x:86%;--s:11px;--t:27s;--d:-24s"></i>
+<i style="--x:90%;--s:14px;--t:32s;--d:-17s"></i>
+<i style="--x:94%;--s:10px;--t:20s;--d:-8s"></i>
+<i style="--x:8%;--s:15px;--t:29s;--d:-27s"></i>
+<i style="--x:67%;--s:9px;--t:35s;--d:-1s"></i>
+<i style="--x:38%;--s:18px;--t:23s;--d:-31s"></i>
+</div>
 
 <audio id="bgMusic" preload="auto" muted></audio>
 <button class="music-btn" id="musicBtn" type="button" aria-label="Toggle music">🔊</button>
