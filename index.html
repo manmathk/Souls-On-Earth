@@ -70,18 +70,21 @@ body{display:flex;justify-content:center}
 .rank-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr;height:100%}
 .col{min-width:0;min-height:0;display:flex;flex-direction:column}
 .col:first-child{border-right:1px solid #eee}
-/* Rows share the available height, so all 15 per column stay on screen
-   no matter how short the viewport is — padding never pushes a row out. */
+/* Rows share the available height, so all 25 per column stay on screen no
+   matter how short the viewport is — padding never pushes a row out. At 25
+   rows a phone gives each one under 19px, so the flag (the tallest thing in
+   a row, and what actually sets the row height) is capped against viewport
+   height rather than given a fixed size. */
 .country{
   flex:1;min-height:0;overflow:hidden;display:grid;grid-template-columns:28px 30px minmax(0,1fr) auto;
-  align-items:center;gap:8px;padding:clamp(3px,0.7vh,9px) var(--pad-x);
+  align-items:center;gap:8px;padding:clamp(0.5px,0.25vh,9px) var(--pad-x);
   border-bottom:1px solid #ededed;font-size:14px;line-height:1.2
 }
 /* Each column has one edge at the frame boundary: that side takes the inset. */
 #left .country{padding-left:calc(var(--pad-x) + var(--safe-x))}
 #right .country{padding-right:calc(var(--pad-x) + var(--safe-x))}
 .rank{color:#777;text-align:center;font-size:12px}
-.flag{font-size:20px;text-align:center}
+.flag{font-size:min(20px,1.5vh);text-align:center}
 .name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pop{font-variant-numeric:tabular-nums;font-weight:700;font-size:var(--num)}
 #left .country:nth-child(-n+3) .name{font-weight:700}
@@ -103,29 +106,36 @@ body{display:flex;justify-content:center}
  .live,.yt{padding:8px 16px;font-size:12px}
  .comment{font-size:13px;height:37px}
  .rank-head{font-size:11px;min-height:40px;padding:7px 10px;line-height:1.25}
- :root{--pad-x:5px;--safe-x:20px;--safe-bottom:16px;--num:clamp(11px,3.05vw,12.5px)}
- .country{grid-template-columns:15px 19px minmax(0,1fr) auto;gap:4px;padding:clamp(1.5px,0.5vh,8px) var(--pad-x)}
- .rank{font-size:10px}
- .name{font-size:clamp(10.5px,2.9vw,12.5px);letter-spacing:-.2px}
- .flag{font-size:min(14px,2.2vh)}
+ /* Everything that competes for room across a row scales continuously with
+    viewport width -- no steps. These used to jump at 395px and 340px, which
+    left a gap either side of 402px (iPhone 16 Pro): the figure had grown to
+    the full 3.05vw while the gutters and the rank/flag columns were still at
+    their widest, and "Bangladesh" lost its tail to an ellipsis.
+
+    --num is also capped against viewport height, because at 25 rows per
+    column a short handset gives each row ~13px and a figure sized only by
+    width overflows that and gets its glyphs sliced. */
+ :root{
+  --pad-x:clamp(3px,1.1vw,5px);
+  --safe-x:clamp(13px,4.6vw,20px);
+  --safe-bottom:clamp(12px,3.6vw,16px);
+  --num:min(clamp(10.2px,2.85vw,12.5px),1.38vh)
+ }
+ /* font-size here only sets the line box: rank, flag, name and figure all
+    carry their own size. 25 rows per column leaves under 19px each on a tall
+    handset and barely 13px on a 667pt one, so the line box and the flag are
+    both capped against viewport height -- a fixed size clips every row on the
+    short phones. */
+ .country{
+  grid-template-columns:clamp(12px,3.4vw,15px) clamp(15px,4.2vw,19px) minmax(0,1fr) auto;
+  gap:clamp(2px,0.9vw,4px);font-size:min(12px,1.34vh);
+  padding:clamp(0.5px,0.15vh,8px) var(--pad-x)
+ }
+ .rank{font-size:min(10px,1.3vh)}
+ .name{font-size:min(clamp(9.6px,2.9vw,12.5px),1.38vh);letter-spacing:-.3px}
+ .flag{font-size:min(11px,1.28vh)}
 }
 
-/* Narrow handsets: claw back a few px of gutter so the longest names
-   ("Bangladesh", "Philippines") still render in full next to 9-digit counts. */
-@media(max-width:395px){
- :root{--pad-x:4px;--safe-x:18px}
- .country{grid-template-columns:13px 16px minmax(0,1fr) auto;gap:3px;padding:clamp(1.5px,0.5vh,8px) var(--pad-x)}
- .name{letter-spacing:-.3px}
-}
-
-/* Smallest screens still in use (320px). Two columns leave ~160px per row,
-   so the gutters and the counter shrink again to keep names off the ellipsis. */
-@media(max-width:340px){
- :root{--pad-x:3px;--safe-x:13px;--safe-bottom:12px;--num:clamp(10.2px,3.05vw,12.5px)}
- .country{grid-template-columns:12px 15px minmax(0,1fr) auto;gap:2px;padding:clamp(1px,0.4vh,7px) var(--pad-x)}
- .name{font-size:clamp(9.6px,2.9vw,12.5px);letter-spacing:-.3px}
- .flag{font-size:min(12px,2vh)}
-}
 
 .music-btn{position:fixed;right:12px;top:12px;z-index:50;border:1px solid #ddd;background:#fff;color:#333;border-radius:50%;width:34px;height:34px;padding:0;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
 /* Each button keeps one constant icon and signals off by dimming. Swapping in
@@ -176,7 +186,7 @@ body{display:flex;justify-content:center}
 
   <div class="comment">👇 COMMENT YOUR COUNTRY IN THE CHAT! 👇</div>
 
-  <div class="rank-head">TOP 30 LARGEST COUNTRIES BY POPULATION (LIVE)</div>
+  <div class="rank-head" id="rankHead">TOP 50 LARGEST COUNTRIES BY POPULATION (LIVE)</div>
 
   <div class="rank-wrap">
     <div class="rank-grid">
@@ -210,7 +220,7 @@ const SECS_PER_YEAR=365.25*86400;
 const SNAPSHOT={
  year:2026,
  asOf:"2026-07-01",            // the date every figure below is true for
- source:"built-in UN WPP 2024 snapshot",
+ source:"built-in UN WPP 2024 + World Bank 2025 snapshot",
  world:8300678395,             // UN WPP 2024 medium variant, 1 July 2026
  birthsPerYear:132503469,      // UN WPP 2024 projection for 2026
  deathsPerYear:63637314,       // net 68,866,155/yr = 0.83% of the world figure
@@ -229,11 +239,42 @@ const SNAPSHOT={
 ["🇫🇷","France",66746401,0.14],["🇿🇦","South Africa",65453084,1.09],
 ["🇮🇹","Italy",58926166,-0.37],["🇰🇪","Kenya",58636412,1.92],
 ["🇲🇲","Myanmar",55184819,0.61],["🇨🇴","Colombia",53936226,0.96],
-["🇸🇩","Sudan",53282719,3.14],["🇺🇬","Uganda",52761469,2.68]
+["🇸🇩","Sudan",53282719,3.14],["🇺🇬","Uganda",52761469,2.68],
+/* Ranks 31-50 are NOT UN WPP figures like the 30 above. UN WPP 2024 was only
+   transcribed here down to rank 30, so these are World Bank mid-2025 counts
+   carried forward one year at the Bank's own 2022-25 CAGR to land on the same
+   2026-07-01 anchor. Real published data, different publisher -- hence the
+   source string, and hence UN_COUNT below, which keeps these rates from being
+   passed off as UN projections once the live feed takes over.
+
+   Two of these rates are wide because the Bank's 2022-25 window straddles a
+   census revision or a migration surge: Saudi Arabia at 4.74%/yr and Canada
+   at 2.26%/yr will overstate growth the longer the page runs. They are the
+   Bank's published numbers, and the live feed will replace them with a fresh
+   CAGR once 2026 is out. */
+["🇰🇷","South Korea",51689732,0.01],["🇪🇸","Spain",49888179,1.08],
+["🇩🇿","Algeria",48104150,1.41],["🇮🇶","Iraq",48045827,2.18],
+["🇦🇷","Argentina",45998102,0.32],["🇦🇫","Afghanistan",44988442,2.61],
+["🇾🇪","Yemen",43031272,3.01],["🇨🇦","Canada",42592980,2.26],
+["🇦🇴","Angola",40246376,3.09],["🇲🇦","Morocco",38803548,0.97],
+["🇸🇦","Saudi Arabia",38726102,4.74],["🇺🇿","Uzbekistan",37787086,1.98],
+["🇲🇿","Mozambique",36682787,2.95],["🇲🇾","Malaysia",36416768,1.22],
+["🇵🇱","Poland",36308335,-0.35],["🇬🇭","Ghana",35726987,1.89],
+["🇵🇪","Peru",34950093,1.08],["🇨🇮","Ivory Coast",33522793,2.48],
+["🇳🇵","Nepal",29585538,-0.11],["🇻🇪","Venezuela",28619557,0.36]
  ]
 };
 
-const SHOW=30;   // rows rendered, split evenly across the two columns
+/* How many leading SNAPSHOT rows are genuine UN WPP projections. Only these
+   rates outrank a live World Bank CAGR; see UN_RATES. */
+const UN_COUNT=30;
+
+const SHOW=50;   // rows rendered, split evenly across the two columns
+
+/* The heading counts the rows actually drawn rather than asserting SHOW, so a
+   baseline that ever carries fewer countries cannot make the stream claim a
+   ranking deeper than the one on screen. */
+const MIN_ROWS=30;
 
 /* Candidate pool for the live feed, deliberately wider than SHOW so the
    ranking can reshuffle on its own as countries overtake each other.
@@ -268,7 +309,7 @@ const CACHE_TTL=864e5;   // re-check the live source once a day
    country the snapshot covers. The other POOL countries keep the feed's own
    CAGR -- there is no UN figure here to prefer. Matched on display name,
    which is the only key the two lists share. */
-const UN_RATES=new Map(SNAPSHOT.countries.map(c=>[c[1],c[3]]));
+const UN_RATES=new Map(SNAPSHOT.countries.slice(0,UN_COUNT).map(c=>[c[1],c[3]]));
 
 function withUnRates(b){
  let kept=0;
@@ -352,6 +393,8 @@ function render(){
  const half=Math.ceil(order.length/2);
  document.getElementById("left").innerHTML=order.slice(0,half).map((idx,r)=>countryRow(idx,r)).join("");
  document.getElementById("right").innerHTML=order.slice(half).map((idx,r)=>countryRow(idx,r+half)).join("");
+ document.getElementById("rankHead").textContent=
+  `TOP ${order.length} LARGEST COUNTRIES BY POPULATION (LIVE)`;
 }
 
 function build(){
@@ -462,7 +505,10 @@ async function fetchBaseline(){
  if(!world||!br||!dr||br<=dr) throw new Error("bad world figures");
 
  const ranked=rows.filter(r=>r.year===year).sort((a,b)=>b.pop-a.pop);
- if(ranked.length<SHOW) throw new Error("not enough countries");
+ /* A floor, not SHOW: POOL holds exactly SHOW countries, so demanding all of
+    them would let one country missing from a future World Bank release throw
+    the whole refresh away and strand the page on the 30-row snapshot. */
+ if(ranked.length<MIN_ROWS) throw new Error("not enough countries");
 
  return {
   year, asOf:`${year}-07-01`, source:"World Bank open data",
