@@ -2,6 +2,9 @@
 
 const MUSIC_REST = 0.18;
 const MUSIC_DUCKED = 0.05;
+/* Narration sits at 30% rather than unity. Still well clear of the ducked bed
+   at 0.05, so a line stays intelligible over the music. */
+const VOICE_LEVEL = 0.30;
 const DUCK_MS = 350;
 const TAIL_MS = 500;
 
@@ -47,7 +50,7 @@ export function createAudioEngine() {
       musicGain.connect(ctx.destination);
 
       voiceGain = ctx.createGain();
-      voiceGain.gain.value = 1;
+      voiceGain.gain.value = VOICE_LEVEL;
       voiceGain.connect(ctx.destination);
 
       const music = document.getElementById("bgMusic");
@@ -197,8 +200,11 @@ async function start() {
   }
 
   const btn = document.getElementById("voiceBtn");
+  /* The button holds a constant 🎙 from the markup and shows off by dimming.
+     Swapping in a mute glyph would make it identical to the music button's
+     off state, and with the text labels gone nothing else tells them apart. */
   function paint() {
-    if (btn) btn.textContent = engine.enabled() ? "🎙" : "🔇";
+    if (btn) btn.classList.toggle("off", !engine.enabled());
   }
   if (btn) {
     btn.addEventListener("click", (e) => {
