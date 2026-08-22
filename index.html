@@ -127,7 +127,11 @@ body{display:flex;justify-content:center}
  .flag{font-size:min(12px,2vh)}
 }
 
-.music-btn{position:fixed;right:12px;top:12px;z-index:50;border:1px solid #ddd;background:#fff;color:#333;border-radius:22px;padding:8px 12px;font-weight:700;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
+.music-btn{position:fixed;right:12px;top:12px;z-index:50;border:1px solid #ddd;background:#fff;color:#333;border-radius:50%;width:34px;height:34px;padding:0;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
+/* Each button keeps one constant icon and signals off by dimming. Swapping in
+   a muted-speaker glyph would give both buttons the same off-state icon, and
+   with the text labels gone there would be nothing left to tell them apart. */
+.music-btn.off{opacity:.4;filter:grayscale(1)}
 
 </style>
 </head>
@@ -138,7 +142,7 @@ body{display:flex;justify-content:center}
     <img class="avatar" src="channels4_profile.jpg" alt="History Warrior Logo">
     <div class="channel-info">
       <div class="channel-name">History Warrior</div>
-      <div class="channel-sub">🔴 &nbsp;♙ 1197 &nbsp; 👍 820</div>
+      <div class="channel-sub">🔴 &nbsp;♙ 1201 &nbsp; 👍 820</div>
     </div>
     <button class="subscribe">Subscribe</button>
     <div class="more">•••</div>
@@ -487,9 +491,23 @@ refresh();
 window.__souls={get data(){return data},refresh,SNAPSHOT};
 </script>
 
-<audio id="bgMusic" src="Felt Keys for Marchers.mp3" loop preload="auto" muted></audio>
-<button class="music-btn" id="musicBtn" type="button">🔇</button>
-<script>
+<audio id="bgMusic" preload="auto" muted></audio>
+<button class="music-btn" id="musicBtn" type="button" aria-label="Toggle music">🔊</button>
+<script type="module">
+import { createPlaylist } from "./js/playlist.js";
+
+/* The background music bed. Add filenames here to extend the rotation; the
+   playlist shuffles them, plays through, and reshuffles.
+
+   One <audio> element serves every track, with its src swapped between them.
+   js/narrator.js binds a MediaElementSource to this exact element so the bed
+   can be ducked under voice clips, and that binding follows the element, not
+   the src — a second element would need its own source node and would never
+   get ducked. */
+const TRACKS = [
+  "Felt Keys for Marchers.mp3",
+];
+
 (function(){
   const audio=document.getElementById("bgMusic");
   const btn=document.getElementById("musicBtn");
@@ -502,12 +520,31 @@ window.__souls={get data(){return data},refresh,SNAPSHOT};
   // attenuation) and this line stops mattering.
   audio.volume=0.18;
 
+  const playlist=createPlaylist({tracks:TRACKS});
+  let current=null;
+  let exhausted=false;
+
   function render(){
-    btn.textContent=audio.paused ? "🔇" : "🔊";
+    btn.classList.toggle("off",audio.paused||exhausted);
+  }
+
+  // Loads the next track into the element. False means every track has failed
+  // and there is nothing left to play — callers must stop rather than retry,
+  // or a fully-broken TRACKS list spins.
+  function cue(){
+    const next=playlist.next();
+    if(!next){exhausted=true;current=null;render();return false;}
+    current=next;
+    audio.src=next;
+    return true;
   }
 
   async function play(){
+    if(exhausted)return;
     audio.muted=false;
+    // A pause keeps `current`, so resuming picks the track back up rather
+    // than skipping to the next one.
+    if(!current&&!cue())return;
     try{await audio.play();}catch(e){}
     render();
   }
@@ -517,9 +554,29 @@ window.__souls={get data(){return data},refresh,SNAPSHOT};
     render();
   }
 
+  audio.addEventListener("ended",function(){
+    if(cue())play();
+  });
+
+  // A file that 404s or fails to decode is retired for the session and the bed
+  // moves on, so one bad filename in TRACKS cannot silence the stream. This
+  // terminates: every retirement shrinks the pool, and cue() reports false
+  // once the pool is empty.
+  audio.addEventListener("error",function(){
+    if(!current)return;
+    playlist.retire(current);
+    current=null;
+    if(cue())play();
+  });
+
   btn.addEventListener("click",function(e){
     e.stopPropagation();
-    if(audio.paused) play(); else pause();
+    // Persist the intent rather than audio.paused: play() calls the element's
+    // play() synchronously, so by the time a second handler read .paused it
+    // would already be false and store the opposite of what was clicked.
+    const on=audio.paused;
+    if(on) play(); else pause();
+    try{localStorage.setItem("souls-music",on?"on":"off");}catch(e){}
   });
 
   // Browsers block audible autoplay. If music was enabled previously,
@@ -537,17 +594,13 @@ window.__souls={get data(){return data},refresh,SNAPSHOT};
   document.addEventListener("touchstart",firstGesture,{once:true});
   document.addEventListener("keydown",firstGesture,{once:true});
 
-  btn.addEventListener("click",function(){
-    try{localStorage.setItem("souls-music",audio.paused?"on":"off");}catch(e){}
-  });
-
   audio.addEventListener("play",render);
   audio.addEventListener("pause",render);
   render();
 })();
 </script>
 
-<button class="music-btn" id="voiceBtn" type="button" style="top:52px">🎙</button>
+<button class="music-btn" id="voiceBtn" type="button" style="top:54px" aria-label="Toggle narration">🎙</button>
 <script type="module" src="js/narrator.js"></script>
 
 </body>

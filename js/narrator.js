@@ -198,7 +198,7 @@ async function start() {
 
   const btn = document.getElementById("voiceBtn");
   function paint() {
-    if (btn) btn.textContent = engine.enabled() ? "🎙 Voice" : "🔇 Voice";
+    if (btn) btn.textContent = engine.enabled() ? "🎙" : "🔇";
   }
   if (btn) {
     btn.addEventListener("click", (e) => {
