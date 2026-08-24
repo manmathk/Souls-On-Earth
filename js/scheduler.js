@@ -39,23 +39,16 @@ export function createHistory(size) {
   };
 }
 
-const SCHEDULED = ["fact", "wry", "chat", "timeofday"];
-
-/* Selection has three jobs: keep the mix varied (category rotation), respect
-   the clock (timeofday gating), and let genuine on-screen events jump the
-   queue. History blocking is best-effort — if every candidate is blocked we
-   would rather repeat a line than fall silent, so the fallback ignores it. */
+/* All normal voiceovers share one global shuffle bag. This means the next
+   voice is randomized across fact/wry/chat/timeofday instead of forcing a
+   category rotation. Each clip is drawn once before the pool reshuffles.
+   Time-of-day constraints are still respected. Event-triggered clips retain
+   priority over the normal shuffle. */
 export function createScheduler({ lines, historySize = 60, random = Math.random }) {
   const byId = new Map(lines.map((l) => [l.id, l]));
   const history = createHistory(historySize);
   const events = [];
-  let lastCategory = null;
-
-  const bags = new Map();
-  for (const cat of SCHEDULED) {
-    const ids = lines.filter((l) => l.category === cat).map((l) => l.id);
-    if (ids.length) bags.set(cat, createBag(ids, random));
-  }
+  const bag = createBag(lines.map((l) => l.id), random);
 
   function eligible(id, hourUTC) {
     const line = byId.get(id);
@@ -67,10 +60,7 @@ export function createScheduler({ lines, historySize = 60, random = Math.random 
                       : hourUTC >= from || hourUTC < to;
   }
 
-  function pickFrom(cat, hourUTC, allowRepeat) {
-    const bag = bags.get(cat);
-    if (!bag) return null;
-    // Bounded scan: one full pass of the bag is enough to know.
+  function pick(hourUTC, allowRepeat) {
     const limit = lines.length + 1;
     for (let i = 0; i < limit; i++) {
       const id = bag.take();
@@ -90,22 +80,13 @@ export function createScheduler({ lines, historySize = 60, random = Math.random 
         return id;
       }
 
-      let cats = SCHEDULED.filter((c) => c !== lastCategory && bags.has(c));
-      if (!cats.length) {
-        cats = SCHEDULED.filter((c) => bags.has(c));
-      }
-      const order = createBag(cats, random);
-
+      // Prefer an unseen clip from the current shuffle cycle. Only when the
+      // recent-history window blocks the entire cycle do we allow a repeat.
       for (const allowRepeat of [false, true]) {
-        for (let i = 0; i < cats.length; i++) {
-          const cat = order.take();
-          if (cat === null) break;
-          const id = pickFrom(cat, hourUTC, allowRepeat);
-          if (id) {
-            history.push(id);
-            lastCategory = cat;
-            return id;
-          }
+        const id = pick(hourUTC, allowRepeat);
+        if (id) {
+          history.push(id);
+          return id;
         }
       }
       return null;
@@ -115,6 +96,6 @@ export function createScheduler({ lines, historySize = 60, random = Math.random 
       if (byId.has(id)) events.push(id);
     },
 
-    state: () => ({ lastCategory, pendingEvents: events.length }),
+    state: () => ({ pendingEvents: events.length, remaining: bag.remaining() }),
   };
 }
