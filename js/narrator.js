@@ -110,8 +110,8 @@ export function createAudioEngine() {
 import { createScheduler } from "./scheduler.js";
 import { createCrossingDetector, detectRankChange } from "./detectors.js";
 
-const GAP_MIN_MS = 45000;
-const GAP_MAX_MS = 90000;
+const GAP_MIN_MS = 90000;
+const GAP_MAX_MS = 180000;
 const CROSSING_STEP = 50000;
 
 function gap() {
