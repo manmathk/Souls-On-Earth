@@ -4,5 +4,12 @@
  {"id": "fact-0001", "category": "fact",
   "text": "Nigeria is on course to overtake the United States as the world's third most populous country before 2050."},
  {"id": "chat-0001", "category": "chat",
-  "text": "Drop your country in the chat. Let's see who is watching."}
+  "text": "Drop your country in the chat. Let's see who is watching."},
+ {"id":"wry-0002","text":"The world did not wait for you to finish counting. It kept growing anyway."},
+ {"id":"wry-0004","text":"Eight billion people, and somehow we still cannot agree on what to have for dinner."}
+,{"id":"fact-0014","text":"The world's population is now more than three times larger than it was in 1950."}
+,{"id":"chat-0002","text":"Which country surprised you the most? Tell us below."}
+,{"id":"wry-0008","text":"Humanity has been adding people for centuries. At this point, stopping would feel suspicious."}
+
+
 ]
