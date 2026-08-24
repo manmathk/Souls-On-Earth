@@ -27,13 +27,6 @@ export function createAudioEngine() {
     param.linearRampToValueAtTime(value, now + ms / 1000);
   }
 
-  /* Creates the AudioContext and wires the graph on the first call; resumes
-     it on suspended calls thereafter. Never throws and never leaves a
-     rejected promise behind — returns true once the graph is actually ready
-     to play through, false on any failure (no AudioContext support,
-     resume() rejecting, a node failing to construct). Task 7 checks this
-     before starting its narration loop, so a caller that skips the check
-     never gets to a dead engine silently. */
   async function unlock() {
     try {
       if (ctx) {
@@ -55,12 +48,10 @@ export function createAudioEngine() {
 
       const music = document.getElementById("bgMusic");
       if (music) {
-        music.volume = 1; // gain node owns the level from here on
+        music.volume = 1;
         ctx.createMediaElementSource(music).connect(musicGain);
       }
 
-      // Two elements reused round-robin. Creating one per clip leaks steadily,
-      // which matters when the page runs for weeks.
       for (let i = 0; i < 2; i++) {
         const el = new Audio();
         el.crossOrigin = "anonymous";
@@ -74,19 +65,10 @@ export function createAudioEngine() {
     }
   }
 
-  /* A clip that 404s or fails to decode is retired for the session. Without
-     this, a single missing file reappears in rotation forever, producing a
-     silent gap every time it is drawn. */
   const dead = new Set();
 
-  /* Callers must serialize calls: await each play() before starting the
-     next. Reusing an element whose previous clip is still playing fires
-     "abort" on that element, not "error" — a case the listeners below do
-     not handle. */
   function play(url) {
     if (!ctx || !musicGain || !enabled || dead.has(url)) return Promise.resolve(false);
-    // A pending restore from the previous clip must not fire mid-clip and
-    // swell the music back up while this one is speaking.
     if (restoreTimer) {
       clearTimeout(restoreTimer);
       restoreTimer = null;
@@ -136,6 +118,44 @@ function gap() {
   return GAP_MIN_MS + Math.random() * (GAP_MAX_MS - GAP_MIN_MS);
 }
 
+/* The manifest is the legacy audio index, while lines.json is the source of
+   truth for the full line catalogue. Merge both so adding a new text line does
+   not silently exclude it from narration. New lines default to <id>.mp3 and
+   infer their category from the id prefix (wry/fact/chat/timeofday).
+
+   Existing manifest metadata always wins, so crossings and other triggers keep
+   working exactly as before. */
+async function loadVoiceLines() {
+  const [manifest, textPack] = await Promise.all([
+    fetch("voice/manifest.json").then((r) => r.json()),
+    fetch("voice/lines.json").then((r) => r.json()),
+  ]);
+
+  const byId = new Map((textPack || []).map((l) => [l.id, l]));
+  const merged = [];
+
+  for (const l of manifest.lines || []) {
+    const text = byId.get(l.id);
+    merged.push({
+      ...(text || {}),
+      ...l,
+      category: l.category || text?.category || l.id.split("-")[0],
+      file: l.file || `${l.id}.mp3`,
+    });
+    byId.delete(l.id);
+  }
+
+  for (const l of byId.values()) {
+    merged.push({
+      ...l,
+      category: l.category || l.id.split("-")[0],
+      file: l.file || `${l.id}.mp3`,
+    });
+  }
+
+  return merged;
+}
+
 async function start() {
   const params = new URLSearchParams(location.search);
   const testMode = params.get("voice") === "test";
@@ -143,8 +163,7 @@ async function start() {
     ? params.get("voice").slice(4)
     : null;
 
-  const manifest = await fetch("voice/manifest.json").then((r) => r.json());
-  let lines = manifest.lines;
+  let lines = await loadVoiceLines();
   if (onlyCategory) lines = lines.filter((l) => l.category === onlyCategory);
 
   const byId = new Map(lines.map((l) => [l.id, l]));
@@ -200,9 +219,6 @@ async function start() {
   }
 
   const btn = document.getElementById("voiceBtn");
-  /* The button holds a constant 🎙 from the markup and shows off by dimming.
-     Swapping in a mute glyph would make it identical to the music button's
-     off state, and with the text labels gone nothing else tells them apart. */
   function paint() {
     if (btn) btn.classList.toggle("off", !engine.enabled());
   }
@@ -219,7 +235,6 @@ async function start() {
 
   async function unlockAndRun() {
     if (await engine.unlock()) loop();
-    // false: no AudioContext or it failed to resume. Stay silent; the page is unaffected.
   }
   ["click", "touchstart", "keydown"].forEach((ev) =>
     document.addEventListener(ev, unlockAndRun, { once: true })
@@ -229,6 +244,4 @@ async function start() {
     byId.has(id) ? engine.play("voice/" + byId.get(id).file) : null };
 }
 
-/* Any failure here leaves the page exactly as it is today — same silent-failure
-   contract the World Bank refresh already follows. */
 start().catch(() => {});
