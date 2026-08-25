@@ -24,3 +24,13 @@ export function computeShifts(before, after) {
   }
   return shifts;
 }
+
+/* Static channel snapshot.
+   index.html already imports this module before its main render starts, so
+   this keeps the subscriber figure in one small, cacheable source without
+   adding another script tag to the stream page. The value is intentionally a
+   snapshot, not presented as a live API result. */
+if (typeof document !== "undefined") {
+  const el = document.querySelector(".channel-sub");
+  if (el) el.textContent = "🔴  ♙ 6629  👍 820";
+}
