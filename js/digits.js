@@ -1,14 +1,5 @@
 // js/digits.js
 
-/* Which characters of the counter moved between two ticks.
-
-   The world figure gains a couple of souls a second, so all but the last digit
-   or two are identical every time -- animating the whole number would mean
-   thirteen animations a second to show two digits moving.
-
-   A change in width means the thousands separators have all shifted, so
-   patching characters in place would leave the commas in the wrong columns:
-   the caller rebuilds instead, and nothing animates on that tick. */
 export function diffDigits(prev, next) {
   if (prev.length !== next.length) return { rebuild: true, changed: [] };
   const changed = [];
@@ -19,10 +10,11 @@ export function diffDigits(prev, next) {
 }
 
 /* Country population direction cue.
-   The index page continuously rewrites each .pop value. Compare consecutive
-   rendered values rather than guessing from rank movement: an increase is
-   upward/green, a decrease is downward/red, and an unchanged value is neutral.
-   New rows start neutral until their first live comparison. */
+   The country rows are ranked by population, but their colour is determined by
+   the country's population-growth category: positive = upward/green, negative
+   = downward/red, zero = neutral. This is deliberately independent of rank.
+   The live baseline is exposed by index.html as window.__souls.data. A small
+   fallback compares rendered values when a baseline is not yet available. */
 (function installCountryDirectionColors(){
   if (typeof document === "undefined") return;
 
@@ -35,45 +27,56 @@ export function diffDigits(prev, next) {
   (document.head || document.documentElement).appendChild(style);
 
   const previous = new WeakMap();
-  const apply = el => {
-    if (!el || !el.classList || !el.closest(".country")) return;
-    const value = Number(String(el.textContent).replace(/[^0-9.-]/g, ""));
-    if (!Number.isFinite(value)) return;
 
-    const old = previous.get(el);
-    previous.set(el, value);
-    if (old === undefined) {
-      el.classList.add("direction-neutral");
+  function apply(el){
+    if (!el || !el.classList || !el.closest(".country")) return;
+    const row=el.closest(".country");
+    const idx=Number(row.dataset.i);
+    const countries=window.__souls?.data?.countries;
+    const rate=countries && Number.isInteger(idx) && countries[idx] ? Number(countries[idx][3]) : NaN;
+
+    el.classList.remove("direction-up","direction-down","direction-neutral");
+
+    /* Prefer the actual growth category. This makes the colour correct on the
+       first render instead of waiting for the second counter tick. */
+    if (Number.isFinite(rate)) {
+      if (rate > 0) el.classList.add("direction-up");
+      else if (rate < 0) el.classList.add("direction-down");
+      else el.classList.add("direction-neutral");
       return;
     }
 
-    el.classList.remove("direction-up","direction-down","direction-neutral");
-    if (value > old) el.classList.add("direction-up");
-    else if (value < old) el.classList.add("direction-down");
-    else el.classList.add("direction-neutral");
+    /* Fallback for the tiny interval before __souls.data is available. */
+    const value=Number(String(el.textContent).replace(/[^0-9.-]/g,""));
+    if (!Number.isFinite(value)) return;
+    const old=previous.get(el);
+    previous.set(el,value);
+    if (old===undefined || value===old) el.classList.add("direction-neutral");
+    else if (value>old) el.classList.add("direction-up");
+    else el.classList.add("direction-down");
+  }
+
+  const scan=root=>{
+    if (root.nodeType!==1) return;
+    if (root.matches?.(".country .pop")) apply(root);
+    root.querySelectorAll?.(".country .pop").forEach(apply);
   };
 
-  const scan = root => {
-    if (root.nodeType !== 1) return;
-    if (root.matches && root.matches(".country .pop")) apply(root);
-    if (root.querySelectorAll) root.querySelectorAll(".country .pop").forEach(apply);
-  };
-
-  const observer = new MutationObserver(mutations => {
-    for (const mutation of mutations) {
-      if (mutation.type === "childList") mutation.addedNodes.forEach(scan);
-      else if (mutation.type === "characterData") {
-        const parent = mutation.target.parentElement;
-        if (parent && parent.matches(".pop")) apply(parent);
+  const observer=new MutationObserver(mutations=>{
+    for(const mutation of mutations){
+      if(mutation.type==="childList") mutation.addedNodes.forEach(scan);
+      else if(mutation.type==="characterData"){
+        const parent=mutation.target.parentElement;
+        if(parent?.matches(".pop")) apply(parent);
       }
     }
   });
 
-  const start = () => {
+  const start=()=>{
     document.querySelectorAll(".country .pop").forEach(apply);
-    observer.observe(document.body, {subtree:true,childList:true,characterData:true});
+    observer.observe(document.body,{subtree:true,childList:true,characterData:true});
   };
 
-  if (document.body) start();
-  else document.addEventListener("DOMContentLoaded", start, {once:true});
+  if(document.body) start();
+  else document.addEventListener("DOMContentLoaded",start,{once:true});
 })();
