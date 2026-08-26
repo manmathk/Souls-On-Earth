@@ -1,6 +1,6 @@
 /* Runtime narration for secondary live-counter pages.
    Primary engine: Kokoro-82M in the browser. Browser SpeechSynthesis is a
-   fallback so narration still works if the neural model cannot load. */
+   fallback so narration still works if the neural model is unavailable. */
 
 const PAGE_LINES={
   cities:[
@@ -35,7 +35,7 @@ const PAGE_LINES={
 
 const PAGE_VOICES={cities:"am_michael",births:"af_heart",deaths:"am_adam",growth:"bf_emma"};
 const MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";
-const FIRST_MIN=8000, FIRST_MAX=15000;
+const FIRST_DELAY=5000;
 const GAP_MIN=90000, GAP_MAX=180000;
 const VOLUME=.22;
 
@@ -48,10 +48,7 @@ function shuffle(a){
 async function loadKokoro(){
   const mod=await import("https://esm.sh/kokoro-js@1.2.1");
   const device=navigator.gpu?"webgpu":"wasm";
-  return mod.KokoroTTS.from_pretrained(MODEL_ID,{
-    dtype:device==="webgpu"?"q8":"q4f16",
-    device
-  });
+  return mod.KokoroTTS.from_pretrained(MODEL_ID,{dtype:device==="webgpu"?"q8":"q4f16",device});
 }
 
 function browserSpeak(text,done){
@@ -63,11 +60,8 @@ function browserSpeak(text,done){
     const preferred=voices.find(v=>/en-IN|en-US|en-GB/i.test(v.lang)&&/natural|neural|premium|enhanced/i.test(v.name));
     if(preferred)u.voice=preferred;
     u.lang=preferred?.lang||"en-IN";
-    u.rate=.94;
-    u.pitch=.98;
-    u.volume=VOLUME;
-    u.onend=()=>done?.();
-    u.onerror=()=>done?.();
+    u.rate=.94;u.pitch=.98;u.volume=VOLUME;
+    u.onend=()=>done?.();u.onerror=()=>done?.();
     speechSynthesis.speak(u);
     return true;
   }catch(e){done?.();return false;}
@@ -78,39 +72,46 @@ async function start(){
   const pool=PAGE_LINES[page];
   if(!pool?.length)return;
 
-  let bag=shuffle(pool), started=false, timer=null, tts=null, loading=null, audio=null, objectUrl=null;
+  let bag=shuffle(pool),started=false,timer=null,tts=null,loading=null,audio=null,objectUrl=null;
   const nextLine=()=>{if(!bag.length)bag=shuffle(pool);return bag.pop();};
   const schedule=ms=>{clearTimeout(timer);timer=setTimeout(playNext,ms);};
 
   async function ensureTTS(){
     if(tts)return tts;
-    if(!loading){
-      loading=loadKokoro().catch(e=>{console.warn("Kokoro unavailable; using browser speech",e);return null;});
-    }
+    if(!loading)loading=loadKokoro().catch(e=>{console.warn("Kokoro unavailable",e);return null;});
     tts=await loading;
     return tts;
+  }
+
+  async function playWithKokoro(text,engine){
+    const result=await engine.generate(text,{voice:PAGE_VOICES[page],speed:.96});
+    if(!started)return false;
+    if(audio){audio.pause();audio.remove();}
+    if(objectUrl)URL.revokeObjectURL(objectUrl);
+    objectUrl=URL.createObjectURL(await result.toBlob());
+    audio=new Audio(objectUrl);
+    audio.volume=VOLUME;
+    audio.onended=()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN));
+    audio.onerror=()=>schedule(5000);
+    await audio.play();
+    return true;
   }
 
   async function playNext(){
     if(!started)return;
     const text=nextLine();
-    const engine=await ensureTTS();
+
+    // Give Kokoro a few seconds to initialize. If the model is still loading,
+    // use the phone's native speech engine for this line instead of staying silent.
+    const engine=await Promise.race([
+      ensureTTS(),
+      new Promise(resolve=>setTimeout(()=>resolve(null),FIRST_DELAY))
+    ]);
     if(!started)return;
 
     if(engine){
-      try{
-        const result=await engine.generate(text,{voice:PAGE_VOICES[page],speed:.96});
-        if(!started)return;
-        if(audio){audio.pause();audio.remove();}
-        if(objectUrl)URL.revokeObjectURL(objectUrl);
-        objectUrl=URL.createObjectURL(await result.toBlob());
-        audio=new Audio(objectUrl);
-        audio.volume=VOLUME;
-        audio.onended=()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN));
-        audio.onerror=()=>schedule(5000);
-        await audio.play();
-        return;
-      }catch(e){console.warn("Kokoro playback failed; using browser speech",e);}
+      try{if(await playWithKokoro(text,engine))return;}
+      catch(e){console.warn("Kokoro playback failed",e);}
     }
 
     browserSpeak(text,()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN)));
@@ -119,17 +120,10 @@ async function start(){
   function unlock(){
     if(started)return;
     started=true;
-    // Start loading only after a real gesture. This avoids losing the gesture
-    // while the ~300 MB Kokoro model is being initialized on mobile.
     playNext();
-    // If Kokoro is still downloading, browser speech provides an immediate
-    // audible fallback rather than leaving the page silent.
-    clearTimeout(timer);
-    timer=setTimeout(()=>{
-      if(!tts&&"speechSynthesis" in window)browserSpeak(nextLine(),()=>{});
-    },FIRST_MIN);
   }
 
+  // Register the gesture listeners BEFORE any model/network work.
   ["click","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,unlock,{once:true,passive:true}));
 }
 
