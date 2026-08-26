@@ -1,6 +1,6 @@
 /* Runtime narration for secondary live-counter pages.
-   Uses Kokoro-82M in the browser: no API key, no MP3 files, and no server.
-   The model is cached by the browser after its first download. */
+   Primary engine: Kokoro-82M in the browser. Browser SpeechSynthesis is a
+   fallback so narration still works if the neural model cannot load. */
 
 const PAGE_LINES={
   cities:[
@@ -33,91 +33,104 @@ const PAGE_LINES={
   ]
 };
 
-const PAGE_VOICES={
-  cities:"am_michael",
-  births:"af_heart",
-  deaths:"am_adam",
-  growth:"bf_emma"
-};
-
-const GAP_MIN=90000;
-const GAP_MAX=180000;
-const FIRST_MIN=30000;
-const FIRST_MAX=60000;
-const VOLUME=.20;
+const PAGE_VOICES={cities:"am_michael",births:"af_heart",deaths:"am_adam",growth:"bf_emma"};
 const MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";
+const FIRST_MIN=8000, FIRST_MAX=15000;
+const GAP_MIN=90000, GAP_MAX=180000;
+const VOLUME=.22;
 
 function shuffle(a){
   const x=[...a];
-  for(let i=x.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [x[i],x[j]]=[x[j],x[i]];
-  }
+  for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}
   return x;
+}
+
+async function loadKokoro(){
+  const mod=await import("https://esm.sh/kokoro-js@1.2.1");
+  const device=navigator.gpu?"webgpu":"wasm";
+  return mod.KokoroTTS.from_pretrained(MODEL_ID,{
+    dtype:device==="webgpu"?"q8":"q4f16",
+    device
+  });
+}
+
+function browserSpeak(text,done){
+  if(!("speechSynthesis" in window)){done?.();return false;}
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    const voices=speechSynthesis.getVoices();
+    const preferred=voices.find(v=>/en-IN|en-US|en-GB/i.test(v.lang)&&/natural|neural|premium|enhanced/i.test(v.name));
+    if(preferred)u.voice=preferred;
+    u.lang=preferred?.lang||"en-IN";
+    u.rate=.94;
+    u.pitch=.98;
+    u.volume=VOLUME;
+    u.onend=()=>done?.();
+    u.onerror=()=>done?.();
+    speechSynthesis.speak(u);
+    return true;
+  }catch(e){done?.();return false;}
 }
 
 async function start(){
   const page=document.body.dataset.page;
   const pool=PAGE_LINES[page];
-  if(!pool||!pool.length)return;
+  if(!pool?.length)return;
 
-  let tts;
-  try{
-    const mod=await import("https://esm.sh/kokoro-js@1.2.1");
-    const device=navigator.gpu?"webgpu":"wasm";
-    tts=await mod.KokoroTTS.from_pretrained(MODEL_ID,{
-      dtype:device==="webgpu"?"q8":"q4f16",
-      device
-    });
-  }catch(e){
-    console.warn("Kokoro TTS unavailable",e);
-    return;
+  let bag=shuffle(pool), started=false, timer=null, tts=null, loading=null, audio=null, objectUrl=null;
+  const nextLine=()=>{if(!bag.length)bag=shuffle(pool);return bag.pop();};
+  const schedule=ms=>{clearTimeout(timer);timer=setTimeout(playNext,ms);};
+
+  async function ensureTTS(){
+    if(tts)return tts;
+    if(!loading){
+      loading=loadKokoro().catch(e=>{console.warn("Kokoro unavailable; using browser speech",e);return null;});
+    }
+    tts=await loading;
+    return tts;
   }
 
-  let bag=shuffle(pool);
-  let started=false;
-  let timer=null;
-  let audio=null;
-  let objectUrl=null;
-
-  function nextLine(){
-    if(!bag.length)bag=shuffle(pool);
-    return bag.pop();
-  }
-  function schedule(ms){
-    clearTimeout(timer);
-    timer=setTimeout(playNext,ms);
-  }
   async function playNext(){
     if(!started)return;
     const text=nextLine();
-    try{
-      const result=await tts.generate(text,{voice:PAGE_VOICES[page],speed:0.96});
-      if(!started)return;
-      if(audio){audio.pause();audio.remove();}
-      if(objectUrl)URL.revokeObjectURL(objectUrl);
-      objectUrl=URL.createObjectURL(await result.toBlob());
-      audio=new Audio(objectUrl);
-      audio.volume=VOLUME;
-      audio.addEventListener("ended",()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN)),{once:true});
-      audio.addEventListener("error",()=>schedule(5000),{once:true});
-      await audio.play();
-    }catch(e){
-      console.warn("Kokoro narration failed",e);
-      schedule(5000);
+    const engine=await ensureTTS();
+    if(!started)return;
+
+    if(engine){
+      try{
+        const result=await engine.generate(text,{voice:PAGE_VOICES[page],speed:.96});
+        if(!started)return;
+        if(audio){audio.pause();audio.remove();}
+        if(objectUrl)URL.revokeObjectURL(objectUrl);
+        objectUrl=URL.createObjectURL(await result.toBlob());
+        audio=new Audio(objectUrl);
+        audio.volume=VOLUME;
+        audio.onended=()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN));
+        audio.onerror=()=>schedule(5000);
+        await audio.play();
+        return;
+      }catch(e){console.warn("Kokoro playback failed; using browser speech",e);}
     }
+
+    browserSpeak(text,()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN)));
   }
 
   function unlock(){
     if(started)return;
     started=true;
-    // The gesture only unlocks audio. Give the page a natural quiet opening.
-    schedule(FIRST_MIN+Math.random()*(FIRST_MAX-FIRST_MIN));
+    // Start loading only after a real gesture. This avoids losing the gesture
+    // while the ~300 MB Kokoro model is being initialized on mobile.
+    playNext();
+    // If Kokoro is still downloading, browser speech provides an immediate
+    // audible fallback rather than leaving the page silent.
+    clearTimeout(timer);
+    timer=setTimeout(()=>{
+      if(!tts&&"speechSynthesis" in window)browserSpeak(nextLine(),()=>{});
+    },FIRST_MIN);
   }
 
-  ["click","touchstart","keydown"].forEach(ev=>
-    document.addEventListener(ev,unlock,{once:true,passive:true})
-  );
+  ["click","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,unlock,{once:true,passive:true}));
 }
 
-start().catch(()=>{});
+start().catch(e=>console.warn("Page narration failed to initialize",e));
