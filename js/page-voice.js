@@ -1,6 +1,6 @@
 /* Runtime narration for secondary live-counter pages.
-   Primary engine: Kokoro-82M in the browser. Browser SpeechSynthesis is a
-   fallback so narration still works if the neural model is unavailable. */
+   Reliable browser-first speech with optional Kokoro upgrade.
+   No API key, no MP3 files, no visible voice control. */
 
 const PAGE_LINES={
   cities:[
@@ -35,96 +35,78 @@ const PAGE_LINES={
 
 const PAGE_VOICES={cities:"am_michael",births:"af_heart",deaths:"am_adam",growth:"bf_emma"};
 const MODEL_ID="onnx-community/Kokoro-82M-v1.0-ONNX";
-const FIRST_DELAY=5000;
-const GAP_MIN=90000, GAP_MAX=180000;
+const GAP_MIN=90000,GAP_MAX=180000;
 const VOLUME=.22;
 
-function shuffle(a){
-  const x=[...a];
-  for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}
-  return x;
-}
-
-async function loadKokoro(){
-  const mod=await import("https://esm.sh/kokoro-js@1.2.1");
-  const device=navigator.gpu?"webgpu":"wasm";
-  return mod.KokoroTTS.from_pretrained(MODEL_ID,{dtype:device==="webgpu"?"q8":"q4f16",device});
-}
+function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
 
 function browserSpeak(text,done){
-  if(!("speechSynthesis" in window)){done?.();return false;}
+  if(!('speechSynthesis' in window)){done?.();return false;}
   try{
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
     const voices=speechSynthesis.getVoices();
-    const preferred=voices.find(v=>/en-IN|en-US|en-GB/i.test(v.lang)&&/natural|neural|premium|enhanced/i.test(v.name));
+    const preferred=voices.find(v=>/en-IN|en-US|en-GB/i.test(v.lang)&&/natural|neural|premium|enhanced/i.test(v.name))||voices.find(v=>/^en-(IN|US|GB)/i.test(v.lang));
     if(preferred)u.voice=preferred;
-    u.lang=preferred?.lang||"en-IN";
-    u.rate=.94;u.pitch=.98;u.volume=VOLUME;
+    u.lang=preferred?.lang||'en-IN';
+    u.rate=.92;u.pitch=.98;u.volume=VOLUME;
     u.onend=()=>done?.();u.onerror=()=>done?.();
     speechSynthesis.speak(u);
     return true;
   }catch(e){done?.();return false;}
 }
 
-async function start(){
-  const page=document.body.dataset.page;
-  const pool=PAGE_LINES[page];
-  if(!pool?.length)return;
+async function loadKokoro(){
+  try{
+    const mod=await import('https://esm.sh/kokoro-js@1.2.1');
+    const device=navigator.gpu?'webgpu':'wasm';
+    return await mod.KokoroTTS.from_pretrained(MODEL_ID,{dtype:device==='webgpu'?'q8':'q4f16',device});
+  }catch(e){console.warn('Kokoro unavailable; native speech remains active',e);return null;}
+}
 
-  let bag=shuffle(pool),started=false,timer=null,tts=null,loading=null,audio=null,objectUrl=null;
-  const nextLine=()=>{if(!bag.length)bag=shuffle(pool);return bag.pop();};
+async function start(){
+  const page=document.body.dataset.page,pool=PAGE_LINES[page];
+  if(!pool?.length)return;
+  let bag=shuffle(pool),started=false,timer=null,ttsPromise=null,audio=null,objectUrl=null;
+  const next=()=>{if(!bag.length)bag=shuffle(pool);return bag.pop();};
   const schedule=ms=>{clearTimeout(timer);timer=setTimeout(playNext,ms);};
 
-  async function ensureTTS(){
-    if(tts)return tts;
-    if(!loading)loading=loadKokoro().catch(e=>{console.warn("Kokoro unavailable",e);return null;});
-    tts=await loading;
-    return tts;
-  }
+  // Start the native voice synchronously from the user's gesture. This is the
+  // critical part: browsers can reject audio created after an async await.
+  function unlock(){
+    if(started)return;
+    started=true;
+    const first=next();
+    browserSpeak(first,()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN)));
 
-  async function playWithKokoro(text,engine){
-    const result=await engine.generate(text,{voice:PAGE_VOICES[page],speed:.96});
-    if(!started)return false;
-    if(audio){audio.pause();audio.remove();}
-    if(objectUrl)URL.revokeObjectURL(objectUrl);
-    objectUrl=URL.createObjectURL(await result.toBlob());
-    audio=new Audio(objectUrl);
-    audio.volume=VOLUME;
-    audio.onended=()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN));
-    audio.onerror=()=>schedule(5000);
-    await audio.play();
-    return true;
+    // Load Kokoro in the background. Future lines use it when available.
+    ttsPromise=loadKokoro();
   }
 
   async function playNext(){
     if(!started)return;
-    const text=nextLine();
-
-    // Give Kokoro a few seconds to initialize. If the model is still loading,
-    // use the phone's native speech engine for this line instead of staying silent.
-    const engine=await Promise.race([
-      ensureTTS(),
-      new Promise(resolve=>setTimeout(()=>resolve(null),FIRST_DELAY))
-    ]);
+    const text=next();
+    let engine=null;
+    if(ttsPromise)engine=await ttsPromise;
     if(!started)return;
-
     if(engine){
-      try{if(await playWithKokoro(text,engine))return;}
-      catch(e){console.warn("Kokoro playback failed",e);}
+      try{
+        const result=await engine.generate(text,{voice:PAGE_VOICES[page],speed:.96});
+        if(!started)return;
+        if(audio){audio.pause();audio.remove();}
+        if(objectUrl)URL.revokeObjectURL(objectUrl);
+        objectUrl=URL.createObjectURL(await result.toBlob());
+        audio=new Audio(objectUrl);audio.volume=VOLUME;
+        audio.onended=()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN));
+        audio.onerror=()=>browserSpeak(text,()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN)));
+        await audio.play();
+        return;
+      }catch(e){console.warn('Kokoro playback failed; using native speech',e);}
     }
-
     browserSpeak(text,()=>schedule(GAP_MIN+Math.random()*(GAP_MAX-GAP_MIN)));
   }
 
-  function unlock(){
-    if(started)return;
-    started=true;
-    playNext();
-  }
-
-  // Register the gesture listeners BEFORE any model/network work.
-  ["click","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,unlock,{once:true,passive:true}));
+  ['click','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,unlock,{once:true,passive:true}));
 }
 
-start().catch(e=>console.warn("Page narration failed to initialize",e));
+start().catch(e=>console.warn('Page narration failed',e));
