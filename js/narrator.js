@@ -143,12 +143,26 @@ async function loadVoiceLines(){
   return merged;
 }
 
+function preloadVoiceFiles(lines){
+  const cache=[];
+  for(const line of lines){
+    if(!line?.file) continue;
+    const audio=new Audio();
+    audio.preload="auto";
+    audio.src="voice/"+line.file;
+    audio.load();
+    cache.push(audio);
+  }
+  window.__voicePreload=cache;
+}
+
 async function start(){
   const params=new URLSearchParams(location.search);
   const testMode=params.get("voice")==="test";
   const onlyCategory=(params.get("voice")||"").startsWith("cat:")?params.get("voice").slice(4):null;
   let lines=await loadVoiceLines();
   if(onlyCategory)lines=lines.filter(l=>l.category===onlyCategory);
+  preloadVoiceFiles(lines);
   const byId=new Map(lines.map(l=>[l.id,l]));
   const scheduler=createScheduler({lines,historySize:60});
   const engine=createAudioEngine();
