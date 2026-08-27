@@ -14,8 +14,6 @@
 const frame=document.getElementById('frame');
 const API='https://api.worldbank.org/v2';
 const BATCH=20,TOP=100,YEAR=365.25*86400;
-/* Keep the horizontal headline on exactly the same daily birth/death model as
-   index.html, instead of deriving the headline from only the top 100 countries. */
 const INDEX_BIRTHS_PER_YEAR=132503469;
 const INDEX_DEATHS_PER_YEAR=63637314;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -37,8 +35,14 @@ frame.addEventListener('load',async()=>{
     .avatar{width:40px!important;height:40px!important}
     .channel-name{font-size:15px!important}.channel-sub{font-size:11px!important}
     .subscribe{padding:8px 15px!important;font-size:12px!important}
-    .summary{height:128px!important;min-height:128px!important;grid-template-columns:28% 72%!important;padding:0!important}
-    .today{padding:7px 12px 4px!important}.today-title{font-size:11px!important;margin-bottom:4px!important}.stat{margin:3px 0!important}.stat-label{font-size:10px!important}.stat-value{font-size:16px!important}
+
+    /* Give the summary enough vertical room for all three daily statistics.
+       The previous 128px box let the third line fall underneath the red chat
+       banner on 16:9 captures. */
+    .summary{height:145px!important;min-height:145px!important;max-height:145px!important;grid-template-columns:28% 72%!important;padding:0!important}
+    .today{padding:10px 12px 6px!important;overflow:visible!important}
+    .today-title{font-size:11px!important;margin-bottom:5px!important}
+    .stat{margin:4px 0!important}.stat-label{font-size:10px!important}.stat-value{font-size:16px!important;line-height:1.05!important}
     .hero{padding:8px 10px 4px!important}.hero-title{font-size:16px!important;margin-bottom:2px!important}.world-pop{font-size:clamp(38px,4.6vw,64px)!important;line-height:.95!important}.live-row{margin-top:7px!important}
     .live,.yt{padding:7px 18px!important;font-size:12px!important}.comment{height:34px!important;min-height:34px!important;font-size:13px!important}
     .rank-head{height:30px!important;min-height:30px!important;padding:4px 10px!important;font-size:10px!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}
@@ -51,7 +55,9 @@ frame.addEventListener('load',async()=>{
     .h100-row.up .h100-pop{color:var(--growth)!important}.h100-row.down .h100-pop{color:var(--deaths)!important}.h100-row.neutral .h100-pop{color:var(--text)!important}
     #h100Status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;background:var(--panel);z-index:2}
     @media(max-height:700px){
-      .channel{height:52px!important;min-height:52px!important}.avatar{width:36px!important;height:36px!important}.summary{height:116px!important;min-height:116px!important}.world-pop{font-size:clamp(34px,4.3vw,56px)!important}.rank-head{height:27px!important;min-height:27px!important;font-size:9px!important}.rank-wrap{padding:6px 12px!important}.h100-row{grid-template-columns:17px 20px minmax(0,1fr) auto;gap:3px;padding:0 5px;font-size:10px}.h100-rank{font-size:8px}.h100-flag{font-size:10px}.h100-pop{font-size:9.5px}
+      .channel{height:52px!important;min-height:52px!important}.avatar{width:36px!important;height:36px!important}
+      .summary{height:132px!important;min-height:132px!important;max-height:132px!important}.today{padding:8px 10px 4px!important}.today-title{font-size:10px!important}.stat{margin:2px 0!important}.stat-label{font-size:9px!important}.stat-value{font-size:14px!important}
+      .hero{padding-top:5px!important}.world-pop{font-size:clamp(34px,4.3vw,56px)!important}.rank-head{height:27px!important;min-height:27px!important;font-size:9px!important}.rank-wrap{padding:6px 12px!important}.h100-row{grid-template-columns:17px 20px minmax(0,1fr) auto;gap:3px;padding:0 5px;font-size:10px}.h100-rank{font-size:8px}.h100-flag{font-size:10px}.h100-pop{font-size:9.5px}
     }
   `;
   doc.head.appendChild(style);
@@ -86,7 +92,6 @@ frame.addEventListener('load',async()=>{
   rows.sort((a,b)=>b.pop-a.pop);
   const top=rows.slice(0,TOP);
   if(top.length<TOP)throw new Error('Only '+top.length+' countries had population data');
-
   const anchorYear=Math.max(2010,...top.map(c=>c.year||0));
   const anchor=Date.UTC(anchorYear,6,1);
   function projected(c,now){const yrs=Math.max(0,(now-anchor)/1000/YEAR);return c.pop*Math.pow(1+(c.b-c.d)/1000,yrs)}
@@ -94,9 +99,7 @@ frame.addEventListener('load',async()=>{
     const now=Date.now();
     const liveRows=top.map(c=>({...c,value:projected(c,now),dir:c.b-c.d})).sort((a,b)=>b.value-a.value);
     const dayStart=new Date();dayStart.setHours(0,0,0,0);const sec=(now-dayStart.getTime())/1000;
-    const birthPerSec=INDEX_BIRTHS_PER_YEAR/YEAR;
-    const deathPerSec=INDEX_DEATHS_PER_YEAR/YEAR;
-    const netPerSec=birthPerSec-deathPerSec;
+    const birthPerSec=INDEX_BIRTHS_PER_YEAR/YEAR,deathPerSec=INDEX_DEATHS_PER_YEAR/YEAR,netPerSec=birthPerSec-deathPerSec;
     const world=doc.getElementById('world');if(world)world.textContent=fmt(liveRows.reduce((s,c)=>s+c.value,0));
     const birth=doc.getElementById('births');if(birth)birth.textContent=fmt(birthPerSec*sec);
     const death=doc.getElementById('deaths');if(death)death.textContent=fmt(deathPerSec*sec);
