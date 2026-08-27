@@ -5,65 +5,118 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Souls On Earth — Top 100 Countries Live</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
-body{display:flex;align-items:center;justify-content:center}
-#frame{width:100vw;height:56.25vw;max-width:177.7778vh;max-height:100vh;border:0;display:block;background:#fff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}body{display:flex;align-items:center;justify-content:center}#frame{width:100vw;height:56.25vw;max-width:177.7778vh;max-height:100vh;border:0;display:block;background:#fff}
 </style>
 </head>
 <body>
 <iframe id="frame" src="./index.html" title="Souls On Earth — Top 100 Countries Live" allow="autoplay"></iframe>
 <script>
 const frame=document.getElementById('frame');
-frame.addEventListener('load',()=>{
+const API='https://api.worldbank.org/v2';
+const BATCH=20,TOP=100,YEAR=365.25*86400;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function getJSON(url){const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(!Array.isArray(j)||!j[1])throw new Error('Invalid World Bank response');return j;}
+function latestByCode(j){const out={};for(const x of j[1]||[]){if(typeof x.value!=='number'||!x.countryiso3code)continue;const y=Number(x.date);const old=out[x.countryiso3code];if(!old||y>old.year)out[x.countryiso3code]={year:y,value:x.value};}return out;}
+function flag2(cc){if(!cc||cc.length!==2)return '🌐';return cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));}
+function fmt(n){return new Intl.NumberFormat('en-US').format(Math.max(0,Math.floor(n)));}
+
+frame.addEventListener('load',async()=>{
  try{
   const doc=frame.contentDocument;
   const old=doc.getElementById('horizontal-live-overrides');if(old)old.remove();
   const style=doc.createElement('style');style.id='horizontal-live-overrides';
   style.textContent=`
-    /* Horizontal page deliberately inherits index.html's theme tokens. */
-    html,body{overflow:hidden!important;width:100%!important;height:100%!important;background:var(--bg)!important;color:var(--text)!important}
-    .app{width:100%!important;max-width:none!important;height:100%!important;background:var(--app)!important;color:var(--text)!important}
-    .channel,.summary,.rank-wrap{background:var(--panel)!important;color:var(--text)!important;border-color:var(--line)!important}
-    .summary,.rank-head{border-color:var(--line-soft)!important}
-    .rank-head{background:var(--panel-alt)!important;color:var(--text-dim)!important}
-    .country{border-color:var(--line-row)!important;color:var(--text)!important}
-    .rank,.name{color:var(--text-dim)!important}.name{color:var(--text)!important}
-    .pop{color:var(--text)!important}.stat-label,.channel-sub,.hero-title{color:var(--text-dim)!important}
-    .yt{background:var(--yt-bg)!important;color:var(--yt-fg)!important}
-    html,body{overflow:hidden!important}
-    .channel{height:64px!important}
-    .summary{min-height:125px!important;padding:10px 18px!important}
-    .hero{padding-top:8px!important}
-    .world-pop{font-size:clamp(38px,4.5vw,66px)!important}
-    .live-row{margin-top:8px!important}
-    .rank-wrap{padding:8px 14px!important;max-height:none!important}
-    .rank-head{min-height:30px!important}
-    .rank-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px 12px!important;align-content:start!important}
-    .rank-grid .rank-col{min-width:0!important}
-    .rank-grid .rank-item{min-height:24px!important;height:24px!important;padding:2px 5px!important;font-size:11px!important}
-    .rank-grid .rank{width:25px!important;flex:0 0 25px!important;font-size:10px!important}
-    .rank-grid .country{font-size:10.5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .rank-grid .pop{font-size:10.5px!important;min-width:72px!important}
-    .rank-grid .flag{font-size:13px!important}
-    @media(max-height:720px){
-      .channel{height:58px!important}.summary{min-height:108px!important}.hero{padding-top:5px!important}.world-pop{font-size:clamp(34px,4.2vw,58px)!important}
-      .rank-grid{gap:4px 10px!important}.rank-grid .rank-item{height:21px!important;min-height:21px!important;padding:1px 4px!important}.rank-grid .country,.rank-grid .pop{font-size:9.5px!important}.rank-grid .flag{font-size:12px!important}
+    html,body{overflow:hidden!important;width:100%!important;height:100%!important}
+    .app{width:100%!important;max-width:none!important;height:100%!important}
+    .channel{height:58px!important;min-height:58px!important;padding:5px 18px!important}
+    .avatar{width:40px!important;height:40px!important}
+    .channel-name{font-size:15px!important}.channel-sub{font-size:11px!important}
+    .subscribe{padding:8px 15px!important;font-size:12px!important}
+    .summary{height:128px!important;min-height:128px!important;grid-template-columns:28% 72%!important;padding:0!important}
+    .today{padding:7px 12px 4px!important}.today-title{font-size:11px!important;margin-bottom:4px!important}.stat{margin:3px 0!important}.stat-label{font-size:10px!important}.stat-value{font-size:16px!important}
+    .hero{padding:8px 10px 4px!important}.hero-title{font-size:16px!important;margin-bottom:2px!important}.world-pop{font-size:clamp(38px,4.6vw,64px)!important;line-height:.95!important}.live-row{margin-top:7px!important}
+    .live,.yt{padding:7px 18px!important;font-size:12px!important}.comment{height:34px!important;min-height:34px!important;font-size:13px!important}
+    .rank-head{height:30px!important;min-height:30px!important;padding:4px 10px!important;font-size:10px!important}
+    .rank-head{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}
+    .rank-wrap{flex:1!important;min-height:0!important;padding:8px 14px 8px!important;overflow:hidden!important}
+    #left,#right{display:none!important}
+    #horizontalTop100{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 10px;width:100%;height:100%;overflow:hidden}
+    .h100-col{min-width:0;display:flex;flex-direction:column}
+    .h100-row{flex:1;min-height:0;display:grid;grid-template-columns:20px 23px minmax(0,1fr) auto;align-items:center;gap:4px;padding:0 7px;border-bottom:1px solid var(--line-row);font-size:12px;line-height:1;color:var(--text)}
+    .h100-rank{color:var(--text-dim);font-size:9px;text-align:right}.h100-flag{font-size:12px;text-align:center}.h100-name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.h100-pop{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text)}
+    .h100-row.up .h100-pop{color:var(--growth)!important}.h100-row.down .h100-pop{color:var(--deaths)!important}.h100-row.neutral .h100-pop{color:var(--text)!important}
+    #h100Status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;background:var(--panel);z-index:2}
+    @media(max-height:700px){
+      .channel{height:52px!important;min-height:52px!important}.avatar{width:36px!important;height:36px!important}.summary{height:116px!important;min-height:116px!important}.world-pop{font-size:clamp(34px,4.3vw,56px)!important}.rank-head{height:27px!important;min-height:27px!important;font-size:9px!important}.rank-wrap{padding:6px 12px!important}.h100-row{grid-template-columns:17px 20px minmax(0,1fr) auto;gap:3px;padding:0 5px;font-size:10px}.h100-rank{font-size:8px}.h100-flag{font-size:10px}.h100-pop{font-size:9.5px}
     }
   `;
   doc.head.appendChild(style);
-  const wait=()=>{
-   const grid=doc.querySelector('.rank-grid');
-   if(!grid)return setTimeout(wait,250);
-   const cols=[...grid.querySelectorAll('.rank-col')];
-   const items=cols.flatMap(c=>[...c.querySelectorAll('.rank-item')]);
-   if(items.length<=100)return;
-   items.forEach((el,i)=>{if(i>=100)el.remove()});
-   const visible=[...grid.querySelectorAll('.rank-item')];
-   const chunk=Math.ceil(visible.length/4);grid.innerHTML='';
-   for(let c=0;c<4;c++){const col=doc.createElement('div');col.className='rank-col';visible.slice(c*chunk,(c+1)*chunk).forEach(x=>col.appendChild(x));grid.appendChild(col)}
-  };wait();
- }catch(e){console.warn('Horizontal layout override unavailable:',e)}
+
+  const rankWrap=doc.querySelector('.rank-wrap');
+  if(!rankWrap)throw new Error('Ranking area missing');
+  rankWrap.insertAdjacentHTML('afterbegin','<div id="h100Status">Loading top 100 countries…</div><div id="horizontalTop100"></div>');
+  const grid=doc.getElementById('horizontalTop100');
+  const status=doc.getElementById('h100Status');
+
+  /* Get the country universe once. Aggregate regions are removed so the list
+     contains actual countries/economies with ISO codes. */
+  const meta=await getJSON(`${API}/country?format=json&per_page=400`);
+  const universe=(meta[1]||[]).filter(c=>c.id&&c.iso2Code&&c.region&&c.region.id!=='NA'&&c.region.value!=='Aggregates');
+  const codes=universe.map(c=>c.id);
+  const byCode=new Map(universe.map(c=>[c.id,{iso:c.id,cc:c.iso2Code,name:c.name}]));
+
+  async function batches(indicator){
+    const out={};
+    for(let i=0;i<codes.length;i+=BATCH){
+      const part=codes.slice(i,i+BATCH).join(';');
+      const j=await getJSON(`${API}/country/${part}/indicator/${indicator}?format=json&mrv=8&per_page=500`);
+      Object.assign(out,latestByCode(j));
+      await sleep(40);
+    }
+    return out;
+  }
+
+  const [P,B,D]=await Promise.all([batches('SP.POP.TOTL'),batches('SP.DYN.CBRT.IN'),batches('SP.DYN.CDRT.IN')]);
+  const rows=[];
+  for(const c of universe){
+    const p=P[c.id];if(!p||p.value<=0)continue;
+    const br=B[c.id]?.value;const dr=D[c.id]?.value;
+    rows.push({iso:c.id,cc:c.iso2Code,name:c.name,pop:p.value,b:typeof br==='number'?br:0,d:typeof dr==='number'?dr:0,year:p.year});
+  }
+  rows.sort((a,b)=>b.pop-a.pop);
+  const top=rows.slice(0,TOP);
+  if(top.length<TOP)throw new Error('Only '+top.length+' countries had population data');
+
+  const anchorYear=Math.max(2010,...top.map(c=>c.year||0));
+  const anchor=Date.UTC(anchorYear,6,1);
+  const currentWorld=top.reduce((s,c)=>s+c.pop,0);
+  const worldRate=top.reduce((s,c)=>s+c.pop*((c.b-c.d)/1000)/YEAR,0);
+
+  /* The page's hero values are kept as a live estimate using the same model
+     as the rows. The existing index controls remain intact. */
+  function projected(c,now){const yrs=Math.max(0,(now-anchor)/1000/YEAR);return c.pop*Math.pow(1+(c.b-c.d)/1000,yrs)}
+  function render(){
+    const now=Date.now();
+    const liveRows=top.map(c=>({...c,value:projected(c,now),dir:c.b-c.d})).sort((a,b)=>b.value-a.value);
+    const total=liveRows.reduce((s,c)=>s+c.value,0);
+    const netPerSec=liveRows.reduce((s,c)=>s+c.value*((c.b-c.d)/1000)/YEAR,0);
+    const dayStart=new Date();dayStart.setHours(0,0,0,0);const sec=(now-dayStart.getTime())/1000;
+    const wp=doc.getElementById('world');if(wp)wp.textContent=fmt(total);
+    const birth=doc.getElementById('births');if(birth)birth.textContent=fmt(liveRows.reduce((s,c)=>s+c.value*c.b/1000/YEAR,0)*sec);
+    const death=doc.getElementById('deaths');if(death)death.textContent=fmt(liveRows.reduce((s,c)=>s+c.value*c.d/1000/YEAR,0)*sec);
+    const growth=doc.getElementById('growth');if(growth)growth.textContent=fmt(Math.max(0,netPerSec*sec));
+    const utc=doc.getElementById('utc');if(utc)utc.textContent=new Date(now).toISOString().replace('T',' ').slice(0,19)+' UTC';
+    const label=doc.querySelector('.rank-head');
+    if(label)label.innerHTML='<div>RANK · COUNTRY</div><div>RANK · COUNTRY</div><div>RANK · COUNTRY</div><div>RANK · COUNTRY</div>';
+    const sorted=liveRows.slice();const columns=[[],[],[],[]];sorted.forEach((c,i)=>columns[Math.floor(i/(Math.ceil(TOP/4)))].push(c));
+    grid.innerHTML=columns.map((col,ci)=>`<div class="h100-col">${col.map((c,i)=>{const rank=ci*Math.ceil(TOP/4)+i+1;const cls=c.dir>0?'up':c.dir<0?'down':'neutral';return `<div class="h100-row ${cls}"><span class="h100-rank">${rank}</span><span class="h100-flag">${flag2(c.cc)}</span><span class="h100-name">${c.name}</span><span class="h100-pop">${fmt(c.value)}</span></div>`}).join('')}</div>`).join('');
+    if(status)status.style.display='none';
+  }
+  render();setInterval(render,1000);
+ }catch(e){
+  console.error('Horizontal Top 100 failed',e);
+  const doc=frame.contentDocument;const s=doc&&doc.getElementById('h100Status');if(s){s.textContent='Country data could not be loaded. Refresh the page to try again.';s.style.display='flex'}
+ }
 });
 </script>
 </body>
