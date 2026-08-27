@@ -8,36 +8,12 @@
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
 body{display:flex;align-items:center;justify-content:center}
-#frame{
-  width:100vw;
-  height:56.25vw;
-  max-height:100vh;
-  max-width:177.7777778vh;
-  border:0;
-  display:block;
-  background:#fff;
-}
-@media(max-aspect-ratio:16/9){
-  #frame{width:100vw;height:56.25vw}
-}
-@media(min-aspect-ratio:16/9){
-  #frame{width:177.7777778vh;height:100vh}
-}
+#frame{width:100vw;height:56.25vw;max-width:177.7778vh;max-height:100vh;border:0;display:block;background:#fff}
 </style>
 </head>
 <body>
 <iframe id="frame" src="./index.html" title="Souls On Earth — Horizontal YouTube Live" allow="autoplay"></iframe>
 <script>
-/*
-  Horizontal Live is deliberately built from index.html rather than copying
-  its population engine. This keeps the live calculations, ranking updates,
-  music, theme system, subscriber display, animations and future index fixes
-  identical to the main page.
-
-  The wrapper is 16:9 and, because GitHub Pages serves both documents from the
-  same origin, we can safely apply a small presentation override to the child
-  after it loads. The normal index.html is untouched.
-*/
 const frame=document.getElementById('frame');
 frame.addEventListener('load',()=>{
   try{
@@ -45,32 +21,65 @@ frame.addEventListener('load',()=>{
     const style=doc.createElement('style');
     style.id='horizontal-live-overrides';
     style.textContent=`
-      html,body{overflow:hidden!important;width:100%!important;height:100%!important}
-      body{justify-content:center!important}
-      .app{width:100%!important;max-width:none!important;height:100%!important}
-      .channel{height:72px!important}
-      .summary{min-height:154px!important}
-      .hero{padding-top:18px!important}
-      .world-pop{font-size:clamp(42px,5.2vw,76px)!important}
-      .live-row{margin-top:12px!important}
-      .rank-head{min-height:40px!important}
-      .rank-wrap{padding-bottom:10px!important}
-      .country{font-size:14px!important}
-      .pop{font-size:14px!important}
-      @media(max-height:720px){
-        .channel{height:64px!important}
-        .summary{min-height:142px!important}
-        .hero{padding-top:12px!important}
-        .world-pop{font-size:clamp(38px,5vw,64px)!important}
-        .rank-head{min-height:36px!important}
-        .country{font-size:12.5px!important}
-        .pop{font-size:12.5px!important}
+      /* Horizontal YouTube Live composition: deliberately compact so all 50
+         countries remain visible in the 16:9 frame. */
+      html,body{width:100%!important;height:100%!important;overflow:hidden!important}
+      body{display:flex!important;justify-content:center!important}
+      .app{width:100%!important;max-width:none!important;height:100%!important;overflow:hidden!important}
+
+      .channel{height:60px!important;min-height:60px!important;padding:6px 18px!important}
+      .avatar{width:42px!important;height:42px!important}
+      .channel-name{font-size:16px!important}
+      .channel-sub{font-size:12px!important}
+      .subscribe{padding:9px 16px!important;font-size:13px!important}
+
+      .summary{height:145px!important;min-height:145px!important;max-height:145px!important;grid-template-columns:30% 70%!important}
+      .today{padding:8px 10px 5px!important}
+      .today-title{font-size:12px!important;margin-bottom:5px!important}
+      .stat{margin:4px 0!important}
+      .stat-label{font-size:11px!important}
+      .stat-value{font-size:18px!important}
+      .hero{padding:10px 8px 6px!important}
+      .hero-title{font-size:17px!important;margin-bottom:3px!important}
+      .world-pop{font-size:clamp(40px,5vw,68px)!important;line-height:.95!important}
+      .live-row{margin-top:8px!important;gap:10px!important}
+      .live,.yt{padding:8px 22px!important;font-size:13px!important}
+
+      .comment{height:38px!important;min-height:38px!important;font-size:14px!important}
+      .rank-head{height:36px!important;min-height:36px!important;padding:5px 12px!important;font-size:12px!important}
+      .rank-wrap{height:auto!important;flex:1!important;min-height:0!important;padding-bottom:0!important}
+      .rank-grid{height:100%!important}
+      .country{padding:0 12px!important;grid-template-columns:26px 28px minmax(0,1fr) auto!important;gap:6px!important;font-size:13px!important;line-height:1!important}
+      #left .country{padding-left:16px!important}
+      #right .country{padding-right:16px!important}
+      .rank{font-size:11px!important}
+      .flag{font-size:14px!important}
+      .name{font-size:13px!important;letter-spacing:-.15px!important}
+      .pop{font-size:13px!important}
+
+      /* Keep the decorative layer subtle and behind readable content. */
+      .souls{z-index:40!important}
+      .support-sticker{z-index:45!important}
+
+      @media(max-height:700px){
+        .channel{height:54px!important;min-height:54px!important}
+        .avatar{width:38px!important;height:38px!important}
+        .summary{height:132px!important;min-height:132px!important;max-height:132px!important}
+        .today{padding-top:5px!important}
+        .stat{margin:2px 0!important}
+        .stat-value{font-size:16px!important}
+        .hero{padding-top:7px!important}
+        .world-pop{font-size:clamp(36px,4.8vw,60px)!important}
+        .live-row{margin-top:5px!important}
+        .live,.yt{padding:6px 18px!important;font-size:12px!important}
+        .comment{height:34px!important;min-height:34px!important;font-size:13px!important}
+        .rank-head{height:32px!important;min-height:32px!important;font-size:11px!important}
+        .country{grid-template-columns:23px 25px minmax(0,1fr) auto!important;gap:4px!important}
+        .rank{font-size:10px!important}.flag{font-size:12px!important}.name,.pop{font-size:11.5px!important}
       }
     `;
     doc.head.appendChild(style);
-  }catch(e){
-    console.warn('Horizontal layout override unavailable:',e);
-  }
+  }catch(e){console.warn('Horizontal layout override unavailable:',e)}
 });
 </script>
 </body>
