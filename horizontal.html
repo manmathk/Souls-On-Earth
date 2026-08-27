@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Souls On Earth — Top 100 Countries Live</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}body{display:flex;align-items:center;justify-content:center}#frame{width:100vw;height:56.25vw;max-width:177.7778vh;max-height:100vh;border:0;display:block;background:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+body{display:flex;align-items:center;justify-content:center}
+#frame{width:100vw;height:56.25vw;max-width:177.7778vh;max-height:100vh;border:0;display:block;background:#fff}
 </style>
 </head>
 <body>
@@ -13,44 +16,54 @@
 <script>
 const frame=document.getElementById('frame');
 frame.addEventListener('load',()=>{
-  try{
-    const doc=frame.contentDocument;
-    const old=doc.getElementById('horizontal-live-overrides');if(old)old.remove();
-    const style=doc.createElement('style');style.id='horizontal-live-overrides';
-    style.textContent=`
-      html,body{overflow:hidden!important;width:100%!important;height:100%!important}
-      .app{width:100%!important;max-width:none!important;height:100%!important}
-      .channel{height:64px!important}
-      .summary{min-height:125px!important;padding:10px 18px!important}
-      .hero{padding-top:8px!important}
-      .world-pop{font-size:clamp(38px,4.5vw,66px)!important}
-      .live-row{margin-top:8px!important}
-      .rank-wrap{padding:8px 14px!important;max-height:none!important}
-      .rank-head{min-height:30px!important}
-      .rank-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px 12px!important;align-content:start!important}
-      .rank-grid .rank-col{min-width:0!important}
-      .rank-grid .rank-item{min-height:24px!important;height:24px!important;padding:2px 5px!important;font-size:11px!important}
-      .rank-grid .rank{width:25px!important;flex:0 0 25px!important;font-size:10px!important}
-      .rank-grid .country{font-size:10.5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-      .rank-grid .pop{font-size:10.5px!important;min-width:72px!important}
-      .rank-grid .flag{font-size:13px!important}
-      @media(max-height:720px){
-        .channel{height:58px!important}.summary{min-height:108px!important}.hero{padding-top:5px!important}.world-pop{font-size:clamp(34px,4.2vw,58px)!important}
-        .rank-grid{gap:4px 10px!important}.rank-grid .rank-item{height:21px!important;min-height:21px!important;padding:1px 4px!important}.rank-grid .country,.rank-grid .pop{font-size:9.5px!important}.rank-grid .flag{font-size:12px!important}
-      }
-    `;doc.head.appendChild(style);
-    const wait=()=>{
-      const grid=doc.querySelector('.rank-grid');
-      if(!grid)return setTimeout(wait,250);
-      const cols=[...grid.querySelectorAll('.rank-col')];
-      const items=cols.flatMap(c=>[...c.querySelectorAll('.rank-item')]);
-      if(items.length<=100)return;
-      items.forEach((el,i)=>{if(i>=100)el.remove()});
-      const visible=[...grid.querySelectorAll('.rank-item')];
-      const chunk=Math.ceil(visible.length/4);grid.innerHTML='';
-      for(let c=0;c<4;c++){const col=doc.createElement('div');col.className='rank-col';visible.slice(c*chunk,(c+1)*chunk).forEach(x=>col.appendChild(x));grid.appendChild(col)}
-    };wait();
-  }catch(e){console.warn('Horizontal layout override unavailable:',e)}
+ try{
+  const doc=frame.contentDocument;
+  const old=doc.getElementById('horizontal-live-overrides');if(old)old.remove();
+  const style=doc.createElement('style');style.id='horizontal-live-overrides';
+  style.textContent=`
+    /* Horizontal page deliberately inherits index.html's theme tokens. */
+    html,body{overflow:hidden!important;width:100%!important;height:100%!important;background:var(--bg)!important;color:var(--text)!important}
+    .app{width:100%!important;max-width:none!important;height:100%!important;background:var(--app)!important;color:var(--text)!important}
+    .channel,.summary,.rank-wrap{background:var(--panel)!important;color:var(--text)!important;border-color:var(--line)!important}
+    .summary,.rank-head{border-color:var(--line-soft)!important}
+    .rank-head{background:var(--panel-alt)!important;color:var(--text-dim)!important}
+    .country{border-color:var(--line-row)!important;color:var(--text)!important}
+    .rank,.name{color:var(--text-dim)!important}.name{color:var(--text)!important}
+    .pop{color:var(--text)!important}.stat-label,.channel-sub,.hero-title{color:var(--text-dim)!important}
+    .yt{background:var(--yt-bg)!important;color:var(--yt-fg)!important}
+    html,body{overflow:hidden!important}
+    .channel{height:64px!important}
+    .summary{min-height:125px!important;padding:10px 18px!important}
+    .hero{padding-top:8px!important}
+    .world-pop{font-size:clamp(38px,4.5vw,66px)!important}
+    .live-row{margin-top:8px!important}
+    .rank-wrap{padding:8px 14px!important;max-height:none!important}
+    .rank-head{min-height:30px!important}
+    .rank-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px 12px!important;align-content:start!important}
+    .rank-grid .rank-col{min-width:0!important}
+    .rank-grid .rank-item{min-height:24px!important;height:24px!important;padding:2px 5px!important;font-size:11px!important}
+    .rank-grid .rank{width:25px!important;flex:0 0 25px!important;font-size:10px!important}
+    .rank-grid .country{font-size:10.5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .rank-grid .pop{font-size:10.5px!important;min-width:72px!important}
+    .rank-grid .flag{font-size:13px!important}
+    @media(max-height:720px){
+      .channel{height:58px!important}.summary{min-height:108px!important}.hero{padding-top:5px!important}.world-pop{font-size:clamp(34px,4.2vw,58px)!important}
+      .rank-grid{gap:4px 10px!important}.rank-grid .rank-item{height:21px!important;min-height:21px!important;padding:1px 4px!important}.rank-grid .country,.rank-grid .pop{font-size:9.5px!important}.rank-grid .flag{font-size:12px!important}
+    }
+  `;
+  doc.head.appendChild(style);
+  const wait=()=>{
+   const grid=doc.querySelector('.rank-grid');
+   if(!grid)return setTimeout(wait,250);
+   const cols=[...grid.querySelectorAll('.rank-col')];
+   const items=cols.flatMap(c=>[...c.querySelectorAll('.rank-item')]);
+   if(items.length<=100)return;
+   items.forEach((el,i)=>{if(i>=100)el.remove()});
+   const visible=[...grid.querySelectorAll('.rank-item')];
+   const chunk=Math.ceil(visible.length/4);grid.innerHTML='';
+   for(let c=0;c<4;c++){const col=doc.createElement('div');col.className='rank-col';visible.slice(c*chunk,(c+1)*chunk).forEach(x=>col.appendChild(x));grid.appendChild(col)}
+  };wait();
+ }catch(e){console.warn('Horizontal layout override unavailable:',e)}
 });
 </script>
 </body>
