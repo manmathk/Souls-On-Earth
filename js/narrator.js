@@ -96,15 +96,15 @@ function installSupportStickers() {
   const style = document.createElement("style");
   style.id = "support-stickers-style";
   style.textContent = `
-    .support-stickers{position:relative;height:42px;margin:5px auto 0;width:min(100%,270px);display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;z-index:2}
-    .support-sticker{position:absolute;display:flex;align-items:center;gap:7px;min-width:178px;max-width:245px;height:32px;padding:3px 10px 3px 6px;border-radius:17px;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.14);color:#333;font:700 11px/1 Arial,Helvetica,sans-serif;opacity:0;transform:translateY(12px) scale(.88);animation:support-sticker-in 4.8s ease both}
+    .support-stickers{position:relative;height:48px;margin:14px auto 0;width:min(100%,300px);display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:visible;z-index:2}
+    .support-sticker{position:absolute;display:flex;align-items:center;gap:7px;min-width:188px;max-width:265px;height:34px;padding:3px 10px 3px 6px;border-radius:18px;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.14);color:#333;font:700 11px/1 Arial,Helvetica,sans-serif;opacity:0;transform:translateY(10px) scale(.9);animation:support-sticker-in 4.8s ease both}
     .support-icon{position:relative;width:38px;height:27px;flex:0 0 38px;display:block}.support-copy{display:flex;flex-direction:column;gap:3px;white-space:nowrap;text-align:left}.support-title{font-size:11px;font-weight:800}.support-sub{font-size:9px;font-weight:500;color:#777}
     .sticker-super .support-icon{border-radius:14px;background:#63dfc1}.sticker-super .support-icon:before{content:"";position:absolute;left:7px;top:5px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:18px 0 0 #f3c58e}.sticker-super .support-icon:after{content:"";position:absolute;left:14px;bottom:-5px;border:5px solid transparent;border-top-color:#63dfc1}
     .sticker-chat .support-icon{border-radius:14px;background:#f49b4d}.sticker-chat .support-icon:before{content:"";position:absolute;left:9px;top:9px;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:10px 0 0 #fff,20px 0 0 #fff}.sticker-chat .support-icon:after{content:"";position:absolute;left:14px;bottom:-5px;border:5px solid transparent;border-top-color:#f49b4d}
     .sticker-member .support-icon:before{content:"";position:absolute;left:3px;bottom:2px;width:19px;height:17px;border-radius:3px;background:#49b83e;box-shadow:18px -1px 0 1px #67df45}.sticker-member .support-icon:after{content:"★";position:absolute;right:1px;top:0;color:#fff;font-size:17px;line-height:25px}
     .sticker-gift .support-icon:before{content:"★";position:absolute;left:12px;bottom:0;width:22px;height:22px;border-radius:50%;background:#00c93b;color:#111;text-align:center;line-height:22px;font-size:13px}.sticker-gift .support-icon:after{content:"🎀";position:absolute;left:8px;top:-2px;font-size:21px;line-height:20px}
-    @keyframes support-sticker-in{0%{opacity:0;transform:translateY(12px) scale(.88)}9%{opacity:1;transform:translateY(0) scale(1)}78%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-10px) scale(.94)}}
-    @media(max-width:520px){.support-stickers{height:38px;margin-top:4px;width:min(100%,245px)}.support-sticker{min-width:160px;height:29px;padding-right:8px;gap:6px}.support-icon{transform:scale(.88);transform-origin:center}.support-title{font-size:10px}.support-sub{font-size:8px}}
+    @keyframes support-sticker-in{0%{opacity:0;transform:translateY(10px) scale(.9)}10%{opacity:1;transform:translateY(0) scale(1)}78%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-8px) scale(.95)}}
+    @media(max-width:520px){.support-stickers{height:44px;margin-top:12px;width:min(100%,265px)}.support-sticker{min-width:170px;height:31px;padding-right:8px;gap:6px}.support-icon{transform:scale(.9);transform-origin:center}.support-title{font-size:10px}.support-sub{font-size:8px}}
     @media(prefers-reduced-motion:reduce){.support-sticker{animation:none;opacity:1;transform:none}}
   `;
   document.head.appendChild(style);
@@ -171,6 +171,5 @@ async function start(){
   window.__narrator={scheduler,engine,lines,say:id=>byId.has(id)?engine.play("voice/"+byId.get(id).file):null};
 }
 
-/* Render the support animation independently of voice-line loading. */
 installSupportStickers();
 start().catch(()=>{});
