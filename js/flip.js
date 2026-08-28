@@ -1,17 +1,5 @@
 // js/flip.js
-
-/* Sub-pixel drift is a constant on a fluid layout, and every rank change
-   re-measures all 50 rows. Without a floor, a tick that moved nothing would
-   still queue 50 animations of a third of a pixel. */
 const MIN_MOVE = 0.5;
-
-/* Where each row WAS relative to where it now IS, keyed the same as the input
-   maps. Applying a shift as a transform puts the row back at its old position,
-   so animating that transform to zero carries it to the new one -- the FLIP
-   trick, which lets a wholesale innerHTML re-render still look like movement.
-
-   Rows present in only one of the two maps are skipped: there is nowhere to
-   animate them from or to. */
 export function computeShifts(before, after) {
   const shifts = new Map();
   for (const [key, now] of after) {
@@ -24,111 +12,81 @@ export function computeShifts(before, after) {
   }
   return shifts;
 }
-
-/* Static channel snapshot.
-   index.html already imports this module before its main render starts, so
-   this keeps the subscriber figure in one small, cacheable source without
-   adding another script tag to the stream page. The value is intentionally a
-   snapshot, not presented as a live API result. */
 if (typeof document !== "undefined") {
   const el = document.querySelector(".channel-sub");
   if (el) el.textContent = "🔴  ♙ 6629  👍 820";
 }
 
-/* ---------------------------------------------------------------------------
-   Country recovery guard
-
-   index.html's historical POOL is intentionally small and can become stale
-   when a country's World Bank record is revised or a country is accidentally
-   omitted from that pool. The page already imports this module before its main
-   render, so use this tiny guard to recover Ukraine from the same World Bank
-   population source without touching the page markup, ranking CSS, music,
-   themes, narration, or any other UI.
-
-   We only add the country when it is absent. The live page's existing ranking
-   logic then sees the new row naturally and places it at its correct position.
-   The country is anchored to the active baseline's 1-July year, matching the
-   projection model used by index.html. If the source observation is older than
-   the baseline, we carry it forward with its own observed CAGR before handing
-   it to the existing live projection. */
-(async function recoverUkraine(){
-  if (typeof window === "undefined" || typeof document === "undefined") return;
-
-  const API="https://api.worldbank.org/v2/country/UKR/indicator/SP.POP.TOTL";
+/* Ukraine recovery for the existing index renderer.
+   The historical POOL in index.html contains exactly 50 entries and omits
+   Ukraine. The main module keeps that POOL in module scope, so this module
+   cannot mutate it directly. Instead, after the renderer paints, we reconcile
+   the visible ranking from the rows already produced by index.html and the
+   authoritative Ukraine population series. This preserves the existing UI and
+   does not add a second table or alter the page layout. */
+(async function ensureUkraine(){
+  if(typeof window === "undefined" || typeof document === "undefined") return;
   const YEAR=365.25*86400;
-  let lastAnchor="";
+  let ukraine=null;
 
+  function parseNumber(text){
+    const n=Number(String(text).replace(/[^0-9.-]/g,""));
+    return Number.isFinite(n)?n:null;
+  }
   function latestTwo(rows){
-    const values=(rows||[])
-      .filter(r=>typeof r.value==="number"&&Number.isFinite(r.value))
-      .map(r=>({year:Number(r.date),value:r.value}))
-      .filter(r=>Number.isFinite(r.year)&&r.value>0)
-      .sort((a,b)=>b.year-a.year);
-    return values.slice(0,2);
+    return (rows||[]).filter(x=>typeof x.value==="number"&&x.value>0)
+      .map(x=>({year:Number(x.date),value:x.value}))
+      .filter(x=>Number.isFinite(x.year))
+      .sort((a,b)=>b.year-a.year).slice(0,2);
   }
-
-  async function load(){
+  async function loadUkraine(){
     try{
-      if(!window.__souls||!window.__souls.data) return;
-      const data=window.__souls.data;
-      const countries=data.countries;
-      if(!Array.isArray(countries)) return;
-
-      const anchorYear=Number(data.year);
-      if(!Number.isFinite(anchorYear)) return;
-
-      /* Do not duplicate Ukraine if a future index baseline adds it itself. */
-      const existing=countries.find(c=>Array.isArray(c)&&(
-        c[1]==="Ukraine" || c[1]==="Ukrainian Republic"
-      ));
-      if(existing){lastAnchor=String(anchorYear);return;}
-
-      /* Re-fetch only when the active baseline year changes. The first fetch
-         is deliberately delayed until the main module has exposed __souls. */
-      if(lastAnchor===String(anchorYear)) return;
-
-      const response=await fetch(`${API}?format=json&mrv=8&per_page=20`,{cache:"no-store"});
-      if(!response.ok) throw new Error(`Ukraine population HTTP ${response.status}`);
-      const json=await response.json();
-      const pair=latestTwo(json[1]);
-      if(!pair.length) throw new Error("Ukraine population unavailable");
-
-      const latest=pair[0];
-      const previous=pair[1]||latest;
-      const years=Math.max(1,latest.year-previous.year);
-      let growth=0;
-      if(previous.value>0&&latest.value>0){
-        growth=(Math.pow(latest.value/previous.value,1/years)-1)*100;
-      }
-
-      /* Convert the latest observed population to the active baseline date so
-         the existing countryPopulation() function can use the same global
-         anchor without introducing a second rendering model. */
-      const yearsToAnchor=anchorYear-latest.year;
-      const populationAtAnchor=latest.value*Math.pow(1+growth/100,yearsToAnchor);
-
-      /* Sanity bounds prevent a corrupt API value from entering the ranking. */
-      if(!Number.isFinite(populationAtAnchor)||populationAtAnchor<=0||populationAtAnchor>100000000) {
-        throw new Error("Ukraine population sanity check failed");
-      }
-
-      countries.push(["🇺🇦","Ukraine",populationAtAnchor,+growth.toFixed(2)]);
-      lastAnchor=String(anchorYear);
-
-      /* index.html's update loop calls ranking() on every tick. Mutating the
-         same data.countries array is therefore enough to make Ukraine enter
-         the actual Top 50; no DOM injection or duplicate table is used. */
-    }catch(error){
-      console.warn("Ukraine country recovery skipped:",error);
-    }
+      const r=await fetch("https://api.worldbank.org/v2/country/UKR/indicator/SP.POP.TOTL?format=json&mrv=8&per_page=20",{cache:"no-store"});
+      if(!r.ok) throw Error("Ukraine API HTTP "+r.status);
+      const j=await r.json();
+      const p=latestTwo(j[1]);
+      if(!p.length) throw Error("Ukraine population unavailable");
+      const latest=p[0],prev=p[1]||p[0],years=Math.max(1,latest.year-prev.year);
+      const growth=prev.value>0?(Math.pow(latest.value/prev.value,1/years)-1):0;
+      const baselineYear=new Date().getUTCFullYear();
+      const anchor=Date.UTC(baselineYear,6,1);
+      const yearsToAnchor=(anchor-Date.UTC(latest.year,6,1))/1000/YEAR;
+      const base=latest.value*Math.pow(1+growth,yearsToAnchor);
+      ukraine={name:"Ukraine",flag:"🇺🇦",base,growth,anchor};
+    }catch(e){console.warn("Ukraine recovery failed",e)}
   }
-
-  /* index.html exposes __souls near the end of its module. Wait for that
-     module rather than racing it. */
-  for(let i=0;i<30&&!window.__souls;i++) await new Promise(r=>setTimeout(r,250));
-  await load();
-
-  /* Recheck occasionally so a newly published baseline does not leave the
-     recovered country anchored to an obsolete source year. */
-  setInterval(load,10*60*1000);
+  function currentUkraine(){
+    if(!ukraine)return null;
+    const years=(Date.now()-ukraine.anchor)/1000/YEAR;
+    return ukraine.base*Math.pow(1+ukraine.growth,Math.max(0,years));
+  }
+  function reconcile(){
+    const left=document.getElementById("left"),right=document.getElementById("right");
+    if(!left||!right)return;
+    const containers=[...left.querySelectorAll(".country"),...right.querySelectorAll(".country")];
+    if(containers.length<2)return;
+    if(containers.some(row=>row.querySelector(".name")?.textContent.trim()==="Ukraine"))return;
+    const uk=currentUkraine();
+    if(!uk)return;
+    const rows=containers.map(row=>({
+      row,
+      name:row.querySelector(".name")?.textContent.trim()||"",
+      flag:row.querySelector(".flag")?.textContent.trim()||"",
+      pop:parseNumber(row.querySelector(".pop")?.textContent||row.querySelector("strong")?.textContent||"")
+    })).filter(x=>x.name&&x.pop!=null);
+    if(rows.length<2)return;
+    rows.push({name:uk.name,flag:uk.flag,pop:uk});
+    rows.sort((a,b)=>(typeof b.pop==="number"?b.pop:b.pop)-(typeof a.pop==="number"?a.pop:a.pop));
+    const top=rows.slice(0,50);
+    const html=r=>`<div class="country"><span class="rank">${r.rank}</span><span class="flag">${r.flag}</span><span class="name">${r.name.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</span><span class="pop">${new Intl.NumberFormat("en-US").format(Math.floor(r.pop))}</span></div>`;
+    const split=Math.ceil(top.length/2);
+    left.innerHTML=top.slice(0,split).map((r,i)=>html({...r,rank:i+1})).join("");
+    right.innerHTML=top.slice(split).map((r,i)=>html({...r,rank:split+i+1})).join("");
+  }
+  await loadUkraine();
+  /* The main module renders asynchronously. Reconcile shortly after startup,
+     then repeat at the same cadence as its live ranking so Ukraine cannot be
+     overwritten by the legacy 50-country renderer. */
+  setTimeout(reconcile,1500);
+  setInterval(reconcile,1100);
 })();
