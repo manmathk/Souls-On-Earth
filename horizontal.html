@@ -11,44 +11,15 @@
 const frame=document.getElementById('frame'),API='https://api.worldbank.org/v2',BATCH=15,TOP=100,YEAR=365.25*86400;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function getJSON(url,retries=3){for(let a=0;;a++){try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(!Array.isArray(j)||!j[1])throw Error('Invalid World Bank response');return j}catch(e){if(a>=retries)throw e;await sleep(500*(a+1))}}}
-function latest(j){const o={};for(const x of j[1]||[]){if(typeof x.value!=='number'||!x.countryiso3code)continue;const y=+x.date;if(!o[x.countryiso3code]||y>o[x.countryiso3code].year)o[x.countryiso3code]={year:y,value:x.value}}return o}
+function latest(j){const o={};for(const x of j[1]||[]){const v=Number(x.value);if(!Number.isFinite(v)||!x.countryiso3code)continue;const y=Number(x.date);if(!Number.isFinite(y))continue;if(!o[x.countryiso3code]||y>o[x.countryiso3code].year)o[x.countryiso3code]={year:y,value:v}}return o}
 function flag(cc){return cc&&cc.length===2?cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0))):'🌐'}
-function fmt(n){return new Intl.NumberFormat('en-US').format(Math.max(0,Math.floor(n)))}
-function compact(n){const a=Math.abs(n);if(a>=1e9)return (n/1e9).toFixed(2)+'B';if(a>=1e6)return (n/1e6).toFixed(2)+'M';if(a>=1e3)return (n/1e3).toFixed(1)+'K';return Math.round(n).toString()}
+function fmt(n){return new Intl.NumberFormat('en-US').format(Math.max(0,Math.floor(Number.isFinite(n)?n:0)))}
+function compact(n){n=Number(n);if(!Number.isFinite(n))return '0';const a=Math.abs(n);if(a>=1e9)return (n/1e9).toFixed(2)+'B';if(a>=1e6)return (n/1e6).toFixed(2)+'M';if(a>=1e3)return (n/1e3).toFixed(1)+'K';return Math.round(n).toString()}
 function esc(s){return String(s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m))}
 frame.addEventListener('load',async()=>{try{
 const doc=frame.contentDocument;
-const style=doc.createElement('style');
-style.id='horizontal-live-overrides';
-style.textContent=`
-html,body{overflow:hidden!important;width:100%!important;height:100%!important}
-.app{width:100%!important;max-width:none!important;height:100%!important}
-.rank-wrap{flex:1!important;min-height:0!important;padding:8px 14px!important;overflow:hidden!important}
-#left,#right{display:none!important}
-.horizontal-data-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(230px,1.15fr);gap:12px;width:100%;height:100%;min-height:0}
-#horizontalTop100{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 10px;width:100%;height:100%;min-height:0;overflow:hidden}
-.h100-col{min-width:0;display:flex;flex-direction:column}
-.h100-row{flex:1;min-height:0;display:grid;grid-template-columns:20px 23px minmax(0,1fr) auto;align-items:center;gap:4px;padding:0 7px;border-bottom:1px solid var(--line-row);font-size:12px;line-height:1;color:var(--text)}
-.h100-rank{color:var(--text-dim);font-size:9px;text-align:right}
-.h100-flag{font-size:12px;text-align:center}
-.h100-name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.h100-pop{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.h100-row.up .h100-pop{color:var(--growth)!important}.h100-row.down .h100-pop{color:var(--deaths)!important}.h100-row.neutral .h100-pop{color:var(--text)!important}
-#h100Status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;background:var(--panel);z-index:2}
-.horizontal-stats{min-width:0;height:100%;border:1px solid var(--line-row);border-radius:12px;background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.hstats-title{font-size:18px;font-weight:800;text-align:center;color:var(--text);margin-bottom:10px}
-.hstats-live{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;color:var(--growth);margin-bottom:10px}
-.hstats-dot{width:8px;height:8px;border-radius:50%;background:#ff1616;display:inline-block;box-shadow:0 0 0 3px rgba(255,22,22,.12);animation:hPulse 1.4s infinite}
-@keyframes hPulse{50%{opacity:.35;transform:scale(.75)}}
-.hstat{padding:9px 0;border-bottom:1px solid var(--line-row)}
-.hstat-label{font-size:11px;color:var(--text-dim);margin-bottom:2px}.hstat-value{font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}
-.hstat-value.green{color:var(--growth)!important}.hstat-value.red{color:var(--deaths)!important}
-.hstats-fact{margin-top:10px;padding:10px;border-radius:9px;background:var(--panel-2,var(--bg));border:1px solid var(--line-row);font-size:11px;line-height:1.35;color:var(--text)}
-.hstats-fact strong{display:block;font-size:10px;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;letter-spacing:.5px}
-.hstats-clock{margin-top:auto;padding-top:8px;text-align:center;font-size:10px;color:var(--text-dim);font-variant-numeric:tabular-nums}
-@media(max-width:1050px){.horizontal-data-layout{grid-template-columns:minmax(0,3.6fr) minmax(190px,1fr);gap:8px}.horizontal-stats{padding:10px 11px}.hstats-title{font-size:15px}.hstat-value{font-size:17px}.h100-row{font-size:11px}}
-@media(max-height:700px){.rank-wrap{padding:6px 12px!important}.horizontal-data-layout{grid-template-columns:minmax(0,4fr) minmax(190px,1fr);gap:8px}.horizontal-stats{padding:8px 10px}.hstats-title{font-size:14px;margin-bottom:5px}.hstats-live{margin-bottom:4px}.hstat{padding:5px 0}.hstat-label{font-size:9px}.hstat-value{font-size:14px}.hstats-fact{margin-top:5px;padding:6px;font-size:9px}.hstats-clock{font-size:8px}.h100-row{grid-template-columns:17px 20px minmax(0,1fr) auto;gap:3px;padding:0 5px;font-size:10px}.h100-rank{font-size:8px}.h100-flag{font-size:10px}.h100-pop{font-size:9.5px}}
-`;
+const style=doc.createElement('style');style.id='horizontal-live-overrides';style.textContent=`
+html,body{overflow:hidden!important;width:100%!important;height:100%!important}.app{width:100%!important;max-width:none!important;height:100%!important}.rank-wrap{flex:1!important;min-height:0!important;padding:8px 14px!important;overflow:hidden!important}#left,#right{display:none!important}.horizontal-data-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(230px,1.15fr);gap:12px;width:100%;height:100%;min-height:0}#horizontalTop100{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 10px;width:100%;height:100%;min-height:0;overflow:hidden}.h100-col{min-width:0;display:flex;flex-direction:column}.h100-row{flex:1;min-height:0;display:grid;grid-template-columns:20px 23px minmax(0,1fr) auto;align-items:center;gap:4px;padding:0 7px;border-bottom:1px solid var(--line-row);font-size:12px;line-height:1;color:var(--text)}.h100-rank{color:var(--text-dim);font-size:9px;text-align:right}.h100-flag{font-size:12px;text-align:center}.h100-name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.h100-pop{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}.h100-row.up .h100-pop{color:var(--growth)!important}.h100-row.down .h100-pop{color:var(--deaths)!important}.h100-row.neutral .h100-pop{color:var(--text)!important}#h100Status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:14px;background:var(--panel);z-index:2}.horizontal-stats{min-width:0;height:100%;border:1px solid var(--line-row);border-radius:12px;background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.04)}.hstats-title{font-size:18px;font-weight:800;text-align:center;color:var(--text);margin-bottom:10px}.hstats-live{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:700;color:var(--growth);margin-bottom:10px}.hstats-dot{width:8px;height:8px;border-radius:50%;background:#ff1616;display:inline-block;box-shadow:0 0 0 3px rgba(255,22,22,.12);animation:hPulse 1.4s infinite}@keyframes hPulse{50%{opacity:.35;transform:scale(.75)}}.hstat{padding:9px 0;border-bottom:1px solid var(--line-row)}.hstat-label{font-size:11px;color:var(--text-dim);margin-bottom:2px}.hstat-value{font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text)}.hstat-value.green{color:var(--growth)!important}.hstat-value.red{color:var(--deaths)!important}.hstats-fact{margin-top:10px;padding:10px;border-radius:9px;background:var(--panel-2,var(--bg));border:1px solid var(--line-row);font-size:11px;line-height:1.35;color:var(--text)}.hstats-fact strong{display:block;font-size:10px;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;letter-spacing:.5px}.hstats-clock{margin-top:auto;padding-top:8px;text-align:center;font-size:10px;color:var(--text-dim);font-variant-numeric:tabular-nums}@media(max-width:1050px){.horizontal-data-layout{grid-template-columns:minmax(0,3.6fr) minmax(190px,1fr);gap:8px}.horizontal-stats{padding:10px 11px}.hstats-title{font-size:15px}.hstat-value{font-size:17px}.h100-row{font-size:11px}}@media(max-height:700px){.rank-wrap{padding:6px 12px!important}.horizontal-data-layout{grid-template-columns:minmax(0,4fr) minmax(190px,1fr);gap:8px}.horizontal-stats{padding:8px 10px}.hstats-title{font-size:14px;margin-bottom:5px}.hstats-live{margin-bottom:4px}.hstat{padding:5px 0}.hstat-label{font-size:9px}.hstat-value{font-size:14px}.hstats-fact{margin-top:5px;padding:6px;font-size:9px}.hstats-clock{font-size:8px}.h100-row{grid-template-columns:17px 20px minmax(0,1fr) auto;gap:3px;padding:0 5px;font-size:10px}.h100-rank{font-size:8px}.h100-flag{font-size:10px}.h100-pop{font-size:9.5px}}`;
 doc.head.appendChild(style);
 const wrap=doc.querySelector('.rank-wrap');if(!wrap)throw Error('Ranking area missing');
 wrap.insertAdjacentHTML('afterbegin','<div id="h100Status">Loading top 100 countries…</div><div class="horizontal-data-layout"><div id="horizontalTop100"></div><aside class="horizontal-stats"><div class="hstats-title">🌍 LIVE WORLD STATS</div><div class="hstats-live"><span class="hstats-dot"></span>UPDATING EVERY SECOND</div><div class="hstat"><div class="hstat-label">👶 BIRTHS / SECOND</div><div id="hBirthSec" class="hstat-value green">—</div></div><div class="hstat"><div class="hstat-label">💀 DEATHS / SECOND</div><div id="hDeathSec" class="hstat-value red">—</div></div><div class="hstat"><div class="hstat-label">📈 NET GROWTH / SECOND</div><div id="hGrowthSec" class="hstat-value green">—</div></div><div class="hstat"><div class="hstat-label">🌎 COUNTRIES TRACKED</div><div id="hCountries" class="hstat-value">100</div></div><div class="hstats-fact"><strong>LIVE INSIGHT</strong><span id="hFact">Calculating the latest demographic statistics…</span></div><div id="hClock" class="hstats-clock">UTC —:—:—</div></aside></div>');
@@ -60,26 +31,37 @@ const codes=universe.map(c=>c.id);
 async function batches(ind){const out={};for(let i=0;i<codes.length;i+=BATCH){Object.assign(out,latest(await getJSON(`${API}/country/${codes.slice(i,i+BATCH).join(';')}/indicator/${ind}?format=json&mrv=10&per_page=500`)));await sleep(100)}return out}
 const [P,B,D]=await Promise.all([batches('SP.POP.TOTL'),batches('SP.DYN.CBRT.IN'),batches('SP.DYN.CDRT.IN')]);
 const rows=[];
-for(const c of universe){const p=P[c.id],b=B[c.id],d=D[c.id];if(!p||p.value<=0)continue;rows.push({iso:c.id,cc:c.iso2Code,name:c.name,pop:p.value,pYear:p.year,b:b?.value??null,d:d?.value??null})}
-function projected(c,now){const anchor=Date.UTC(c.pYear,6,1);const years=Math.max(0,(now-anchor)/1000/YEAR);const net=typeof c.b==='number'&&typeof c.d==='number'?(c.b-c.d)/1000:0;return c.pop*Math.pow(1+net,years)}
+for(const c of universe){const p=P[c.id],b=B[c.id],d=D[c.id];if(!p||!Number.isFinite(p.value)||p.value<=0)continue;rows.push({iso:c.id,cc:c.iso2Code,name:c.name,pop:p.value,pYear:Number(p.year),b:Number.isFinite(b?.value)?b.value:null,d:Number.isFinite(d?.value)?d.value:null})}
+function projected(c,now){
+ const base=Number(c.pop), year=Number(c.pYear);
+ if(!Number.isFinite(base)||base<=0)return 0;
+ const anchor=Date.UTC(Number.isFinite(year)?year:new Date().getUTCFullYear()-1,6,1);
+ const elapsed=Math.max(0,(now-anchor)/1000);
+ const netRate=(Number.isFinite(c.b)&&Number.isFinite(c.d))?(c.b-c.d)/1000:0;
+ const value=base + base*netRate*(elapsed/YEAR);
+ return Number.isFinite(value)&&value>0?value:base;
+}
 function render(){
  const now=Date.now();
- const live=rows.map(c=>({...c,value:projected(c,now),dir:typeof c.b==='number'&&typeof c.d==='number'?c.b-c.d:0})).sort((a,b)=>b.value-a.value).slice(0,TOP);
+ const live=rows.map(c=>({...c,value:projected(c,now),dir:Number.isFinite(c.b)&&Number.isFinite(c.d)?c.b-c.d:0})).filter(c=>Number.isFinite(c.value)&&c.value>0).sort((a,b)=>b.value-a.value).slice(0,TOP);
  const gridCols=[[],[],[],[]];live.forEach((c,i)=>gridCols[Math.floor(i/25)].push(c));
  grid.innerHTML=gridCols.map((col,ci)=>`<div class="h100-col">${col.map((c,i)=>{const rank=ci*25+i+1,cls=c.dir>0?'up':c.dir<0?'down':'neutral';return `<div class="h100-row ${cls}"><span class="h100-rank">${rank}</span><span class="h100-flag">${flag(c.cc)}</span><span class="h100-name">${esc(c.name)}</span><span class="h100-pop">${fmt(c.value)}</span></div>`}).join('')}</div>`).join('');
- const totalBirthPerSec=rows.reduce((s,c)=>s+(typeof c.b==='number'?c.value*c.b/1000:0),0)/1000;
- const totalDeathPerSec=rows.reduce((s,c)=>s+(typeof c.d==='number'?c.value*c.d/1000:0),0)/1000;
- const netPerSec=totalBirthPerSec-totalDeathPerSec;
- if(birthEl)birthEl.textContent=compact(totalBirthPerSec);
- if(deathEl)deathEl.textContent=compact(totalDeathPerSec);
+ const selected=live;
+ const totalBirthPerSec=selected.reduce((s,c)=>s+(Number.isFinite(c.b)?c.value*c.b/1000:0),0)/1000;
+ const totalDeathPerSec=selected.reduce((s,c)=>s+(Number.isFinite(c.d)?c.value*c.d/1000:0),0)/1000;
+ const safeBirth=Number.isFinite(totalBirthPerSec)?Math.max(0,totalBirthPerSec):0;
+ const safeDeath=Number.isFinite(totalDeathPerSec)?Math.max(0,totalDeathPerSec):0;
+ const netPerSec=safeBirth-safeDeath;
+ if(birthEl)birthEl.textContent=compact(safeBirth);
+ if(deathEl)deathEl.textContent=compact(safeDeath);
  if(growthEl){growthEl.textContent=(netPerSec>=0?'+':'')+compact(netPerSec);growthEl.className='hstat-value '+(netPerSec>=0?'green':'red')}
  if(countriesEl)countriesEl.textContent=String(live.length);
  if(clockEl){const d=new Date(now);clockEl.textContent='UTC '+d.toISOString().slice(11,19)}
- if(factEl){factEl.textContent=`About ${compact(Math.max(0,netPerSec))} people are added to the modeled world population every second.`}
+ if(factEl){factEl.textContent=`About ${compact(Math.max(0,netPerSec))} people are added to the modeled population every second.`}
  if(status)status.style.display='none';
 }
 render();
 setInterval(render,1000);
 setInterval(()=>location.reload(),3600000);
-}catch(e){console.error(e);const s=frame.contentDocument?.getElementById('h100Status');if(s){s.textContent='Country data could not be loaded. Refresh the page to try again.';s.style.display='flex'}}});
+}catch(e){console.error('Horizontal live page:',e);const s=frame.contentDocument?.getElementById('h100Status');if(s){s.textContent='Country data could not be loaded. Refresh the page to try again.';s.style.display='flex'}}});
 </script></body></html>
