@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Souls On Earth — Humanity Is Moving</title>
+<meta name="description" content="A live simulation of humanity moving across the world using population estimates and demographic rates.">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<style>
+:root{--bg:#05080d;--panel:rgba(8,14,23,.86);--panel2:rgba(12,20,32,.9);--line:rgba(255,255,255,.11);--text:#edf5ff;--muted:#91a4ba;--cyan:#49d9ff;--green:#50e69a;--red:#ff6e78;--gold:#ffd66b;--shadow:0 14px 38px rgba(0,0,0,.35)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at 50% 18%,#132a45 0%,#07111d 42%,#03070b 100%);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{display:flex;justify-content:center}.app{width:100%;height:100%;position:relative;overflow:hidden}
+canvas#stars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.top{position:absolute;top:0;left:0;right:0;height:86px;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:linear-gradient(180deg,rgba(2,7,13,.94),rgba(2,7,13,.35),transparent)}
+.brand{display:flex;align-items:center;gap:10px}.dot{width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 18px rgba(80,230,154,.8);animation:pulse 1.7s ease-in-out infinite}.brand b{font-size:18px;letter-spacing:.5px}.brand span{display:block;font-size:10px;color:var(--muted);letter-spacing:1.2px;margin-top:3px}.utc{font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);text-align:right}
+.main{position:absolute;inset:74px 18px 18px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;z-index:2}.map-card,.side-card{border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow);backdrop-filter:blur(10px);border-radius:18px}.map-card{position:relative;overflow:hidden}.map-title{position:absolute;left:18px;top:16px;z-index:3}.map-title b{font-size:17px}.map-title div{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px}.map{position:absolute;inset:0}.map svg{width:100%;height:100%;display:block}.ocean{fill:transparent}.country{fill:rgba(70,102,133,.26);stroke:rgba(150,190,220,.24);stroke-width:.45;vector-effect:non-scaling-stroke;transition:fill .4s ease,opacity .4s ease}.country.dim{fill:rgba(55,77,99,.14)}.pulse{pointer-events:none}
+.hero{position:absolute;left:18px;right:18px;bottom:18px;z-index:4;display:flex;justify-content:center;pointer-events:none}.hero-box{min-width:min(600px,90%);text-align:center;padding:14px 18px 13px;border-radius:16px;background:rgba(4,10,17,.78);border:1px solid var(--line);backdrop-filter:blur(8px)}.hero-kicker{font-size:10px;letter-spacing:1.7px;color:var(--muted);text-transform:uppercase}.hero-event{font-size:clamp(17px,2.1vw,28px);font-weight:800;margin-top:5px}.hero-event .country-name{color:#fff}.hero-sub{font-size:10px;color:var(--muted);margin-top:5px}.plus{color:var(--green)}.minus{color:var(--red)}
+.side{display:flex;flex-direction:column;gap:12px;min-height:0}.stat-card{padding:15px 16px}.label{font-size:10px;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase}.big{font-size:30px;font-weight:800;line-height:1.05;margin-top:6px;font-variant-numeric:tabular-nums}.rate{font-size:12px;margin-top:5px;color:var(--muted)}.green{color:var(--green)}.red{color:var(--red)}
+.active{padding:0;overflow:hidden;min-height:0;flex:1;display:flex;flex-direction:column}.active-head{padding:14px 16px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800}.rows{overflow:hidden;flex:1}.r{height:34px;display:grid;grid-template-columns:28px 28px minmax(0,1fr) auto;align-items:center;gap:5px;padding:0 10px;border-bottom:1px solid rgba(255,255,255,.055);font-size:11px}.r span:nth-child(1){color:var(--muted);text-align:right;font-size:9px}.r .flag{font-size:14px;text-align:center}.r .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.r .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--green)}
+.footer{position:absolute;left:22px;bottom:8px;z-index:5;font-size:9px;color:#72859a}.footer b{color:#9bb0c4}.notice{padding:12px 14px;font-size:10px;color:var(--muted);line-height:1.45;border-top:1px solid var(--line)}
+.event-toast{position:absolute;top:92px;right:18px;z-index:6;width:min(300px,calc(100vw - 36px));transform:translateX(340px);opacity:0;transition:.45s ease}.event-toast.show{transform:none;opacity:1}.toast{padding:12px 14px;border-radius:15px;background:rgba(6,12,20,.93);border:1px solid var(--line);box-shadow:var(--shadow)}.toast-line{font-size:10px;color:var(--muted);letter-spacing:1px}.toast-main{font-size:16px;font-weight:800;margin-top:4px}
+@keyframes pulse{0%,100%{transform:scale(.88);opacity:.75}50%{transform:scale(1.08);opacity:1}}
+@media(max-width:900px){.main{grid-template-columns:1fr}.side{position:absolute;left:10px;right:10px;bottom:10px;height:154px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.active{display:none}.stat-card{padding:10px 12px}.big{font-size:22px}.map-title{top:12px;left:12px}.hero{bottom:178px}.hero-box{min-width:0;width:92%}.footer{display:none}}
+@media(max-width:560px){.top{height:66px;padding:10px 12px}.brand b{font-size:14px}.brand span{font-size:8px}.utc{font-size:9px}.main{inset:58px 8px 8px}.map-card{border-radius:14px}.hero{left:8px;right:8px;bottom:166px}.hero-event{font-size:18px}.side{left:8px;right:8px;height:148px}.label{font-size:8px}.big{font-size:20px}.rate{font-size:9px}.event-toast{top:72px;right:8px}.map-title b{font-size:14px}.map-title div{font-size:8px}}
+</style></head>
+<body>
+<div class="app">
+<canvas id="stars"></canvas>
+<header class="top"><div class="brand"><span class="dot"></span><div><b>HUMANITY IS MOVING</b><span>LIVE POPULATION SIMULATION</span></div></div><div class="utc" id="utc">Loading UTC…</div></header>
+<main class="main">
+<section class="map-card"><div class="map-title"><b>🌍 THE WORLD IS MOVING</b><div>COUNTRIES PULSE BY ESTIMATED NET POPULATION GROWTH</div></div><div id="map" class="map"></div><div class="hero"><div class="hero-box"><div class="hero-kicker" id="eventKicker">SIMULATED EVENT</div><div class="hero-event" id="eventMain">Loading humanity…</div><div class="hero-sub" id="eventSub">Built from demographic estimates • not a live census observation</div></div></div></section>
+<aside class="side"><div class="side-card stat-card"><div class="label">Humans alive — live estimate</div><div class="big" id="worldPop">—</div><div class="rate" id="worldRate">— / second</div></div><div class="side-card stat-card"><div class="label">Humans added — this minute</div><div class="big green" id="minuteNet">—</div><div class="rate" id="eventRate">Births and deaths are statistically simulated</div></div><div class="side-card active"><div class="active-head">🔥 FASTEST MOVING COUNTRIES</div><div id="activeRows" class="rows"></div><div class="notice">Population and demographic rates are refreshed from public statistical estimates. Individual birth/death messages are simulated events weighted by expected rates.</div></div></aside>
+</main>
+<div id="toast" class="event-toast"><div class="toast"><div class="toast-line" id="toastLine">SIMULATED EVENT</div><div class="toast-main" id="toastMain">—</div></div></div>
+<div class="footer">Data engine: <b>World Bank indicators / UN-derived estimates</b> • Projection: current UTC time</div>
+</div>
+<script>
+const API='https://api.worldbank.org/v2';
+const YEAR=365.25*86400;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const fmt=n=>new Intl.NumberFormat('en-US').format(Math.max(0,Math.floor(n)));
+const cacheBust=()=>'?v='+Math.floor(Date.now()/60000);
+let countries=[], paths=[], projection, svg, worldTimer, currentEvent=null, eventTimer=null;
+const state={globalPop:0,globalYear:2024,globalBirth:0,globalDeath:0,anchor:Date.now(),lastData:0,minuteAnchor:Date.now(),minuteStart:0};
+function flag(cc){return cc&&cc.length===2?cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0))):'🌐'}
+function escapeHTML(s){return String(s).replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m))}
+async function getJSON(url,retries=4){for(let i=0;;i++){try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(!Array.isArray(j)||!j[1])throw new Error('Bad response');return j}catch(e){if(i>=retries)throw e;await sleep(500*(i+1))}}}
+function latest(j){for(const x of j[1]||[]){if(typeof x.value==='number')return {value:x.value,year:Number(x.date)}}return null}
+function latestByCode(j){const out={};for(const x of j[1]||[]){if(typeof x.value!=='number'||!x.countryiso3code)continue;const y=Number(x.date);if(!out[x.countryiso3code]||y>out[x.countryiso3code].year)out[x.countryiso3code]={value:x.value,year:y}}return out}
+async function loadCountryUniverse(){const j=await getJSON(API+'/country?format=json&per_page=400'+cacheBust());return (j[1]||[]).filter(c=>c.iso3Code&&c.iso2Code&&c.region&&c.region.id!=='NA'&&c.name)}
+async function indicatorBatch(codes,indicator){const result={};const batch=15;for(let i=0;i<codes.length;i+=batch){const part=codes.slice(i,i+batch).join(';');const j=await getJSON(`${API}/country/${part}/indicator/${indicator}?format=json&mrv=10&per_page=500${cacheBust()}`);Object.assign(result,latestByCode(j));await sleep(70)}return result}
+function project(c,now){const anchor=Date.UTC(c.pYear,6,1);const seconds=Math.max(0,now-anchor)/1000;const net=(c.birth-c.death)/1000;return c.population*Math.exp(net*seconds/YEAR)}
+async function loadData(){
+ const universe=await loadCountryUniverse();const codes=universe.map(x=>x.id);
+ const [P,B,D,Wp,Wb,Wd]=await Promise.all([
+  indicatorBatch(codes,'SP.POP.TOTL'),indicatorBatch(codes,'SP.DYN.CBRT.IN'),indicatorBatch(codes,'SP.DYN.CDRT.IN'),
+  getJSON(API+'/country/WLD/indicator/SP.POP.TOTL?format=json&mrv=10'+cacheBust()),
+  getJSON(API+'/country/WLD/indicator/SP.DYN.CBRT.IN?format=json&mrv=10'+cacheBust()),
+  getJSON(API+'/country/WLD/indicator/SP.DYN.CDRT.IN?format=json&mrv=10'+cacheBust())
+ ]);
+ const wp=latest(Wp),wb=latest(Wb),wd=latest(Wd);if(!wp||!wb||!wd)throw new Error('Global data unavailable');
+ const rows=[];for(const c of universe){const p=P[c.id],b=B[c.id],d=D[c.id];if(!p||!b||!d||p.value<=0)continue;rows.push({iso:c.iso3Code,cc:c.iso2Code,name:c.name,population:p.value,pYear:p.year,birth:b.value,death:d.value,bYear:b.year,dYear:d.year,netPerSec:p.value*(b.value-d.value)/1000/YEAR})}
+ rows.sort((a,b)=>b.population-a.population);if(rows.length<100)throw new Error('Insufficient country data');
+ countries=rows;
+ state.globalPop=wp.value;state.globalYear=wp.year;state.globalBirth=wb.value;state.globalDeath=wd.value;state.anchor=Date.UTC(wp.year,6,1);state.lastData=Date.now();
+}
+async function loadMap(){
+ const geo=await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',{cache:'no-store'}).then(r=>r.json());
+ const mapBox=document.getElementById('map');const w=mapBox.clientWidth,h=mapBox.clientHeight;projection=d3.geoNaturalEarth1().fitSize([w,h],geo);
+ svg=d3.select(mapBox).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('preserveAspectRatio','xMidYMid slice');
+ svg.append('rect').attr('class','ocean').attr('width',w).attr('height',h);
+ const lookup=new Map(countries.map(c=>[c.iso,c]));
+ paths=svg.append('g').selectAll('path').data(geo.features).join('path').attr('d',d3.geoPath(projection)).attr('class',d=>lookup.has(d.properties.ISO_A3)?'country':'country dim').attr('data-iso',d=>d.properties.ISO_A3||'');
+ const defs=svg.append('defs');const f=defs.append('filter').attr('id','glow');f.append('feGaussianBlur').attr('stdDeviation','5').attr('result','b');const m=f.append('feMerge');m.append('feMergeNode').attr('in','b');m.append('feMergeNode').attr('in','SourceGraphic');
+ window.addEventListener('resize',()=>{const w2=mapBox.clientWidth,h2=mapBox.clientHeight;projection.fitSize([w2,h2],geo);svg.attr('viewBox',`0 0 ${w2} ${h2}`);svg.selectAll('path.country').attr('d',d3.geoPath(projection))});
+}
+function updateMap(){const max=Math.max(...countries.slice(0,100).map(c=>Math.abs(c.netPerSec)),.001);const lookup=new Map(countries.map(c=>[c.iso,c]));paths.transition().duration(500).style('fill',function(d){const c=lookup.get(d.properties.ISO_A3);if(!c)return 'rgba(55,77,99,.14)';const n=c.netPerSec;const intensity=Math.min(1,Math.abs(n)/max);return n>=0?`rgba(60,220,140,${.16+.52*intensity})`:`rgba(255,100,110,${.13+.50*intensity})`}).style('opacity',d=>lookup.has(d.properties.ISO_A3)?1:.55)}
+function liveWorld(now){const years=Math.max(0,(now-state.anchor)/1000/YEAR);const net=(state.globalBirth-state.globalDeath)/1000;return state.globalPop*Math.exp(net*years)}
+function drawStars(){const c=document.getElementById('stars'),ctx=c.getContext('2d');function size(){const d=devicePixelRatio||1;c.width=innerWidth*d;c.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0)}size();const s=Array.from({length:110},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.3+.2,a:Math.random()*.38+.08}));function draw(t){ctx.clearRect(0,0,innerWidth,innerHeight);for(const p of s){const a=p.a+.09*Math.sin(t/1400+p.x);ctx.globalAlpha=a;ctx.fillStyle='#d8edff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill()}requestAnimationFrame(draw)}addEventListener('resize',size);requestAnimationFrame(draw)}
+function renderActive(){const active=[...countries].map(c=>({...c,value:Math.max(0,c.netPerSec)})).sort((a,b)=>b.value-a.value).slice(0,8);document.getElementById('activeRows').innerHTML=active.map((c,i)=>`<div class="r"><span>${i+1}</span><span class="flag">${flag(c.cc)}</span><span class="name">${escapeHTML(c.name)}</span><span class="val">+${c.value.toFixed(3)}/s</span></div>`).join('')}
+function showEvent(type,country){const birth=type==='birth';const ev=birth?`👶 A BABY WAS BORN <span class="country-name">${escapeHTML(country.name)} ${flag(country.cc)}</span>`:`🕊️ A LIFE ENDED <span class="country-name">${escapeHTML(country.name)} ${flag(country.cc)}</span>`;document.getElementById('eventKicker').textContent='SIMULATED EVENT';document.getElementById('eventMain').innerHTML=ev;document.getElementById('eventSub').textContent=birth?'Weighted by estimated births in each country • simulation only':'Weighted by estimated deaths in each country • simulation only';document.getElementById('toastLine').textContent=birth?'👶 SIMULATED BIRTH':'🕊️ SIMULATED DEATH';document.getElementById('toastMain').innerHTML=`${country.name} ${flag(country.cc)}`;const t=document.getElementById('toast');t.classList.add('show');clearTimeout(eventTimer);eventTimer=setTimeout(()=>t.classList.remove('show'),3500);pulseCountry(country,type)}
+function pulseCountry(c,type){const p=projection([Number(c.lon)||0,Number(c.lat)||0]);if(!p||!svg)return;const col=type==='birth'?'#50e69a':'#ff6e78';const g=svg.append('g').attr('class','pulse').attr('transform',`translate(${p[0]},${p[1]})`);g.append('circle').attr('r',3).attr('fill',col).attr('opacity',.95).attr('filter','url(#glow)');g.append('circle').attr('r',5).attr('fill','none').attr('stroke',col).attr('stroke-width',2).attr('opacity',.85).transition().duration(1300).attr('r',38).attr('opacity',0);g.select('circle:first-child').transition().duration(700).attr('r',9).attr('opacity',.2);setTimeout(()=>g.remove(),1450)}
+function chooseEvent(){const weighted=[];for(const c of countries){const b=Math.max(0,c.population*c.birth/1000/YEAR);const d=Math.max(0,c.population*c.death/1000/YEAR);if(b>0)weighted.push({c,type:'birth',w:b});if(d>0)weighted.push({c,type:'death',w:d})}let total=weighted.reduce((s,x)=>s+x.w,0),r=Math.random()*total;for(const x of weighted){r-=x.w;if(r<=0)return x}return weighted[0]}
+function scheduleNextEvent(){const rate=countries.reduce((s,c)=>s+c.population*c.birth/1000/YEAR+c.population*c.death/1000/YEAR,0);const seconds=Math.max(1,-Math.log(1-Math.random())/Math.max(rate,.0001));eventTimer=setTimeout(()=>{const ev=chooseEvent();showEvent(ev.type,ev.c);scheduleNextEvent()},seconds*1000)}
+function updateUI(){const now=Date.now();const wp=liveWorld(now),net=(state.globalBirth-state.globalDeath)*state.globalPop/1000/YEAR;document.getElementById('worldPop').textContent=fmt(wp);document.getElementById('worldRate').textContent=(net>=0?'+':'')+net.toFixed(3)+' people / second';const sec=(now-state.minuteAnchor)/1000;const minuteNet=Math.max(0,net*Math.min(sec,60));document.getElementById('minuteNet').textContent='+'+fmt(minuteNet);document.getElementById('utc').textContent=new Date(now).toISOString().replace('T',' ').slice(0,19)+' UTC'}
+async function init(){try{drawStars();await loadData();await loadMap();updateMap();renderActive();updateUI();setInterval(updateUI,1000);setInterval(updateMap,5000);setInterval(async()=>{try{await loadData();updateMap();renderActive()}catch(e){console.warn(e)}},3600000);scheduleNextEvent()}catch(e){console.error(e);document.getElementById('eventMain').textContent='Country data could not be loaded. Refresh the page to try again.';document.getElementById('eventSub').textContent='Refresh to retry the statistical data engine.'}}
+init();
+</script></body></html>
