@@ -1,5 +1,33 @@
 // js/playlist.js
 
+/* Index data refreshes asynchronously. During a baseline swap the old DOM can
+   survive for one tick while the country array has already changed. Keep that
+   transient state from taking down the live counter. This is intentionally
+   scoped to .pop cells on index.html; other pages and other NodeLists are not
+   affected. */
+(function guardStalePopulationRows(){
+  if(typeof window==='undefined'||!window.NodeList||!window.__souls)return;
+  const proto=window.NodeList.prototype;
+  if(proto.__soulsPopGuard)return;
+  const original=proto.forEach;
+  proto.forEach=function(callback,thisArg){
+    if(typeof callback!=='function')return original.call(this,callback,thisArg);
+    return original.call(this,(el,index,list)=>{
+      try{
+        if(el&&el.nodeType===1&&el.classList&&el.classList.contains('pop')){
+          const i=Number(el.dataset&&el.dataset.i);
+          const countries=window.__souls&&window.__souls.data&&window.__souls.data.countries;
+          if(!Number.isInteger(i)||!Array.isArray(countries)||!countries[i]||!Array.isArray(countries[i])||countries[i].length<4)return;
+        }
+      }catch(e){
+        /* A defensive guard must never become a new source of page failure. */
+      }
+      return callback.call(thisArg,el,index,list);
+    },thisArg);
+  };
+  Object.defineProperty(proto,'__soulsPopGuard',{value:true,enumerable:false});
+})();
+
 /* Rotation order for the background music bed. Shuffles the track list, plays
    it through, then reshuffles — so a page that has been up for weeks does not
    march through the same sequence, and a restart does not always open on the
@@ -21,8 +49,6 @@ export function createPlaylist({ tracks, rng = Math.random }) {
       const j = Math.floor(rng() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
-    // A fresh pass opening on the track that just finished would play it twice
-    // back to back. With a single live track that repeat is the only option.
     if (pool.length > 1 && pool[0] === last) {
       [pool[0], pool[1]] = [pool[1], pool[0]];
     }
@@ -30,8 +56,6 @@ export function createPlaylist({ tracks, rng = Math.random }) {
   }
 
   return {
-    /* The next track to play, or null when nothing is left playable — callers
-       must stop on null rather than retrying, or a fully-retired list spins. */
     next() {
       for (;;) {
         if (index >= order.length) {
@@ -40,12 +64,11 @@ export function createPlaylist({ tracks, rng = Math.random }) {
           if (order.length === 0) return null;
         }
         const track = order[index++];
-        if (dead.has(track)) continue; // retired after this pass was built
+        if (dead.has(track)) continue;
         last = track;
         return track;
       }
     },
-
     retire(track) {
       dead.add(track);
     },
