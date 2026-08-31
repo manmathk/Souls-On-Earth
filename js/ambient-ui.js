@@ -1,88 +1,11 @@
 import { createPlaylist } from "./playlist.js";
 
-const TRACKS=["Felt Keys for Marchers.mp3","Faith build up.mp3","Gentle+Dreams (1).mp3","Gentle+Dreams.mp3"];
+// Every MP3 currently stored at the repository root is part of the ambient bed.
+const TRACKS=["Experience.mp3","Faith build up.mp3","Felt Keys for Marchers.mp3","Gentle+Dreams (1).mp3","Gentle+Dreams.mp3","Through+the+Foggy+Gates.mp3"];
 
-const css=`.ambient-controls{position:fixed;right:10px;top:10px;z-index:999}.ambient-btn{width:34px;height:34px;border:1px solid #ddd;border-radius:50%;background:#fff;color:#333;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}.ambient-btn.off{opacity:.42;filter:grayscale(1)}.country .pop.direction-up{color:#179447}.country .pop.direction-down{color:#d62c2c}.country .pop.direction-neutral{color:inherit}
-/* YouTube-style support stickers live only in the existing empty hero space. */
-.yt-stickers{height:42px;margin:7px auto 0;max-width:340px;position:relative;display:flex;align-items:center;justify-content:center;gap:7px;overflow:hidden;pointer-events:none}.yt-sticker{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:4px;padding:5px 9px;border-radius:18px;background:rgba(255,255,255,.94);border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 8px rgba(0,0,0,.13);font-size:11px;font-weight:800;white-space:nowrap;opacity:0;transform:translate(-50%,20px) scale(.72);animation:yt-sticker-in 4.8s ease-in-out forwards}.yt-sticker .ico{font-size:16px;line-height:1}.yt-sticker .txt{color:#444}.yt-sticker .accent{color:#e62117}@keyframes yt-sticker-in{0%{opacity:0;transform:translate(-50%,20px) scale(.72)}12%{opacity:1;transform:translate(-50%,0) scale(1)}70%{opacity:1;transform:translate(-50%,-2px) scale(1)}100%{opacity:0;transform:translate(-50%,-18px) scale(.9)}}html[data-theme="dark"] .yt-sticker{background:rgba(35,35,35,.95);border-color:rgba(255,255,255,.12)}html[data-theme="dark"] .yt-sticker .txt{color:#eee}html[data-theme="ocean"] .yt-sticker,html[data-theme="sunset"] .yt-sticker{background:rgba(255,255,255,.9)}@media(max-width:520px){.yt-stickers{height:38px;margin-top:5px;max-width:270px}.yt-sticker{font-size:9px;padding:4px 8px}.yt-sticker .ico{font-size:14px}}
-@media(prefers-reduced-motion:reduce){.yt-stickers{display:none}}`;
+const css=`.ambient-controls{position:fixed;right:10px;top:10px;z-index:999}.ambient-btn{width:34px;height:34px;border:1px solid #ddd;border-radius:50%;background:#fff;color:#333;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}.ambient-btn.off{opacity:.42;filter:grayscale(1)}.country .pop.direction-up{color:#179447}.country .pop.direction-down{color:#d62c2c}.country .pop.direction-neutral{color:inherit}.yt-stickers{height:42px;margin:7px auto 0;max-width:340px;position:relative;display:flex;align-items:center;justify-content:center;gap:7px;overflow:hidden;pointer-events:none}.yt-sticker{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:4px;padding:5px 9px;border-radius:18px;background:rgba(255,255,255,.94);border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 8px rgba(0,0,0,.13);font-size:11px;font-weight:800;white-space:nowrap;opacity:0;transform:translate(-50%,20px) scale(.72);animation:yt-sticker-in 4.8s ease-in-out forwards}.yt-sticker .ico{font-size:16px;line-height:1}.yt-sticker .txt{color:#444}.yt-sticker .accent{color:#e62117}@keyframes yt-sticker-in{0%{opacity:0;transform:translate(-50%,20px) scale(.72)}12%{opacity:1;transform:translate(-50%,0) scale(1)}70%{opacity:1;transform:translate(-50%,-2px) scale(1)}100%{opacity:0;transform:translate(-50%,-18px) scale(.9)}}html[data-theme="dark"] .yt-sticker{background:rgba(35,35,35,.95);border-color:rgba(255,255,255,.12)}html[data-theme="dark"] .yt-sticker .txt{color:#eee}@media(max-width:520px){.yt-stickers{height:38px;margin-top:5px;max-width:270px}.yt-sticker{font-size:9px;padding:4px 8px}.yt-sticker .ico{font-size:14px}}@media(prefers-reduced-motion:reduce){.yt-stickers{display:none}}`;
 function addStyle(){const s=document.createElement("style");s.textContent=css;document.head.appendChild(s)}
 function setupMusic(btn){const audio=document.createElement("audio");audio.preload="auto";audio.muted=true;audio.volume=.18;document.body.appendChild(audio);const playlist=createPlaylist({tracks:TRACKS});let current=null,exhausted=false;function cue(){const n=playlist.next();if(!n){exhausted=true;return false}current=n;audio.src=n;return true}function render(){btn.classList.toggle("off",audio.paused||exhausted)}async function play(){if(exhausted)return;if(!current&&!cue())return;audio.muted=false;try{await audio.play()}catch(e){}render()}function pause(){audio.pause();render()}audio.onended=()=>{current=null;if(cue())play()};audio.onerror=()=>{if(current)playlist.retire(current);current=null;if(cue())play()};btn.onclick=e=>{e.stopPropagation();if(audio.paused){play();try{localStorage.setItem("souls-music","on")}catch(e){}}else{pause();try{localStorage.setItem("souls-music","off")}catch(e){}}};let wanted=true;try{wanted=localStorage.getItem("souls-music")!=="off"}catch(e){}const gesture=()=>{if(wanted)play();document.removeEventListener("click",gesture);document.removeEventListener("touchstart",gesture);document.removeEventListener("keydown",gesture)};document.addEventListener("click",gesture,{once:true});document.addEventListener("touchstart",gesture,{once:true});document.addEventListener("keydown",gesture,{once:true});audio.onplay=render;audio.onpause=render;render()}
-
-function setupCountryDirectionColors(){
-  const roots=[document.getElementById("left"),document.getElementById("right")].filter(Boolean);
-  if(!roots.length)return;
-  const previous=new WeakMap();
-  const paint=el=>{
-    if(!el.matches(".country .pop"))return;
-    const now=Number(el.textContent.replace(/[^0-9.-]/g,""));
-    if(!Number.isFinite(now))return;
-    const old=previous.get(el);
-    previous.set(el,now);
-    el.classList.remove("direction-up","direction-down","direction-neutral");
-    if(old==null)el.classList.add("direction-neutral");
-    else if(now>old)el.classList.add("direction-up");
-    else if(now<old)el.classList.add("direction-down");
-    else el.classList.add("direction-neutral");
-  };
-  const scan=root=>root.querySelectorAll(".country .pop").forEach(paint);
-  roots.forEach(scan);
-  const observer=new MutationObserver(records=>{
-    for(const record of records){
-      if(record.type!=="childList"&&record.type!=="characterData")continue;
-      if(record.target.nodeType===1){
-        const target=record.target;
-        if(target.matches?.(".country .pop"))paint(target);
-        target.querySelectorAll?.(".country .pop").forEach(paint);
-      }
-      for(const node of record.addedNodes||[]){
-        if(node.nodeType!==1)continue;
-        if(node.matches?.(".country .pop"))paint(node);
-        node.querySelectorAll?.(".country .pop").forEach(paint);
-      }
-    }
-  });
-  roots.forEach(root=>observer.observe(root,{subtree:true,childList:true,characterData:true}));
-}
-
-function setupYouTubeStickers(){
-  /* Only index.html has #world + .live-row. Secondary pages are untouched. */
-  const hero=document.querySelector(".hero");
-  const liveRow=document.querySelector(".live-row");
-  if(!hero||!liveRow||!document.getElementById("world"))return;
-  if(document.getElementById("ytStickers"))return;
-  const rail=document.createElement("div");
-  rail.id="ytStickers";
-  rail.className="yt-stickers";
-  rail.setAttribute("aria-hidden","true");
-  hero.appendChild(rail);
-
-  const stickers=[
-    ["👍","LIKE","SUPPORT"],["❤️","THANKS","SUPPORT"],["🔥","SUPER","THANKS"],
-    ["⭐","GREAT","STREAM"],["👏","THANK YOU",""],["💯","AMAZING",""],
-    ["🎉","LOVE","THE STREAM"],["🚀","BOOST","THE STREAM"],["🔔","SUBSCRIBE",""],
-    ["💬","COMMENT","YOUR CITY"],["❤️","KEEP","WATCHING"],["👑","SUPPORT","HISTORY"]
-  ];
-  let i=Math.floor(Math.random()*stickers.length);
-  let timer=null;
-  const show=()=>{
-    const old=rail.firstElementChild;
-    if(old)old.remove();
-    const [icon,text,accent]=stickers[i++%stickers.length];
-    const el=document.createElement("div");
-    el.className="yt-sticker";
-    el.innerHTML=`<span class="ico">${icon}</span><span class="txt">${text}${accent?` <span class="accent">${accent}</span>`:""}</span>`;
-    rail.appendChild(el);
-    timer=setTimeout(show,5200);
-  };
-  show();
-  window.addEventListener("pagehide",()=>clearTimeout(timer),{once:true});
-}
-
-addStyle();
-const wrap=document.createElement("div");wrap.className="ambient-controls";wrap.innerHTML='<button class="ambient-btn" id="ambientMusic" aria-label="Toggle music">🔊</button>';document.body.appendChild(wrap);setupMusic(document.getElementById("ambientMusic"));setupCountryDirectionColors();setupYouTubeStickers();
-
-/* index.html renders the country table before this module runs. The direction
-   color is based on the actual displayed live value: green when it rises,
-   red when it falls, neutral when unchanged. Other pages have no .country/.pop
-   pair, so they are untouched. */
+function setupCountryDirectionColors(){const roots=[document.getElementById("left"),document.getElementById("right")].filter(Boolean);if(!roots.length)return;const previous=new WeakMap();const paint=el=>{if(!el.matches(".country .pop"))return;const now=Number(el.textContent.replace(/[^0-9.-]/g,""));if(!Number.isFinite(now))return;const old=previous.get(el);previous.set(el,now);el.classList.remove("direction-up","direction-down","direction-neutral");if(old==null)el.classList.add("direction-neutral");else if(now>old)el.classList.add("direction-up");else if(now<old)el.classList.add("direction-down");else el.classList.add("direction-neutral")};roots.forEach(root=>root.querySelectorAll(".country .pop").forEach(paint));const observer=new MutationObserver(records=>{for(const record of records){if(record.type!=="childList"&&record.type!=="characterData")continue;if(record.target.nodeType===1){const target=record.target;if(target.matches?.(".country .pop"))paint(target);target.querySelectorAll?.(".country .pop").forEach(paint)}for(const node of record.addedNodes||[]){if(node.nodeType!==1)continue;if(node.matches?.(".country .pop"))paint(node);node.querySelectorAll?.(".country .pop").forEach(paint)}}});roots.forEach(root=>observer.observe(root,{subtree:true,childList:true,characterData:true}))}
+function setupYouTubeStickers(){const hero=document.querySelector(".hero"),liveRow=document.querySelector(".live-row");if(!hero||!liveRow||!document.getElementById("world")||document.getElementById("ytStickers"))return;const rail=document.createElement("div");rail.id="ytStickers";rail.className="yt-stickers";rail.setAttribute("aria-hidden","true");hero.appendChild(rail);const stickers=[["👍","LIKE","SUPPORT"],["❤️","THANKS","SUPPORT"],["🔥","SUPER","THANKS"],["⭐","GREAT","STREAM"],["👏","THANK YOU",""],["💯","AMAZING",""],["🎉","LOVE","THE STREAM"],["🚀","BOOST","THE STREAM"],["🔔","SUBSCRIBE",""],["💬","COMMENT","YOUR CITY"],["❤️","KEEP","WATCHING"],["👑","SUPPORT","HISTORY"]];let i=Math.floor(Math.random()*stickers.length),timer=null;const show=()=>{const old=rail.firstElementChild;if(old)old.remove();const [icon,text,accent]=stickers[i++%stickers.length],el=document.createElement("div");el.className="yt-sticker";el.innerHTML=`<span class="ico">${icon}</span><span class="txt">${text}${accent?` <span class="accent">${accent}</span>`:""}</span>`;rail.appendChild(el);timer=setTimeout(show,5200)};show();window.addEventListener("pagehide",()=>clearTimeout(timer),{once:true})}
+addStyle();const wrap=document.createElement("div");wrap.className="ambient-controls";wrap.innerHTML='<button class="ambient-btn" id="ambientMusic" aria-label="Toggle music">🔊</button>';document.body.appendChild(wrap);setupMusic(document.getElementById("ambientMusic"));setupCountryDirectionColors();setupYouTubeStickers();
