@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Souls On Earth &mdash; Country Focus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@700;800&display=swap">
+<style>
+/* ---- Souls On Earth vertical frame · "ember" visual system -----------------
+   Palette, display faces and devices lifted from index-backup.html so the
+   vertical family reads as the same channel: obsidian ground, ember glow from
+   below, gold rim light from above, bone text.
+   Fonts load from Google with full system fallbacks and font-display:swap, so a
+   page with no network still renders correctly — these pages must survive weeks
+   on a phone without connectivity. ------------------------------------------ */
+:root{
+  --obsidian:#0a0807; --obsidian-2:#151010; --ink:#1d1613;
+  --bone:#f4ecdb; --smoke:#8a7f72; --hair:rgba(244,236,219,.10);
+  --ember:#ff6a2b; --ember-hot:#ffc257; --gold:#e8b86d;
+  --blood:#e0503f; --grow:#5fe39b;
+  --accent:var(--ember-hot); --glow:255,194,87;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{height:100dvh;display:flex;flex-direction:column;overflow:hidden;
+  color:var(--bone);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(125% 58% at 50% 107%, rgba(255,106,43,.24), transparent 62%),
+    radial-gradient(92% 40% at 50% -6%, rgba(232,184,109,.11), transparent 60%),
+    linear-gradient(180deg,var(--obsidian) 0%,var(--obsidian-2) 58%,#1b1210 100%);
+  -webkit-font-smoothing:antialiased}
+.display{font-family:"Bebas Neue",Impact,"Haettenschweiler","Arial Narrow",sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.chrome-top{flex:0 0 56px;display:flex;align-items:center;gap:10px;
+  padding:0 56px 0 12px;position:relative;
+  background:linear-gradient(180deg,rgba(255,194,87,.05),transparent);
+  border-bottom:1px solid var(--hair)}
+/* right padding clears the fixed 34px music button ambient-ui.js pins at right:10px */
+.chrome-top .avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;
+  border:1px solid rgba(232,184,109,.45);box-shadow:0 0 14px rgba(255,106,43,.35)}
+.chrome-top .who{flex:1;min-width:0}
+.chrome-top .name{font-size:16px;font-weight:400;letter-spacing:.04em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--bone)}
+.chrome-top .subs{font-size:11px;color:var(--smoke)}
+.chrome-top .nav{display:flex;gap:6px;font-size:10px;flex:0 0 auto;letter-spacing:.08em}
+.chrome-top .nav a{color:var(--smoke);text-decoration:none}
+.chrome-top .nav a[aria-current]{color:var(--ember-hot)}
+
+.stage-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.stage{width:min(100vw,calc((100dvh - 100px) * 9 / 16));aspect-ratio:9/16;
+  position:relative;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:inset 0 0 120px 30px rgba(0,0,0,.70)}
+
+/* Ember field: a fixed set of 9 nodes, created once in markup and animated purely
+   in CSS. No JS loop and no node churn, so it costs nothing over a long session. */
+.embers{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.embers i{position:absolute;bottom:-12px;width:3px;height:3px;border-radius:50%;
+  background:var(--ember-hot);box-shadow:0 0 7px 2px rgba(255,140,60,.75);
+  opacity:0;animation:emberRise linear infinite}
+@keyframes emberRise{
+  0%{opacity:0;transform:translateY(0) scale(.6)}
+  12%{opacity:.9}
+  70%{opacity:.5}
+  100%{opacity:0;transform:translateY(-88vh) scale(1.15)}}
+.embers i:nth-child(1){left:8%;animation-duration:17s;animation-delay:0s}
+.embers i:nth-child(2){left:19%;animation-duration:23s;animation-delay:3s}
+.embers i:nth-child(3){left:31%;animation-duration:19s;animation-delay:7s}
+.embers i:nth-child(4){left:43%;animation-duration:26s;animation-delay:1s}
+.embers i:nth-child(5){left:55%;animation-duration:21s;animation-delay:9s}
+.embers i:nth-child(6){left:67%;animation-duration:24s;animation-delay:5s}
+.embers i:nth-child(7){left:78%;animation-duration:18s;animation-delay:12s}
+.embers i:nth-child(8){left:88%;animation-duration:28s;animation-delay:2s}
+.embers i:nth-child(9){left:96%;animation-duration:20s;animation-delay:14s}
+.stage > *:not(.embers){position:relative;z-index:1}
+
+.chrome-bottom{flex:0 0 44px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;text-align:center;padding:0 10px;color:#fff;
+  background:linear-gradient(180deg,#e0503f,#b2291f);
+  box-shadow:0 -8px 26px rgba(224,80,63,.30)}
+
+.seg-progress{position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:rgba(244,236,219,.09);z-index:5}
+.seg-progress i{display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--ember),var(--ember-hot));
+  box-shadow:0 0 10px rgba(255,140,60,.8)}
+.seg-progress.run i{animation:seg-sweep 50s linear forwards}
+@keyframes seg-sweep{from{width:0}to{width:100%}}
+@media(prefers-reduced-motion:reduce){
+  .seg-progress.run i{animation:none;width:100%}
+  .embers{display:none}}
+/* ---- page: focus ---------------------------------------------------------- */
+.head{padding:16px 16px 0;text-align:center}
+.eyebrow{font-size:11.5px;letter-spacing:.28em;color:var(--gold);opacity:.85}
+.flag{font-size:clamp(40px,13vw,66px);line-height:1;margin-top:10px;
+  filter:drop-shadow(0 4px 14px rgba(0,0,0,.65))}
+.cname{font-size:clamp(19px,5.8vw,28px);margin-top:5px;letter-spacing:.05em;color:var(--bone)}
+.hero{flex:1;min-height:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:4px 12px;position:relative}
+.hero::before{content:"";position:absolute;left:50%;top:44%;
+  width:88%;height:64%;transform:translate(-50%,-50%);pointer-events:none;
+  background:radial-gradient(closest-side,rgba(var(--glow),.26),transparent 72%);
+  animation:heroPulse 5.5s ease-in-out infinite}
+@keyframes heroPulse{0%,100%{opacity:.5}50%{opacity:1}}
+.num{position:relative;font-size:clamp(32px,12vw,68px);font-weight:800;line-height:1;
+  letter-spacing:-.035em;font-variant-numeric:tabular-nums;color:var(--accent);
+  text-shadow:0 0 30px rgba(var(--glow),.55),0 2px 0 rgba(0,0,0,.45)}
+.numlabel{font-size:9.5px;letter-spacing:.22em;color:var(--smoke);margin-top:8px}
+.facts{border-top:1px solid rgba(255,194,87,.24);
+  background:linear-gradient(180deg,rgba(0,0,0,.40),rgba(255,106,43,.05));
+  padding:11px 14px;display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
+.fact{min-width:0}
+.fact .k{font-size:8.5px;letter-spacing:.15em;color:var(--smoke)}
+.fact .v{font-size:clamp(12.5px,3.6vw,16px);font-weight:800;margin-top:3px;
+  letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--bone);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note{flex:0 0 auto;min-height:54px;display:flex;align-items:center;
+  justify-content:center;padding:10px 16px 16px;font-size:11.5px;line-height:1.45;
+  color:rgba(244,236,219,.66);text-align:center}
+.note[hidden]{display:none}
+</style>
+</head>
+<body data-page="focus">
+
+<div class="chrome-top">
+  <img class="avatar" src="channels4_profile.jpg" alt="History Warrior">
+  <div class="who"><div class="name display">History Warrior</div><div class="subs">&#128308; 6629 &nbsp; &#128077; 820</div></div>
+  <div class="nav display">
+    <a href="index.html">WORLD</a><a href="vs.html">VS</a><a href="focus.html" aria-current="page">FOCUS</a><a href="scale.html">SCALE</a><a href="chronicle.html">HISTORY</a>
+  </div>
+</div>
+
+<div class="stage-wrap"><div class="stage">
+  <div class="embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="head">
+    <div class="eyebrow display" id="eyebrow">&mdash;</div>
+    <div class="flag" id="flag">&nbsp;</div>
+    <div class="cname display" id="cname">&mdash;</div>
+  </div>
+
+  <div class="hero">
+    <div class="num mono" id="num">&mdash;</div>
+    <div class="numlabel display">LIVE POPULATION ESTIMATE</div>
+  </div>
+
+  <div class="facts">
+    <div class="fact"><div class="k display">SHARE OF WORLD</div><div class="v mono" id="fShare">&mdash;</div></div>
+    <div class="fact"><div class="k display">DOUBLING TIME</div><div class="v mono" id="fDouble">&mdash;</div></div>
+    <div class="fact"><div class="k display">NET CHANGE PER DAY</div><div class="v mono" id="fPerDay">&mdash;</div></div>
+    <div class="fact"><div class="k display" id="kNext">NEXT CROSSOVER</div><div class="v mono" id="fNext">&mdash;</div></div>
+  </div>
+
+  <div class="note" id="note" hidden></div>
+  <div class="seg-progress" id="segProgress"><i></i></div>
+</div></div>
+
+<div class="chrome-bottom">&#128071; COMMENT YOUR COUNTRY IN THE CHAT! &#128071;</div>
+
+<!-- Classic script: assigns window.HumanityData and, being non-deferred, always
+     executes before the module below. -->
+<script src="js/humanity-data.js"></script>
+<script type="module">
+import { segmentIndex, projectPopulation, doublingYears, yearsToOvertake, formatCount }
+  from './js/vertical-math.js';
+import { initVoice } from './js/vertical-voice.js';
+
+const DAYS_PER_YEAR = 365.25;
+let baselineYear = 2024;
+let notes = {};
+
+/* Approximate 2024 World Bank figures, duplicated from vs.html by design: the
+   owner chose self-contained pages over a shared data module. Present so the
+   page renders on the first frame and survives a network outage; replaced by
+   the live top fifty once HumanityData resolves. */
+let ROSTER = [
+  { iso: 'IND', flag: '\u{1F1EE}\u{1F1F3}', name: 'India',         pop: 1450935791, cbr: 16.8, cdr: 7.4 },
+  { iso: 'CHN', flag: '\u{1F1E8}\u{1F1F3}', name: 'China',         pop: 1410710000, cbr: 6.4,  cdr: 7.8 },
+  { iso: 'USA', flag: '\u{1F1FA}\u{1F1F8}', name: 'United States', pop: 340110988,  cbr: 10.9, cdr: 9.7 },
+  { iso: 'IDN', flag: '\u{1F1EE}\u{1F1E9}', name: 'Indonesia',     pop: 283487931,  cbr: 15.9, cdr: 7.0 },
+  { iso: 'PAK', flag: '\u{1F1F5}\u{1F1F0}', name: 'Pakistan',      pop: 251269164,  cbr: 26.9, cdr: 7.1 },
+  { iso: 'NGA', flag: '\u{1F1F3}\u{1F1EC}', name: 'Nigeria',       pop: 232679478,  cbr: 36.6, cdr: 12.0 },
+  { iso: 'BRA', flag: '\u{1F1E7}\u{1F1F7}', name: 'Brazil',        pop: 211998573,  cbr: 12.6, cdr: 7.0 },
+  { iso: 'RUS', flag: '\u{1F1F7}\u{1F1FA}', name: 'Russia',        pop: 143826130,  cbr: 8.9,  cdr: 12.9 },
+  { iso: 'ETH', flag: '\u{1F1EA}\u{1F1F9}', name: 'Ethiopia',      pop: 132059767,  cbr: 31.4, cdr: 6.2 },
+  { iso: 'MEX', flag: '\u{1F1F2}\u{1F1FD}', name: 'Mexico',        pop: 130861007,  cbr: 13.7, cdr: 6.4 },
+  { iso: 'JPN', flag: '\u{1F1EF}\u{1F1F5}', name: 'Japan',         pop: 123753041,  cbr: 6.2,  cdr: 13.1 },
+  { iso: 'EGY', flag: '\u{1F1EA}\u{1F1EC}', name: 'Egypt',         pop: 116538258,  cbr: 24.0, cdr: 6.0 },
+  { iso: 'PHL', flag: '\u{1F1F5}\u{1F1ED}', name: 'Philippines',   pop: 114891199,  cbr: 21.6, cdr: 6.2 },
+  { iso: 'COD', flag: '\u{1F1E8}\u{1F1E9}', name: 'DR Congo',      pop: 109276265,  cbr: 40.0, cdr: 8.6 },
+  { iso: 'VNM', flag: '\u{1F1FB}\u{1F1F3}', name: 'Vietnam',       pop: 100987686,  cbr: 14.8, cdr: 6.4 },
+  { iso: 'DEU', flag: '\u{1F1E9}\u{1F1EA}', name: 'Germany',       pop: 83517046,   cbr: 8.5,  cdr: 12.0 },
+  { iso: 'TZA', flag: '\u{1F1F9}\u{1F1FF}', name: 'Tanzania',      pop: 68560157,   cbr: 36.0, cdr: 6.0 },
+  { iso: 'ITA', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italy',         pop: 58993475,   cbr: 6.4,  cdr: 12.1 },
+  { iso: 'KEN', flag: '\u{1F1F0}\u{1F1EA}', name: 'Kenya',         pop: 56432944,   cbr: 27.1, cdr: 6.6 },
+  { iso: 'KOR', flag: '\u{1F1F0}\u{1F1F7}', name: 'South Korea',   pop: 51717590,   cbr: 4.7,  cdr: 7.2 },
+  { iso: 'UGA', flag: '\u{1F1FA}\u{1F1EC}', name: 'Uganda',        pop: 50015092,   cbr: 36.2, cdr: 5.9 },
+  { iso: 'CAN', flag: '\u{1F1E8}\u{1F1E6}', name: 'Canada',        pop: 41288599,   cbr: 9.4,  cdr: 8.0 }
+];
+
+/* Baked world total, replaced by the live figure when available. Used only for
+   the share-of-world fact. */
+let worldPop = 8300678395;
+let worldNetPer1000 = 8.32;
+let worldYear = 2026;
+
+const el = (id) => document.getElementById(id);
+const netPer1000 = (c) => c.cbr - c.cdr;
+/* Per-country baseline year, for the same reason as vs.html: World Bank coverage
+   is uneven and the latest population year is not the same for every country. */
+const livePop = (c, now) => projectPopulation(c.pop, c.year || baselineYear, netPer1000(c), now);
+
+function renderSegment(i) {
+  /* Re-rank by live population before treating the index as a rank. The baked
+     baselines are ordered by their 2024 values, but the projection runs forward and
+     faster-growing countries overtake slower ones: as of writing, Kenya has already
+     passed Italy and Uganda has passed South Korea. Without this sort the page would
+     print a stale rank and would compute "years until it passes the country ahead"
+     against a country it has in fact already passed. Sorted once per segment, not
+     per tick - crossovers happen over months, not seconds. */
+  const sortNow = Date.now();
+  ROSTER.sort((a, b) => livePop(b, sortNow) - livePop(a, sortNow));
+
+  const c = ROSTER[i];
+  if (!c) return;
+  el('eyebrow').textContent = `RANK ${i + 1} OF ${ROSTER.length}`;
+  el('flag').textContent = c.flag;
+  el('cname').textContent = c.name;
+
+  const note = notes[c.iso];
+  el('note').hidden = !note;
+  el('note').textContent = note || '';
+
+  /* Rank 1 has nobody above it, so the crossover fact flips direction and
+     reports when the country below is projected to take the lead instead. */
+  el('kNext').textContent = i === 0 ? 'CHALLENGER BEHIND' : 'PASSES RANK ' + i;
+}
+
+function renderTick(i) {
+  const c = ROSTER[i];
+  if (!c) return;
+  const now = Date.now();
+  const pop = livePop(c, now);
+  const net = netPer1000(c);
+  const perDay = (pop * net) / 1000 / DAYS_PER_YEAR;
+
+  el('num').textContent = formatCount(pop);
+  const grow = net >= 0;
+  document.documentElement.style.setProperty('--accent', grow ? '#5fe39b' : '#e0503f');
+  document.documentElement.style.setProperty('--glow', grow ? '95,227,155' : '224,80,63');
+
+  const world = projectPopulation(worldPop, worldYear, worldNetPer1000, now);
+  el('fShare').textContent = world > 0 ? `${((pop / world) * 100).toFixed(2)}%` : '\u2014';
+
+  const dbl = doublingYears(net);
+  el('fDouble').textContent = Number.isFinite(dbl) ? `${Math.round(dbl)} years` : 'never at this rate';
+
+  el('fPerDay').textContent = `${perDay >= 0 ? '+' : '\u2212'}${formatCount(Math.abs(perDay))}`;
+
+  /* Rank 1 compares downward against rank 2; everyone else compares upward
+     against the country immediately ahead of them. */
+  const isTop = i === 0;
+  const other = ROSTER[isTop ? 1 : i - 1];
+  if (!other) { el('fNext').textContent = '\u2014'; return; }
+  const otherPop = livePop(other, now);
+  const challenger = isTop ? { pop: otherPop, netPerThousand: netPer1000(other) } : { pop, netPerThousand: net };
+  const leader = isTop ? { pop, netPerThousand: net } : { pop: otherPop, netPerThousand: netPer1000(other) };
+  const years = yearsToOvertake(challenger, leader);
+  if (years === null) { el('fNext').textContent = 'not at this rate'; return; }
+  if (years === 0) { el('fNext').textContent = 'already passed'; return; }
+  /* Round first, then pluralise off the rounded value: 0.6 years displays as
+     "~1 year", not "~1 years". Anything under a year rounds to 0, which reads
+     better as "within a year" than as "~0 years". */
+  const whole = Math.round(years);
+  el('fNext').textContent = whole === 0 ? 'within a year'
+    : whole === 1 ? '~1 year' : `~${whole} years`;
+}
+
+const SEG_MS = 50000;
+let shown = -1;
+function syncProgress(){
+  const bar = el('segProgress');
+  const fill = bar.firstElementChild;
+  bar.classList.remove('run');
+  void bar.offsetWidth;
+  fill.style.animationDelay = `-${(Date.now() % SEG_MS) / 1000}s`;
+  bar.classList.add('run');
+}
+function tick(){
+  const i = segmentIndex(Date.now(), SEG_MS, ROSTER.length);
+  if (i !== shown){ shown = i; renderSegment(i); syncProgress(); }
+  renderTick(i);
+}
+
+/* Optional authored lines. A missing or malformed file is not an error: the
+   page shows derived facts only. Tried once - this is static content. */
+async function loadNotes() {
+  try {
+    const r = await fetch('data/focus-notes.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    if (j && typeof j === 'object') { notes = j; shown = -1; tick(); }
+  } catch (e) {
+    console.debug('focus-notes.json unavailable, showing derived facts only', e);
+  }
+}
+
+/* Expand the roster to the live top fifty. Retries forever, because this page
+   runs unattended and a failed fetch must not become a permanent downgrade. */
+async function upgradeToLive() {
+  for (;;) {
+    try {
+      if (!window.HumanityData) throw new Error('HumanityData not ready');
+      const { countries, world } = await window.HumanityData.load();
+      const usable = countries.filter((c) =>
+        Number.isFinite(c.population) && c.population > 0 &&
+        Number.isFinite(c.birthRate) && Number.isFinite(c.deathRate));
+      if (usable.length < 50) throw new Error(`Only ${usable.length} usable countries`);
+
+      ROSTER = usable
+        .sort((a, b) => b.population - a.population)
+        .slice(0, 50)
+        .map((c) => ({ iso: c.iso, flag: c.flag, name: c.name,
+          pop: c.population, cbr: c.birthRate, cdr: c.deathRate,
+          year: c.populationYear || baselineYear }));
+
+      if (world && Number.isFinite(world.population)) {
+        worldPop = world.population;
+        worldYear = world.year || worldYear;
+        if (Number.isFinite(world.birthRate) && Number.isFinite(world.deathRate)) {
+          worldNetPer1000 = world.birthRate - world.deathRate;
+        }
+      }
+      shown = -1;
+      tick();
+      return;
+    } catch (e) {
+      console.debug('Live upgrade failed, retrying in an hour', e);
+      await new Promise((r) => setTimeout(r, 3600000));
+    }
+  }
+}
+
+tick();
+setInterval(tick, 1000);
+loadNotes();
+upgradeToLive();
+
+/* Narration reads the rendered DOM, so it always describes the country on
+   screen and its live rank after the re-sort. */
+initVoice({
+  segmentMs: SEG_MS,
+  /* A documentary register, distinct from the other three. */
+  prefer: [/moira/i, /rishi/i, /google australian/i, /fiona/i, /\breed\b/i, /tessa/i],
+  rate: 0.9, pitch: 0.94,
+  lines: () => {
+    const c = ROSTER[shown] || ROSTER[0];
+    const num = el('num').textContent;
+    if (!c || !num || num === '\u2014') return null;
+    const rank = el('eyebrow').textContent.toLowerCase();
+    const dbl = el('fDouble').textContent;
+    const dblLine = dbl === 'never at this rate'
+      ? 'Its population is shrinking, so it will never double at this rate.'
+      : `At the current rate its population would double in ${dbl}.`;
+    return [
+      `${c.name}, ${rank}, with a live estimate of ${num} people.`,
+      `That is ${el('fShare').textContent} of everyone alive. ${dblLine}`,
+      notes[c.iso] || null
+    ];
+  }
+});
+</script>
+<script type="module" src="js/ambient-ui.js"></script>
+</body>
+</html>

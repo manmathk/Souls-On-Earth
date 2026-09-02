@@ -19,7 +19,7 @@ function humanityProject(c,now=Date.now()){
 }
 async function humanityLoadData(){
  const meta=await humanityJSON(`${HUMANITY_API}/country?format=json&per_page=400`);
- const universe=(meta[1]||[]).filter(c=>c.iso3Code&&c.iso2Code&&c.name&&c.region&&c.region.id!=='NA');
+ const universe=(meta[1]||[]).filter(c=>c.id&&c.iso2Code&&c.name&&c.region&&c.region.id!=='NA');
  const [pop,birth,death,worldPop,worldBirth,worldDeath]=await Promise.all([
    humanityIndicator('SP.POP.TOTL'),
    humanityIndicator('SP.DYN.CBRT.IN'),
@@ -32,9 +32,9 @@ async function humanityLoadData(){
  if(!wp||!wb||!wd)throw new Error('Global demographic data unavailable');
  const countries=[];
  for(const c of universe){
-   const p=pop.get(c.iso3Code),b=birth.get(c.iso3Code),d=death.get(c.iso3Code);
+   const p=pop.get(c.id),b=birth.get(c.id),d=death.get(c.id);
    if(!p||!Number.isFinite(p.value)||p.value<=0)continue;
-   countries.push({iso:c.iso3Code,cc:c.iso2Code,name:c.name,population:p.value,populationYear:p.year,birthRate:b?.value,deathRate:d?.value,birthYear:b?.year,deathYear:d?.year,flag:humanityFlag(c.iso2Code)});
+   countries.push({iso:c.id,cc:c.iso2Code,name:c.name,population:p.value,populationYear:p.year,birthRate:b?.value,deathRate:d?.value,birthYear:b?.year,deathYear:d?.year,flag:humanityFlag(c.iso2Code)});
  }
  if(countries.length<150)throw new Error(`Only ${countries.length} countries loaded`);
  const now=Date.now();

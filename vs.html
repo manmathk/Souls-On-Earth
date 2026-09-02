@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Souls On Earth &mdash; Head to Head</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@700;800&display=swap">
+<style>
+/* ---- Souls On Earth vertical frame · "ember" visual system -----------------
+   Palette, display faces and devices lifted from index-backup.html so the
+   vertical family reads as the same channel: obsidian ground, ember glow from
+   below, gold rim light from above, bone text.
+   Fonts load from Google with full system fallbacks and font-display:swap, so a
+   page with no network still renders correctly — these pages must survive weeks
+   on a phone without connectivity. ------------------------------------------ */
+:root{
+  --obsidian:#0a0807; --obsidian-2:#151010; --ink:#1d1613;
+  --bone:#f4ecdb; --smoke:#8a7f72; --hair:rgba(244,236,219,.10);
+  --ember:#ff6a2b; --ember-hot:#ffc257; --gold:#e8b86d;
+  --blood:#e0503f; --grow:#5fe39b;
+  --accent:var(--ember-hot); --glow:255,194,87;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{height:100dvh;display:flex;flex-direction:column;overflow:hidden;
+  color:var(--bone);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(125% 58% at 50% 107%, rgba(255,106,43,.24), transparent 62%),
+    radial-gradient(92% 40% at 50% -6%, rgba(232,184,109,.11), transparent 60%),
+    linear-gradient(180deg,var(--obsidian) 0%,var(--obsidian-2) 58%,#1b1210 100%);
+  -webkit-font-smoothing:antialiased}
+.display{font-family:"Bebas Neue",Impact,"Haettenschweiler","Arial Narrow",sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.chrome-top{flex:0 0 56px;display:flex;align-items:center;gap:10px;
+  padding:0 56px 0 12px;position:relative;
+  background:linear-gradient(180deg,rgba(255,194,87,.05),transparent);
+  border-bottom:1px solid var(--hair)}
+/* right padding clears the fixed 34px music button ambient-ui.js pins at right:10px */
+.chrome-top .avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;
+  border:1px solid rgba(232,184,109,.45);box-shadow:0 0 14px rgba(255,106,43,.35)}
+.chrome-top .who{flex:1;min-width:0}
+.chrome-top .name{font-size:16px;font-weight:400;letter-spacing:.04em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--bone)}
+.chrome-top .subs{font-size:11px;color:var(--smoke)}
+.chrome-top .nav{display:flex;gap:6px;font-size:10px;flex:0 0 auto;letter-spacing:.08em}
+.chrome-top .nav a{color:var(--smoke);text-decoration:none}
+.chrome-top .nav a[aria-current]{color:var(--ember-hot)}
+
+.stage-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.stage{width:min(100vw,calc((100dvh - 100px) * 9 / 16));aspect-ratio:9/16;
+  position:relative;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:inset 0 0 120px 30px rgba(0,0,0,.70)}
+
+/* Ember field: a fixed set of 9 nodes, created once in markup and animated purely
+   in CSS. No JS loop and no node churn, so it costs nothing over a long session. */
+.embers{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.embers i{position:absolute;bottom:-12px;width:3px;height:3px;border-radius:50%;
+  background:var(--ember-hot);box-shadow:0 0 7px 2px rgba(255,140,60,.75);
+  opacity:0;animation:emberRise linear infinite}
+@keyframes emberRise{
+  0%{opacity:0;transform:translateY(0) scale(.6)}
+  12%{opacity:.9}
+  70%{opacity:.5}
+  100%{opacity:0;transform:translateY(-88vh) scale(1.15)}}
+.embers i:nth-child(1){left:8%;animation-duration:17s;animation-delay:0s}
+.embers i:nth-child(2){left:19%;animation-duration:23s;animation-delay:3s}
+.embers i:nth-child(3){left:31%;animation-duration:19s;animation-delay:7s}
+.embers i:nth-child(4){left:43%;animation-duration:26s;animation-delay:1s}
+.embers i:nth-child(5){left:55%;animation-duration:21s;animation-delay:9s}
+.embers i:nth-child(6){left:67%;animation-duration:24s;animation-delay:5s}
+.embers i:nth-child(7){left:78%;animation-duration:18s;animation-delay:12s}
+.embers i:nth-child(8){left:88%;animation-duration:28s;animation-delay:2s}
+.embers i:nth-child(9){left:96%;animation-duration:20s;animation-delay:14s}
+.stage > *:not(.embers){position:relative;z-index:1}
+
+.chrome-bottom{flex:0 0 44px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;text-align:center;padding:0 10px;color:#fff;
+  background:linear-gradient(180deg,#e0503f,#b2291f);
+  box-shadow:0 -8px 26px rgba(224,80,63,.30)}
+
+.seg-progress{position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:rgba(244,236,219,.09);z-index:5}
+.seg-progress i{display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--ember),var(--ember-hot));
+  box-shadow:0 0 10px rgba(255,140,60,.8)}
+.seg-progress.run i{animation:seg-sweep 50s linear forwards}
+@keyframes seg-sweep{from{width:0}to{width:100%}}
+@media(prefers-reduced-motion:reduce){
+  .seg-progress.run i{animation:none;width:100%}
+  .embers{display:none}}
+/* ---- page: vs ------------------------------------------------------------- */
+.eyebrow{flex:0 0 30px;display:flex;align-items:center;justify-content:center;
+  font-size:11.5px;letter-spacing:.28em;color:var(--gold);opacity:.85}
+.panel{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:6px 14px;text-align:center;position:relative}
+.panel .flag{font-size:clamp(34px,10.5vw,54px);line-height:1;
+  filter:drop-shadow(0 3px 10px rgba(0,0,0,.6))}
+.panel .cname{font-size:clamp(15px,4.6vw,21px);margin-top:5px;letter-spacing:.05em;
+  color:var(--bone)}
+.panel .cpop{font-size:clamp(23px,7.8vw,40px);font-weight:800;line-height:1;
+  margin-top:3px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.panel .crate{font-size:10.5px;color:var(--smoke);margin-top:4px;letter-spacing:.05em}
+.panel.lead .cpop{color:var(--ember-hot);text-shadow:0 0 26px rgba(255,194,87,.5)}
+.panel.trail .cpop{color:rgba(244,236,219,.55)}
+.panel.lead::after{content:"LEADS";position:absolute;top:8px;right:12px;
+  font-family:"Bebas Neue",Impact,sans-serif;font-size:9.5px;letter-spacing:.2em;
+  color:var(--ember-hot);opacity:.75}
+
+.verdict{flex:0 0 96px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:6px 14px;text-align:center;
+  background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(255,106,43,.06));
+  border-top:1px solid rgba(255,194,87,.28);border-bottom:1px solid rgba(255,194,87,.28)}
+.vlabel{font-size:10px;letter-spacing:.2em;color:var(--smoke)}
+.vgap{font-size:clamp(19px,6vw,29px);font-weight:800;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;margin:3px 0;color:var(--bone)}
+.vtrend{font-size:10px;letter-spacing:.13em;padding:3px 9px;border-radius:2px;
+  border:1px solid currentColor}
+.vtrend.closing{color:var(--grow)}
+.vtrend.widening{color:var(--blood)}
+
+.story{flex:0 0 50px;display:flex;align-items:center;justify-content:center;
+  padding:0 16px 8px;text-align:center;font-size:11.5px;line-height:1.4;
+  color:rgba(244,236,219,.66)}
+</style>
+</head>
+<body data-page="vs">
+
+<div class="chrome-top">
+  <img class="avatar" src="channels4_profile.jpg" alt="History Warrior">
+  <div class="who"><div class="name display">History Warrior</div><div class="subs">&#128308; 6629 &nbsp; &#128077; 820</div></div>
+  <div class="nav display">
+    <a href="index.html">WORLD</a><a href="vs.html" aria-current="page">VS</a><a href="focus.html">FOCUS</a><a href="scale.html">SCALE</a><a href="chronicle.html">HISTORY</a>
+  </div>
+</div>
+
+<div class="stage-wrap"><div class="stage">
+  <div class="embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="eyebrow display" id="eyebrow">&mdash;</div>
+
+  <div class="panel" id="panelA">
+    <div class="flag" id="flagA">&nbsp;</div>
+    <div class="cname display" id="nameA">&mdash;</div>
+    <div class="cpop mono" id="popA">&mdash;</div>
+    <div class="crate" id="rateA">&mdash;</div>
+  </div>
+
+  <div class="verdict">
+    <div class="vlabel display" id="vlabel">&mdash;</div>
+    <div class="vgap mono" id="vgap">&mdash;</div>
+    <div class="vtrend display" id="vtrend">&mdash;</div>
+  </div>
+
+  <div class="panel" id="panelB">
+    <div class="flag" id="flagB">&nbsp;</div>
+    <div class="cname display" id="nameB">&mdash;</div>
+    <div class="cpop mono" id="popB">&mdash;</div>
+    <div class="crate" id="rateB">&mdash;</div>
+  </div>
+
+  <div class="story" id="story">&mdash;</div>
+  <div class="seg-progress" id="segProgress"><i></i></div>
+</div></div>
+
+<div class="chrome-bottom">&#128071; WHICH MATCHUP DO YOU WANT NEXT? &#128071;</div>
+
+<!-- Classic script: assigns window.HumanityData and, being non-deferred, always
+     executes before the module below. -->
+<script src="js/humanity-data.js"></script>
+<script type="module">
+import { segmentIndex, projectPopulation, yearsToOvertake, formatCount }
+  from './js/vertical-math.js';
+import { initVoice } from './js/vertical-voice.js';
+
+const DAYS_PER_YEAR = 365.25;
+let baselineYear = 2024;
+
+/* Approximate 2024 World Bank figures. These exist so the page renders on the
+   first frame and keeps running for weeks if the network is unavailable. They
+   are overwritten by live figures as soon as HumanityData resolves. */
+const COUNTRIES = {
+  IND: { flag: '\u{1F1EE}\u{1F1F3}', name: 'India',         pop: 1450935791, cbr: 16.8, cdr: 7.4 },
+  CHN: { flag: '\u{1F1E8}\u{1F1F3}', name: 'China',         pop: 1410710000, cbr: 6.4,  cdr: 7.8 },
+  IDN: { flag: '\u{1F1EE}\u{1F1E9}', name: 'Indonesia',     pop: 283487931,  cbr: 15.9, cdr: 7.0 },
+  USA: { flag: '\u{1F1FA}\u{1F1F8}', name: 'United States', pop: 340110988,  cbr: 10.9, cdr: 9.7 },
+  PAK: { flag: '\u{1F1F5}\u{1F1F0}', name: 'Pakistan',      pop: 251269164,  cbr: 26.9, cdr: 7.1 },
+  NGA: { flag: '\u{1F1F3}\u{1F1EC}', name: 'Nigeria',       pop: 232679478,  cbr: 36.6, cdr: 12.0 },
+  BRA: { flag: '\u{1F1E7}\u{1F1F7}', name: 'Brazil',        pop: 211998573,  cbr: 12.6, cdr: 7.0 },
+  RUS: { flag: '\u{1F1F7}\u{1F1FA}', name: 'Russia',        pop: 143826130,  cbr: 8.9,  cdr: 12.9 },
+  ETH: { flag: '\u{1F1EA}\u{1F1F9}', name: 'Ethiopia',      pop: 132059767,  cbr: 31.4, cdr: 6.2 },
+  MEX: { flag: '\u{1F1F2}\u{1F1FD}', name: 'Mexico',        pop: 130861007,  cbr: 13.7, cdr: 6.4 },
+  JPN: { flag: '\u{1F1EF}\u{1F1F5}', name: 'Japan',         pop: 123753041,  cbr: 6.2,  cdr: 13.1 },
+  EGY: { flag: '\u{1F1EA}\u{1F1EC}', name: 'Egypt',         pop: 116538258,  cbr: 24.0, cdr: 6.0 },
+  PHL: { flag: '\u{1F1F5}\u{1F1ED}', name: 'Philippines',   pop: 114891199,  cbr: 21.6, cdr: 6.2 },
+  COD: { flag: '\u{1F1E8}\u{1F1E9}', name: 'DR Congo',      pop: 109276265,  cbr: 40.0, cdr: 8.6 },
+  VNM: { flag: '\u{1F1FB}\u{1F1F3}', name: 'Vietnam',       pop: 100987686,  cbr: 14.8, cdr: 6.4 },
+  DEU: { flag: '\u{1F1E9}\u{1F1EA}', name: 'Germany',       pop: 83517046,   cbr: 8.5,  cdr: 12.0 },
+  TZA: { flag: '\u{1F1F9}\u{1F1FF}', name: 'Tanzania',      pop: 68560157,   cbr: 36.0, cdr: 6.0 },
+  ITA: { flag: '\u{1F1EE}\u{1F1F9}', name: 'Italy',         pop: 58993475,   cbr: 6.4,  cdr: 12.1 },
+  KEN: { flag: '\u{1F1F0}\u{1F1EA}', name: 'Kenya',         pop: 56432944,   cbr: 27.1, cdr: 6.6 },
+  KOR: { flag: '\u{1F1F0}\u{1F1F7}', name: 'South Korea',   pop: 51717590,   cbr: 4.7,  cdr: 7.2 },
+  UGA: { flag: '\u{1F1FA}\u{1F1EC}', name: 'Uganda',        pop: 50015092,   cbr: 36.2, cdr: 5.9 },
+  CAN: { flag: '\u{1F1E8}\u{1F1E6}', name: 'Canada',        pop: 41288599,   cbr: 9.4,  cdr: 8.0 }
+};
+
+/* Twelve real demographic crossovers. The first code is the story's subject:
+   the country doing the overtaking, or the one whose trajectory is the point. */
+const ITEMS = [
+  { a: 'IND', b: 'CHN', story: 'India passed China in 2023. China is now shrinking, so the gap widens every second.' },
+  { a: 'NGA', b: 'USA', story: 'Nigeria is on course to overtake the United States and become the third most populous country.' },
+  { a: 'ETH', b: 'JPN', story: 'Ethiopia has already overtaken Japan, whose population has been falling since 2010.' },
+  { a: 'COD', b: 'RUS', story: 'DR Congo is closing on Russia fast: one has the highest birth rate here, the other is in decline.' },
+  { a: 'KEN', b: 'KOR', story: 'Kenya has passed South Korea, which now records the lowest fertility rate in the world.' },
+  { a: 'PAK', b: 'BRA', story: 'Pakistan overtook Brazil around 2020 and continues to pull away.' },
+  { a: 'TZA', b: 'ITA', story: 'Tanzania passed Italy recently. Italy has recorded more deaths than births every year since 2007.' },
+  { a: 'PHL', b: 'VNM', story: 'The Philippines and Vietnam are close, but the Philippines grows roughly twice as fast.' },
+  { a: 'EGY', b: 'DEU', story: 'Egypt overtook Germany in the 2010s and now has well over thirty million more people.' },
+  { a: 'UGA', b: 'CAN', story: 'Uganda passed Canada despite occupying a fraction of the land area.' },
+  { a: 'MEX', b: 'RUS', story: 'Mexico is converging on Russia from below as Russian numbers contract.' },
+  { a: 'IDN', b: 'USA', story: 'Indonesia sits fourth, just behind the United States, but grows faster and is slowly closing in.' }
+];
+
+const el = (id) => document.getElementById(id);
+const netPer1000 = (c) => c.cbr - c.cdr;
+/* Each country carries its own baseline year: World Bank coverage is uneven, so
+   the latest available population year differs between countries. Projecting
+   them all from one shared year would silently shift some figures by years. */
+const livePop = (c, now) => projectPopulation(c.pop, c.year || baselineYear, netPer1000(c), now);
+const perDay = (c, now) => (livePop(c, now) * netPer1000(c)) / 1000 / DAYS_PER_YEAR;
+
+function renderSegment(i) {
+  const m = ITEMS[i];
+  const a = COUNTRIES[m.a];
+  const b = COUNTRIES[m.b];
+  el('eyebrow').textContent = `HEAD TO HEAD \u00B7 ${i + 1} OF ${ITEMS.length}`;
+  el('flagA').textContent = a.flag;
+  el('nameA').textContent = a.name;
+  el('flagB').textContent = b.flag;
+  el('nameB').textContent = b.name;
+  el('story').textContent = m.story;
+}
+
+function renderTick(i) {
+  const m = ITEMS[i];
+  const now = Date.now();
+  const a = COUNTRIES[m.a];
+  const b = COUNTRIES[m.b];
+  const pa = livePop(a, now);
+  const pb = livePop(b, now);
+
+  el('popA').textContent = formatCount(pa);
+  el('popB').textContent = formatCount(pb);
+
+  const rate = (c) => {
+    const d = perDay(c, now);
+    const sign = d >= 0 ? '+' : '\u2212';
+    return `${sign}${formatCount(Math.abs(d))} per day`;
+  };
+  el('rateA').textContent = rate(a);
+  el('rateB').textContent = rate(b);
+
+  const aLeads = pa >= pb;
+  el('panelA').className = `panel ${aLeads ? 'lead' : 'trail'}`;
+  el('panelB').className = `panel ${aLeads ? 'trail' : 'lead'}`;
+
+  const leader = aLeads ? a : b;
+  const trailer = aLeads ? b : a;
+  el('vlabel').textContent = `${leader.name.toUpperCase()} AHEAD BY`;
+  el('vgap').textContent = formatCount(Math.abs(pa - pb));
+
+  /* The gap closes when the country behind is adding people faster in absolute
+     terms than the one in front, which is not the same as having a higher rate. */
+  const closing = perDay(trailer, now) > perDay(leader, now);
+
+  const years = yearsToOvertake(
+    { pop: aLeads ? pb : pa, netPerThousand: netPer1000(trailer) },
+    { pop: aLeads ? pa : pb, netPerThousand: netPer1000(leader) }
+  );
+
+  const trend = el('vtrend');
+  trend.className = `vtrend display ${closing ? 'closing' : 'widening'}`;
+  trend.textContent = closing
+    ? (years !== null && years > 0
+        ? `GAP CLOSING \u00B7 PASSES IN ~${Math.round(years)} YEARS`
+        : 'GAP CLOSING')
+    : 'GAP WIDENING';
+}
+
+const SEG_MS = 50000;
+let shown = -1;
+function syncProgress(){
+  const bar = el('segProgress');
+  const fill = bar.firstElementChild;
+  bar.classList.remove('run');
+  void bar.offsetWidth;
+  fill.style.animationDelay = `-${(Date.now() % SEG_MS) / 1000}s`;
+  bar.classList.add('run');
+}
+function tick(){
+  const i = segmentIndex(Date.now(), SEG_MS, ITEMS.length);
+  if (i !== shown){ shown = i; renderSegment(i); syncProgress(); }
+  renderTick(i);
+}
+
+/* Upgrade the baked baselines to live World Bank figures when they arrive.
+   Retries forever: this page runs unattended, so a failed fetch must not
+   become a permanent downgrade. */
+async function upgradeToLive() {
+  for (;;) {
+    try {
+      if (!window.HumanityData) throw new Error('HumanityData not ready');
+      const { countries } = await window.HumanityData.load();
+      let updated = 0;
+      for (const c of countries) {
+        const target = COUNTRIES[c.iso];
+        if (!target) continue;
+        if (!Number.isFinite(c.population) || c.population <= 0) continue;
+        if (!Number.isFinite(c.birthRate) || !Number.isFinite(c.deathRate)) continue;
+        target.pop = c.population;
+        target.cbr = c.birthRate;
+        target.cdr = c.deathRate;
+        target.year = c.populationYear || baselineYear;
+        updated++;
+      }
+      if (updated < 10) throw new Error(`Only ${updated} of 22 countries matched`);
+      return;
+    } catch (e) {
+      console.debug('Live upgrade failed, retrying in an hour', e);
+      await new Promise((r) => setTimeout(r, 3600000));
+    }
+  }
+}
+
+tick();
+setInterval(tick, 1000);
+upgradeToLive();
+
+/* Narration reads the rendered DOM, so it always describes the matchup on
+   screen, including whichever country is currently ahead. */
+initVoice({
+  segmentMs: SEG_MS,
+  /* A brisk announcer for a head-to-head. */
+  prefer: [/google us english/i, /\balex\b/i, /aaron/i, /\btom\b/i, /nathan/i, /\bkaren\b/i],
+  rate: 0.99, pitch: 0.98,
+  lines: () => {
+    const m = ITEMS[shown] || ITEMS[0];
+    const a = COUNTRIES[m.a], b = COUNTRIES[m.b];
+    const pa = el('popA').textContent, pb = el('popB').textContent;
+    if (!pa || pa === '\u2014') return null;
+    /* Read the leader from the panel class rather than lower-casing the on-screen
+       label, which turned "UNITED STATES" into "united states" and produced
+       "and the gap widening" instead of "and the gap is widening". */
+    const leader = el('panelA').classList.contains('lead') ? a : b;
+    const closing = el('vtrend').classList.contains('closing');
+    return [
+      `${a.name}, ${pa}. ${b.name}, ${pb}.`,
+      `${leader.name} is ahead by ${el('vgap').textContent} people, and the gap is ${closing ? 'closing' : 'widening'}.`,
+      m.story
+    ];
+  }
+});
+</script>
+<script type="module" src="js/ambient-ui.js"></script>
+</body>
+</html>

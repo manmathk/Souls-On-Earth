@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Souls On Earth &mdash; Chronicle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@700;800&display=swap">
+<style>
+/* ---- Souls On Earth vertical frame · "ember" visual system -----------------
+   Palette, display faces and devices lifted from index-backup.html so the
+   vertical family reads as the same channel: obsidian ground, ember glow from
+   below, gold rim light from above, bone text.
+   Fonts load from Google with full system fallbacks and font-display:swap, so a
+   page with no network still renders correctly — these pages must survive weeks
+   on a phone without connectivity. ------------------------------------------ */
+:root{
+  --obsidian:#0a0807; --obsidian-2:#151010; --ink:#1d1613;
+  --bone:#f4ecdb; --smoke:#8a7f72; --hair:rgba(244,236,219,.10);
+  --ember:#ff6a2b; --ember-hot:#ffc257; --gold:#e8b86d;
+  --blood:#e0503f; --grow:#5fe39b;
+  --accent:var(--ember-hot); --glow:255,194,87;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{height:100dvh;display:flex;flex-direction:column;overflow:hidden;
+  color:var(--bone);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(125% 58% at 50% 107%, rgba(255,106,43,.24), transparent 62%),
+    radial-gradient(92% 40% at 50% -6%, rgba(232,184,109,.11), transparent 60%),
+    linear-gradient(180deg,var(--obsidian) 0%,var(--obsidian-2) 58%,#1b1210 100%);
+  -webkit-font-smoothing:antialiased}
+.display{font-family:"Bebas Neue",Impact,"Haettenschweiler","Arial Narrow",sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+.chrome-top{flex:0 0 56px;display:flex;align-items:center;gap:10px;
+  padding:0 56px 0 12px;position:relative;
+  background:linear-gradient(180deg,rgba(255,194,87,.05),transparent);
+  border-bottom:1px solid var(--hair)}
+/* right padding clears the fixed 34px music button ambient-ui.js pins at right:10px */
+.chrome-top .avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;
+  border:1px solid rgba(232,184,109,.45);box-shadow:0 0 14px rgba(255,106,43,.35)}
+.chrome-top .who{flex:1;min-width:0}
+.chrome-top .name{font-size:16px;font-weight:400;letter-spacing:.04em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--bone)}
+.chrome-top .subs{font-size:11px;color:var(--smoke)}
+.chrome-top .nav{display:flex;gap:6px;font-size:10px;flex:0 0 auto;letter-spacing:.08em}
+.chrome-top .nav a{color:var(--smoke);text-decoration:none}
+.chrome-top .nav a[aria-current]{color:var(--ember-hot)}
+
+.stage-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.stage{width:min(100vw,calc((100dvh - 100px) * 9 / 16));aspect-ratio:9/16;
+  position:relative;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:inset 0 0 120px 30px rgba(0,0,0,.70)}
+
+/* Ember field: a fixed set of 9 nodes, created once in markup and animated purely
+   in CSS. No JS loop and no node churn, so it costs nothing over a long session. */
+.embers{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.embers i{position:absolute;bottom:-12px;width:3px;height:3px;border-radius:50%;
+  background:var(--ember-hot);box-shadow:0 0 7px 2px rgba(255,140,60,.75);
+  opacity:0;animation:emberRise linear infinite}
+@keyframes emberRise{
+  0%{opacity:0;transform:translateY(0) scale(.6)}
+  12%{opacity:.9}
+  70%{opacity:.5}
+  100%{opacity:0;transform:translateY(-88vh) scale(1.15)}}
+.embers i:nth-child(1){left:8%;animation-duration:17s;animation-delay:0s}
+.embers i:nth-child(2){left:19%;animation-duration:23s;animation-delay:3s}
+.embers i:nth-child(3){left:31%;animation-duration:19s;animation-delay:7s}
+.embers i:nth-child(4){left:43%;animation-duration:26s;animation-delay:1s}
+.embers i:nth-child(5){left:55%;animation-duration:21s;animation-delay:9s}
+.embers i:nth-child(6){left:67%;animation-duration:24s;animation-delay:5s}
+.embers i:nth-child(7){left:78%;animation-duration:18s;animation-delay:12s}
+.embers i:nth-child(8){left:88%;animation-duration:28s;animation-delay:2s}
+.embers i:nth-child(9){left:96%;animation-duration:20s;animation-delay:14s}
+.stage > *:not(.embers){position:relative;z-index:1}
+
+.chrome-bottom{flex:0 0 44px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;text-align:center;padding:0 10px;color:#fff;
+  background:linear-gradient(180deg,#e0503f,#b2291f);
+  box-shadow:0 -8px 26px rgba(224,80,63,.30)}
+
+.seg-progress{position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:rgba(244,236,219,.09);z-index:5}
+.seg-progress i{display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--ember),var(--ember-hot));
+  box-shadow:0 0 10px rgba(255,140,60,.8)}
+.seg-progress.run i{animation:seg-sweep 50s linear forwards}
+@keyframes seg-sweep{from{width:0}to{width:100%}}
+@media(prefers-reduced-motion:reduce){
+  .seg-progress.run i{animation:none;width:100%}
+  .embers{display:none}}
+/* ---- page: chronicle ------------------------------------------------------ */
+.inner{flex:1;min-height:0;display:flex;flex-direction:column;
+  justify-content:flex-start;padding:8% 20px 58px}
+.era{font-size:13px;letter-spacing:.3em;color:var(--gold);opacity:.9}
+.title{font-size:clamp(26px,8.6vw,44px);line-height:.98;margin:10px 0 8px;
+  letter-spacing:.005em;color:var(--bone);text-shadow:0 2px 20px rgba(0,0,0,.6)}
+.when{font-size:11.5px;color:var(--smoke);letter-spacing:.1em}
+.rule{height:1px;margin:18px 0 0;
+  background:linear-gradient(90deg,rgba(255,194,87,.65),rgba(255,194,87,0))}
+.elapsedwrap{position:relative;margin:14px 0 4px}
+.elapsedwrap::before{content:"";position:absolute;left:-4%;top:50%;
+  width:80%;height:150%;transform:translateY(-50%);pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,194,87,.22),transparent 72%);
+  animation:heroPulse 5.5s ease-in-out infinite}
+@keyframes heroPulse{0%,100%{opacity:.5}50%{opacity:1}}
+.elapsed{position:relative;font-size:clamp(17px,5.9vw,29px);font-weight:800;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--ember-hot);
+  text-shadow:0 0 26px rgba(255,194,87,.5)}
+.elapsed-label{font-size:9.5px;letter-spacing:.22em;color:var(--smoke);margin-top:3px}
+.body{margin-top:26px;font-size:clamp(12.5px,3.7vw,16px);line-height:1.62;
+  color:rgba(244,236,219,.80)}
+</style>
+</head>
+<body data-page="chronicle">
+
+<div class="chrome-top">
+  <img class="avatar" src="channels4_profile.jpg" alt="History Warrior">
+  <div class="who"><div class="name display">History Warrior</div><div class="subs">&#128308; 6629 &nbsp; &#128077; 820</div></div>
+  <div class="nav display">
+    <a href="index.html">WORLD</a><a href="vs.html">VS</a><a href="focus.html">FOCUS</a><a href="scale.html">SCALE</a><a href="chronicle.html" aria-current="page">HISTORY</a>
+  </div>
+</div>
+
+<div class="stage-wrap"><div class="stage">
+  <div class="embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="inner">
+    <div class="era display" id="era">&mdash;</div>
+    <div class="title display" id="title">&mdash;</div>
+    <div class="when" id="when">&mdash;</div>
+    <div class="rule"></div>
+    <div class="elapsedwrap"><div class="elapsed mono" id="elapsed">&mdash;</div></div>
+    <div class="elapsed-label display">ELAPSED SINCE THIS MOMENT</div>
+    <div class="body" id="body"></div>
+  </div>
+  <div class="seg-progress" id="segProgress"><i></i></div>
+</div></div>
+
+<div class="chrome-bottom">&#128071; WHICH MOMENT SHOULD WE ADD NEXT? &#128071;</div>
+
+<script type="module">
+import { elapsedParts, formatElapsed, segmentIndex }
+  from './js/vertical-math.js';
+import { initVoice } from './js/vertical-voice.js';
+
+/* Shown only while the content file has not loaded yet. It is deliberately not
+   an instruction to the viewer: this page runs unattended for weeks and nobody
+   is there to act on a "please refresh". The fetch retries until it succeeds. */
+const PLACEHOLDER = [{
+  era: 'HISTORY WARRIOR',
+  title: 'The chronicle is loading',
+  date: '2022-11-15',
+  body: ''
+}];
+
+let ITEMS = PLACEHOLDER;
+
+const el = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+
+const MONTHS = ['January','February','March','April','May','June',
+  'July','August','September','October','November','December'];
+
+function entryMs(entry) {
+  return Date.parse(`${entry.date}T00:00:00Z`);
+}
+
+function prettyDate(entry) {
+  const d = new Date(entryMs(entry));
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+function renderSegment(i) {
+  const entry = ITEMS[i];
+  if (!entry) return;
+  el('era').textContent = entry.era || '';
+  el('title').textContent = entry.title || '';
+  el('when').textContent = prettyDate(entry);
+  el('body').innerHTML = esc(entry.body);
+}
+
+function renderTick(i) {
+  const entry = ITEMS[i];
+  if (!entry) return;
+  el('elapsed').textContent = formatElapsed(entryMs(entry), Date.now());
+}
+
+const SEG_MS = 50000;
+let shown = -1;
+function syncProgress(){
+  const bar = el('segProgress');
+  const fill = bar.firstElementChild;
+  bar.classList.remove('run');
+  void bar.offsetWidth;
+  fill.style.animationDelay = `-${(Date.now() % SEG_MS) / 1000}s`;
+  bar.classList.add('run');
+}
+function tick(){
+  const i = segmentIndex(Date.now(), SEG_MS, ITEMS.length);
+  if (i !== shown){ shown = i; renderSegment(i); syncProgress(); }
+  renderTick(i);
+}
+
+/* Chronological order, so a viewer who watches the whole loop travels forward
+   through time rather than hopping around. */
+async function loadContent() {
+  for (;;) {
+    try {
+      const r = await fetch('data/chronicle.json', { cache: 'no-store' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json();
+      if (!Array.isArray(j) || j.length === 0) throw new Error('Empty chronicle');
+      /* Drop entries whose date does not parse. Substituting a fallback date
+         would render a plausible-looking but wrong elapsed time, which on an
+         unattended stream is worse than the entry simply not appearing: the
+         owner would never notice the typo. */
+      const usable = j.filter((e) => {
+        if (e && Number.isFinite(entryMs(e))) return true;
+        console.warn('Chronicle entry skipped, unparseable date:', e && e.id, e && e.date);
+        return false;
+      });
+      if (usable.length === 0) throw new Error('No chronicle entry has a valid date');
+      ITEMS = usable.sort((a, b) => entryMs(a) - entryMs(b));
+      shown = -1;
+      tick();
+      return;
+    } catch (e) {
+      console.debug('Chronicle load failed, retrying', e);
+      await new Promise((r) => setTimeout(r, 15000));
+    }
+  }
+}
+
+tick();
+setInterval(tick, 1000);
+loadContent();
+
+/* Narration reads the rendered DOM, so it always describes the entry on screen.
+   The body is the channel owner's prose, so it is spoken as written. */
+initVoice({
+  segmentMs: SEG_MS,
+  /* A grave storyteller for history. Daniel/Arthur/Oliver are the Apple en-GB
+     voices; Google UK English Male is the Android equivalent. */
+  prefer: [/daniel/i, /google uk english male/i, /arthur/i, /oliver/i, /\balex\b/i, /tessa/i],
+  rate: 0.86, pitch: 0.86,
+  lines: () => {
+    const entry = ITEMS[shown] || ITEMS[0];
+    if (!entry || !entry.title) return null;
+    const parts = elapsedParts(entryMs(entry), Date.now());
+    const ago = parts.y > 0
+      ? `${parts.y.toLocaleString('en-US')} years and ${parts.d} days ago`
+      : `${parts.d} days ago`;
+    return [`${entry.title}. ${prettyDate(entry)}, ${ago}.`, entry.body];
+  }
+});
+</script>
+<script type="module" src="js/ambient-ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "_comment": "Optional authored line per country, keyed by ISO3. Absent keys are fine - the page then shows derived facts only. Replace these drafts with your own words; they are machine-written placeholders.",
+  "IND": "India passed China in 2023, but its growth is already slowing: fertility fell below replacement level in 2020.",
+  "JPN": "Japan's population has fallen every year since 2010, and more than one person in ten is now over eighty.",
+  "NGA": "Nigeria adds roughly the population of Iceland every three weeks."
+}

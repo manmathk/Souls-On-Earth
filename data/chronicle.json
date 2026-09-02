@@ -1,0 +1,72 @@
+[
+  {
+    "id": "magna-carta",
+    "era": "MEDIEVAL ENGLAND",
+    "title": "Magna Carta is sealed at Runnymede",
+    "date": "1215-06-15",
+    "body": "England's population was perhaps four million when King John put his seal to this charter. The document never mentions democracy, and most of its clauses concern feudal dues and fish weirs. Three of its provisions are nonetheless still on the statute book eight centuries later."
+  },
+  {
+    "id": "constantinople",
+    "era": "FALL OF AN EMPIRE",
+    "title": "Constantinople falls to Mehmed II",
+    "date": "1453-05-29",
+    "body": "The city had held out for more than a thousand years, shrinking from perhaps half a million people to fewer than fifty thousand by the time the walls were breached. Scholars fleeing west carried Greek manuscripts with them, and those manuscripts fed the Renaissance."
+  },
+  {
+    "id": "gutenberg-bible",
+    "era": "THE PRINTED WORD",
+    "title": "Gutenberg completes his Bible",
+    "date": "1455-02-23",
+    "body": "Before this book, copying a Bible by hand took a scribe roughly a year. Gutenberg's press produced around 180 copies in the same span. Within fifty years, European printers had made more books than the previous thousand years had produced in total."
+  },
+  {
+    "id": "columbus-landfall",
+    "era": "THE COLUMBIAN EXCHANGE",
+    "title": "Columbus makes landfall in the Bahamas",
+    "date": "1492-10-12",
+    "body": "The Americas held an estimated fifty to sixty million people that morning. Within a century, introduced disease had reduced that population by as much as ninety percent. It remains the largest proportional collapse of a human population in recorded history."
+  },
+  {
+    "id": "krakatoa",
+    "era": "THE VOLCANIC YEAR",
+    "title": "Krakatoa erupts",
+    "date": "1883-08-27",
+    "body": "The eruption was heard 4,800 kilometres away on Rodrigues island, the furthest distance sound has ever been reliably reported to travel. Roughly 36,000 people died. Ash suspended in the atmosphere measurably cooled global temperatures for the next five years."
+  },
+  {
+    "id": "influenza-1918",
+    "era": "THE GREAT PANDEMIC",
+    "title": "The 1918 influenza pandemic is first recorded",
+    "date": "1918-03-11",
+    "body": "The first cases were logged at an army camp in Kansas. Over the following two years the pandemic infected roughly a third of everyone then alive and killed somewhere between fifty and a hundred million people, considerably more than the war it travelled with."
+  },
+  {
+    "id": "penicillin",
+    "era": "THE ANTIBIOTIC AGE",
+    "title": "Fleming notices the mould",
+    "date": "1928-09-28",
+    "body": "Alexander Fleming came back from holiday to find a contaminated culture plate with a ring of dead bacteria around the intruding mould. Turning that observation into a usable drug took another twelve years. Estimates of the lives saved since run past two hundred million."
+  },
+  {
+    "id": "moon-landing",
+    "era": "LEAVING EARTH",
+    "title": "The first humans land on the Moon",
+    "date": "1969-07-20",
+    "body": "About 3.6 billion people were alive that day and roughly 600 million of them watched. Fewer people have walked on the Moon in all the years since than were sitting in the room at Mission Control that night."
+  },
+  {
+    "id": "smallpox-eradicated",
+    "era": "A DISEASE ENDS",
+    "title": "Smallpox is declared eradicated",
+    "date": "1980-05-08",
+    "body": "The World Health Assembly declared the disease gone, the only human infection ever deliberately eliminated. Smallpox had killed an estimated three hundred million people in the twentieth century alone, which is more than every war of that century put together."
+  },
+  {
+    "id": "eight-billion",
+    "era": "THE PRESENT",
+    "title": "World population reaches eight billion",
+    "date": "2022-11-15",
+    "body": "The United Nations marked the day the world's population was estimated to pass eight billion. Adding the previous billion had taken about twelve years. The next is projected to take roughly fifteen, the first sustained slowdown of the modern era."
+  }
+]
