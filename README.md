@@ -83,6 +83,124 @@ Souls-On-Earth/
 └── ...                     # Supporting assets and project files
 ```
 
+## 📱 Vertical 9:16 Page Family
+
+Four pages built for portrait streaming — a vertical 24/7 live source that is also
+clippable into Shorts:
+
+| Page | What it shows |
+|---|---|
+| `vs.html` | Head-to-head country matchups with a live widening/closing verdict |
+| `focus.html` | One country per segment with doubling time, crossover estimate and world share |
+| `scale.html` | A day's births, deaths or net growth climbing past real place populations |
+| `chronicle.html` | Authored history moments with live elapsed-time counters |
+
+### How the frame works
+
+The viewport is the live frame. A centred 9:16 stage inside it holds all content, and
+the leftover bands carry the channel header and the comment CTA. A Short cropped to
+9:16 therefore lands exactly on the stage, free of chrome, while the live stream shows
+both. The stage is sized with:
+
+```css
+width: min(100vw, calc((100dvh - 100px) * 9 / 16)); aspect-ratio: 9/16;
+```
+
+`width` resolves through `min()` and `aspect-ratio` derives the height, so the stage
+can never overflow either axis. The `100px` is the two chrome bands (56 + 44) — change
+one and you must change the other.
+
+Segments advance every 50 seconds, indexed off the wall clock
+(`Math.floor(Date.now() / 50000) % count`) so rotation is self-correcting after
+background-tab throttling and identical across devices. DOM is rebuilt once per
+segment; only number text updates each second.
+
+### Visual system
+
+Palette, display faces and devices follow `index-backup.html` so the vertical family
+reads as the same channel: obsidian ground, ember glow from below, gold rim light from
+above, bone text. Display type is Bebas Neue, live numbers are JetBrains Mono, both
+loaded with `font-display:swap` behind full system fallbacks — a page with no network
+still renders correctly. The ember field is nine nodes animated purely in CSS, so it
+costs nothing over a long session.
+
+`.chrome-top` carries 56px of right padding on purpose: `js/ambient-ui.js` pins a
+fixed music button at `right:10px`, which otherwise sits on top of the nav and clips
+the last link.
+
+### Editing the content
+
+- `data/chronicle.json` — history entries (`id`, `era`, `title`, `date`, `body`).
+  Entries whose date does not parse are dropped with a console warning rather than
+  shown with a substituted date. The body text is read aloud verbatim by the
+  voice-over, so it is the main thing worth editing.
+- `data/focus-notes.json` — an optional authored line per country, keyed by ISO3.
+  Absent keys are fine; the page then shows derived facts only.
+
+### Voice-over
+
+`js/vertical-voice.js` narrates the segment currently on screen. Each page passes a
+`lines()` function that reads its own live DOM, so the narration always matches what
+is displayed rather than following a fixed script. One line per segment, spoken
+through the Web Speech API, with the music bed ducked underneath.
+
+The control sits below the music button at `right:10px; top:62px` and uses a
+**microphone** glyph (U+1F399 U+FE0F), deliberately not a speaker — `ambient-ui.js`
+already owns the speaker glyphs (U+1F50A / U+1F507) for the music bed, and three
+speaker variants stacked together were impossible to tell apart. Dimmed at 0.42
+opacity when narration is off, full opacity when on. Speech is gesture-gated by every
+browser, so the first tap anywhere on the page arms it.
+
+Each page gets its own voice, rate and pitch, so the four sound like different
+narrators rather than one script read four times:
+
+| Page | Preferred voice | Rate / pitch |
+|---|---|---|
+| `chronicle.html` | Daniel, Google UK English Male, Arthur | 0.86 / 0.86 — grave storyteller |
+| `vs.html` | Google US English, Alex, Aaron | 0.99 / 0.98 — brisk announcer |
+| `scale.html` | Samantha, Google UK English Female | 0.93 / 1.00 — clear and neutral |
+| `focus.html` | Moira, Rishi, Google Australian | 0.90 / 0.94 — documentary |
+
+`prefer` is a list of name patterns tried in order among English voices, falling back
+to a generic ordering when a device ships none of them. The rate and pitch differences
+mean the pages still sound distinct on a device with only one voice installed.
+
+Five things this has to work around:
+
+- `speechSynthesis.getVoices()` returns `[]` on the first synchronous call in both
+  Chrome and Safari. It is populated asynchronously, so the module waits on
+  `voiceschanged` and also polls, since Safari often never fires that event.
+- **iOS** grants speech only if the first `speak()` runs synchronously inside the
+  gesture handler. Awaiting anything first — or routing it through a timer — loses the
+  permission. So the first line is spoken directly from the click/key handler with no
+  `cancel()` and no `setTimeout` in between; that utterance is both the unlock and the
+  first real narration.
+- **Android Chrome** drops a `speak()` issued in the same task as a `cancel()`, so
+  from the second line onward the two are separated by a tick. These two requirements
+  pull in opposite directions, which is why the first utterance is special-cased
+  instead of every utterance being deferred.
+- Apple ships novelty voices (`Bad News`, `Bubbles`, `Zarvox`) that are `en-US` and
+  would win a naive language-only match. They are excluded by name — but only the
+  genuinely comic ones: `Rishi`, `Reed`, `Flo`, `Eddy`, `Sandy` and `Shelley` are
+  ordinary voices and blocking them cut the usable pool on a stock Mac from 16 down
+  to 5, which made two pages fall back onto the same voice.
+
+Every utterance is watchdogged: if `onend` never fires the queue is reset, so one
+wedged line cannot silence the rest of a multi-week session.
+
+**Known limitation on iOS:** speech cannot be routed through Web Audio, so the music
+bed cannot be ducked the way `js/narrator.js` ducks its mp3 lines — ducking relies on
+`HTMLMediaElement.volume`, which iOS Safari ignores. On iPhone the voice competes with
+the music at full level; lower it with the music button if the mix is wrong.
+
+### Shared code
+
+Three modules are shared: the existing `js/humanity-data.js` (World Bank client,
+data-only), `js/vertical-math.js` (pure functions, covered by
+`node js/vertical-math.test.js` — 21 tests), and `js/vertical-voice.js` (narration
+engine). Each page owns its own CSS and rendering, so the frame CSS is intentionally
+repeated per page.
+
 ## ⚙️ Technology
 
 - HTML5
