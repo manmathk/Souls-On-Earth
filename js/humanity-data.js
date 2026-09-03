@@ -7,7 +7,7 @@ function humanityLatest(j){for(const x of j[1]||[]){const v=Number(x.value);if(N
 function humanityLatestByCode(j){const out=new Map();for(const x of j[1]||[]){const v=Number(x.value),y=Number(x.date),code=x.countryiso3code;if(!code||!Number.isFinite(v)||!Number.isFinite(y))continue;const old=out.get(code);if(!old||y>old.year)out.set(code,{value:v,year:y});}return out;}
 async function humanityIndicator(indicator){
  const j=await humanityJSON(`${HUMANITY_API}/country/all/indicator/${indicator}?format=json&date=2014:2024&per_page=20000`);
- return humanityLatestByCode(j);
+ return {json:j,latest:humanityLatestByCode(j)};
 }
 function humanityFlag(cc){return cc&&cc.length===2?cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0))):'🌐';}
 function humanityProject(c,now=Date.now()){
@@ -17,26 +17,56 @@ function humanityProject(c,now=Date.now()){
  const net=(Number.isFinite(c.birthRate)&&Number.isFinite(c.deathRate))?(c.birthRate-c.deathRate)/1000:0;
  return base*Math.exp(net*years);
 }
+function humanityIsRealCountry(x){
+ const code=String(x?.countryiso3code||'').toUpperCase();
+ const c=x?.country||{};
+ const iso2=String(c.iso2Code||'').toUpperCase();
+ const region=String(c.region?.id||'').toUpperCase();
+ const name=String(c.value||'').trim().toLowerCase();
+ return /^[A-Z]{3}$/.test(code)&&/^[A-Z]{2}$/.test(iso2)&&region!=='NA'&&name&&name!=='world'&&!/^(high|upper middle|lower middle|low) income$/.test(name)&&!/^ida|^ibrd/.test(name);
+}
+function humanityUniverseFromIndicator(j){
+ const seen=new Set(),out=[];
+ for(const x of j?.[1]||[]){
+   if(!humanityIsRealCountry(x))continue;
+   const c=x.country,iso=String(x.countryiso3code).toUpperCase();
+   if(seen.has(iso))continue;
+   seen.add(iso);
+   out.push({id:iso,iso2Code:String(c.iso2Code).toUpperCase(),name:c.value,region:{id:String(c.region?.id||'').toUpperCase(),value:c.region?.value||''}});
+ }
+ return out;
+}
 async function humanityLoadData(){
- const meta=await humanityJSON(`${HUMANITY_API}/country?format=json&per_page=400`);
- const universe=(meta[1]||[]).filter(c=>c.id&&c.iso2Code&&c.name&&c.region&&c.region.id!=='NA');
- const [pop,birth,death,worldPop,worldBirth,worldDeath]=await Promise.all([
-   humanityIndicator('SP.POP.TOTL'),
+ // Load the population indicator first. Its records already contain country
+ // name, ISO2, ISO3 and region metadata, so the separate /country endpoint is
+ // only an optional optimization and must never make the page fail.
+ const popResult=await humanityIndicator('SP.POP.TOTL');
+ let universe=[];
+ try{
+   const meta=await humanityJSON(`${HUMANITY_API}/country?format=json&per_page=400`);
+   universe=(meta[1]||[]).filter(c=>c.id&&c.iso2Code&&c.name&&c.region&&c.region.id!=='NA');
+ }catch(e){
+   console.warn('World Bank country metadata unavailable; deriving country list from population indicator.',e);
+   universe=humanityUniverseFromIndicator(popResult.json);
+ }
+ const [birthResult,deathResult,worldPop,worldBirth,worldDeath]=await Promise.all([
    humanityIndicator('SP.DYN.CBRT.IN'),
    humanityIndicator('SP.DYN.CDRT.IN'),
    humanityJSON(`${HUMANITY_API}/country/WLD/indicator/SP.POP.TOTL?format=json&date=2014:2024&per_page=20`),
    humanityJSON(`${HUMANITY_API}/country/WLD/indicator/SP.DYN.CBRT.IN?format=json&date=2014:2024&per_page=20`),
    humanityJSON(`${HUMANITY_API}/country/WLD/indicator/SP.DYN.CDRT.IN?format=json&date=2014:2024&per_page=20`)
  ]);
+ const pop=popResult.latest,birth=birthResult.latest,death=deathResult.latest;
  const wp=humanityLatest(worldPop),wb=humanityLatest(worldBirth),wd=humanityLatest(worldDeath);
  if(!wp||!wb||!wd)throw new Error('Global demographic data unavailable');
  const countries=[];
  for(const c of universe){
-   const p=pop.get(c.id),b=birth.get(c.id),d=death.get(c.id);
+   const iso=String(c.id).toUpperCase();
+   const p=pop.get(iso),b=birthResult.latest.get(iso),d=deathResult.latest.get(iso);
    if(!p||!Number.isFinite(p.value)||p.value<=0)continue;
-   countries.push({iso:c.id,cc:c.iso2Code,name:c.name,population:p.value,populationYear:p.year,birthRate:b?.value,deathRate:d?.value,birthYear:b?.year,deathYear:d?.year,flag:humanityFlag(c.iso2Code)});
+   countries.push({iso,cc:c.iso2Code,name:c.name,population:p.value,populationYear:p.year,birthRate:b?.value,deathRate:d?.value,birthYear:b?.year,deathYear:d?.year,flag:humanityFlag(c.iso2Code)});
  }
- if(countries.length<150)throw new Error(`Only ${countries.length} countries loaded`);
+ if(countries.length<150)throw new Error(`Only ${countries.length} real countries loaded`);
  const now=Date.now();
  countries.forEach(c=>{c.livePopulation=humanityProject(c,now);c.netPerSec=(Number.isFinite(c.birthRate)&&Number.isFinite(c.deathRate))?c.livePopulation*(c.birthRate-c.deathRate)/1000/HUMANITY_YEAR:0;});
  countries.sort((a,b)=>b.livePopulation-a.livePopulation);
