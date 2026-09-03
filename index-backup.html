@@ -17,7 +17,6 @@
   .embers{position:absolute;inset:0;pointer-events:none;overflow:hidden}.ember-p{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:var(--ember-hot);box-shadow:0 0 6px 2px rgba(255,140,60,.8);animation:rise linear infinite;opacity:0}@keyframes rise{0%{transform:translateY(0) translateX(0);opacity:0}8%{opacity:.9}85%{opacity:.5}100%{transform:translateY(-115vh) translateX(var(--drift,20px));opacity:0}}
   .hud-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 0;z-index:5}.live-tag{display:flex;align-items:center;gap:6px;background:rgba(122,31,31,.35);border:1px solid rgba(255,140,60,.4);border-radius:20px;padding:5px 10px 5px 8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ember-hot)}.live-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--blood-bright);box-shadow:0 0 8px var(--blood-bright);animation:blink 1.3s ease-in-out infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}.clock{font-size:11px;letter-spacing:1px;color:var(--smoke)}.gear,.bg-btn{background:rgba(20,15,12,.55);border:1px solid rgba(232,184,109,.35);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;cursor:pointer}.hud-top-right{display:flex;align-items:center;gap:8px}
   .hero{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 16px;z-index:3}.eyebrow{font-family:'Cinzel',serif;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}.eyebrow:before,.eyebrow:after{content:'✦';color:var(--ember);margin:0 8px;font-size:9px;vertical-align:middle}.mega{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,13vw,68px);line-height:.95;letter-spacing:1px;color:var(--bone);text-shadow:0 0 18px rgba(255,140,60,.55),0 0 46px rgba(255,106,43,.35);white-space:nowrap}.crackline{width:64%;height:2px;margin:14px auto 12px;background:linear-gradient(90deg,transparent,var(--ember),var(--ember-hot),var(--ember),transparent);box-shadow:0 0 14px 2px rgba(255,140,60,.6);animation:glow 2.4s ease-in-out infinite}@keyframes glow{0%,100%{opacity:.5}50%{opacity:1}}.rate-line{font-size:11px;letter-spacing:.5px;color:var(--smoke);margin-bottom:18px}.rate-line b{color:var(--ember-hot);font-weight:600}.twin{display:flex;gap:10px}.rune{background:rgba(20,15,12,.55);border:1px solid rgba(232,184,109,.28);border-radius:8px;padding:10px 16px;min-width:118px}.rune .k{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--smoke);margin-bottom:4px}.rune .v{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}.rune.born .v{color:#bcd98f}.rune.gone .v{color:var(--blood-bright)}
-  /* Country carousel moved into the main stats area, directly under Births/Departed. */
   .country-carousel{width:min(520px,92%);margin-top:18px;overflow:hidden;border:1px solid rgba(232,184,109,.25);border-radius:10px;background:rgba(10,8,7,.48);box-shadow:0 8px 24px rgba(0,0,0,.22)}.country-carousel-head{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--smoke);padding:7px 10px;border-bottom:1px solid rgba(232,184,109,.18)}.ticker-wrap{height:34px;position:relative;overflow:hidden;display:flex;align-items:center}.ticker-track{display:flex;gap:26px;white-space:nowrap;animation:scroll 42s linear infinite;padding-left:100%;will-change:transform}.ticker-item{font-size:10px;color:var(--bone);display:flex;align-items:center;gap:6px}.ticker-item .flag{font-size:12px}.ticker-item .n{color:var(--smoke);font-size:8px}.ticker-item .p{color:var(--ember-hot);font-variant-numeric:tabular-nums}@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
   .lower{position:absolute;left:0;right:0;bottom:34px;z-index:5;padding:0 14px}.banner{background:linear-gradient(135deg,rgba(122,31,31,.35),rgba(20,15,12,.85));border:1px solid rgba(232,184,109,.4);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;backdrop-filter:blur(2px)}.crest{width:26px;height:26px;flex:none;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--ember-hot),var(--ember) 55%,#7a3a12 100%);display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 8px rgba(255,140,60,.6)}.banner-mid{flex:1;min-width:0}.banner-mid .h{font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;color:var(--bone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.banner-mid .u{font-size:9px;color:var(--smoke)}.banner-subs{text-align:right;flex:none}.banner-subs .num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--ember-hot);letter-spacing:.5px}.banner-subs .lab{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--smoke)}
   .settings{position:absolute;inset:0;z-index:20;background:rgba(6,4,3,.94);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 20px) 20px 24px}.settings.open{display:flex}.settings h2{font-family:'Cinzel',serif;font-size:15px;letter-spacing:2px;color:var(--gold);margin:0 0 4px}.settings .sub{font-size:10px;color:var(--smoke);margin-bottom:18px;line-height:1.6}.field{margin-bottom:14px}.field label{display:block;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--smoke);margin-bottom:6px}.field input{width:100%;background:#171210;border:1px solid rgba(232,184,109,.3);border-radius:6px;color:var(--bone);font-family:'JetBrains Mono',monospace;font-size:14px;padding:11px 12px}.field input:focus{outline:none;border-color:var(--ember-hot)}.settings-btns{display:flex;gap:10px;margin-top:6px}button.primary{flex:1;background:linear-gradient(180deg,var(--ember-hot),var(--ember));border:none;color:#1a0f08;font-family:'Cinzel',serif;font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:12px;border-radius:6px;cursor:pointer}button.ghost{flex:1;background:transparent;border:1px solid rgba(232,184,109,.35);color:var(--gold);font-family:'Cinzel',serif;font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:12px;border-radius:6px;cursor:pointer}a.watch{display:block;text-align:center;margin-top:16px;font-size:11px;letter-spacing:1px;color:var(--ember-hot);text-decoration:none;border:1px solid rgba(232,184,109,.3);border-radius:6px;padding:11px}.settings .foot-note{margin-top:auto;font-size:9.5px;color:var(--smoke);line-height:1.6;text-align:center}
@@ -43,6 +42,63 @@ const subCountEl=document.getElementById('subCount'),subInput=document.getElemen
 const roster=[["🇮🇳","India",1484346289,.68],["🇨🇳","China",1412730262,-.10],["🇺🇸","U.S.A.",349954626,.50],["🇮🇩","Indonesia",289173567,.70],["🇵🇰","Pakistan",262057188,1.50],["🇳🇬","Nigeria",245556882,2.40],["🇧🇷","Brazil",214114145,.40],["🇧🇩","Bangladesh",178737176,1.00],["🇷🇺","Russia",143210631,-.20],["🇪🇹","Ethiopia",140740450,2.50],["🇲🇽","Mexico",133549137,.60],["🇯🇵","Japan",122060077,-.50],["🇪🇬","Egypt",121020307,1.60],["🇵🇭","Philippines",118643603,1.30],["🇻🇳","Vietnam",102545084,.70],["🇮🇷","Iran",93536150,.70],["🇹🇷","Turkey",88201821,.50],["🇩🇪","Germany",83607492,-.10],["🇬🇧","United Kingdom",70060206,.50],["🇫🇷","France",66819931,.20],["🇿🇦","South Africa",65747206,.80]];
 const SEC_PER_YEAR=365*86400;function countryPop(row,nowMs){const[,,base,pct]=row,perSec=base*(pct/100)/SEC_PER_YEAR,elapsedSec=(nowMs-BASELINE_TIME)/1000;return Math.floor(base+elapsedSec*perSec)}const track=document.getElementById('tickerTrack');let tickerSpans=[];function buildTicker(){track.innerHTML='';tickerSpans=[];[...roster,...roster].forEach(row=>{const el=document.createElement('div');el.className='ticker-item';const pSpan=document.createElement('span');pSpan.className='p';pSpan.textContent=countryPop(row,Date.now()).toLocaleString('en-US');el.innerHTML=`<span class="flag">${row[0]}</span><span>${row[1]}</span><span class="n">·</span>`;el.appendChild(pSpan);track.appendChild(el);tickerSpans.push({row,span:pSpan})})}function updateTicker(){const now=Date.now();tickerSpans.forEach(({row,span})=>span.textContent=countryPop(row,now).toLocaleString('en-US'))}buildTicker();
 </script>
-<script></script>
+<script>
+/* Background music — same playlist behavior as index.html. */
+const bgMusic=document.createElement('audio');
+bgMusic.id='bgMusic';
+bgMusic.preload='auto';
+bgMusic.volume=0.18;bgMusic.setAttribute('playsinline','');
+document.body.appendChild(bgMusic);
+
+const MUSIC_TRACKS=[
+  'Felt Keys for Marchers.mp3',
+  'Faith build up.mp3',
+  'Gentle+Dreams (1).mp3',
+  'Gentle+Dreams.mp3'
+];
+const musicBtn=document.getElementById('bgToggle');
+let musicIndex=-1,musicWanted=true,musicExhausted=false;
+try{musicWanted=localStorage.getItem('souls-music')!=='off'}catch(e){musicWanted=true}
+
+function musicRender(){
+  if(musicBtn)musicBtn.textContent=bgMusic.paused?'▶':'❚❚';
+  if(musicBtn)musicBtn.setAttribute('title',bgMusic.paused?'Play background music':'Pause background music');
+}
+function nextMusic(){
+  if(!MUSIC_TRACKS.length){musicExhausted=true;return false}
+  musicIndex=(musicIndex+1)%MUSIC_TRACKS.length;
+  bgMusic.src=MUSIC_TRACKS[musicIndex];
+  return true;
+}
+async function playMusic(){
+  if(musicExhausted||!musicWanted)return;
+  if(!bgMusic.src&&!nextMusic())return;
+  try{await bgMusic.play()}catch(e){}
+  musicRender();
+}
+function pauseMusic(){bgMusic.pause();musicRender()}
+
+bgMusic.addEventListener('ended',()=>{if(nextMusic())playMusic()});
+bgMusic.addEventListener('error',()=>{
+  if(musicIndex>=0 && musicIndex<MUSIC_TRACKS.length-1){if(nextMusic())playMusic()}
+  else {musicExhausted=true;musicRender()}
+});
+bgMusic.addEventListener('play',musicRender);bgMusic.addEventListener('pause',musicRender);
+
+if(musicBtn)musicBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  musicWanted=bgMusic.paused;
+  try{localStorage.setItem('souls-music',musicWanted?'on':'off')}catch(e){}
+  if(musicWanted)playMusic();else pauseMusic();
+});
+
+/* Audible autoplay is subject to the browser's media policy. Keep music
+   enabled by default and start it on the first gesture when required. */
+function unlockMusic(){if(musicWanted)playMusic()}
+document.addEventListener('pointerdown',unlockMusic,{once:true,passive:true});
+document.addEventListener('touchstart',unlockMusic,{once:true,passive:true});
+document.addEventListener('keydown',unlockMusic,{once:true});
+musicRender();
+</script>
 </body>
 </html>
