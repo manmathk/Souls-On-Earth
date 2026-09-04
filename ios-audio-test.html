@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>iOS Audio Test — Souls On Earth</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:0;padding:24px;background:#fff;color:#222;text-align:center}
+main{max-width:520px;margin:auto}button{font:inherit;font-weight:700;padding:14px 20px;border:1px solid #ddd;border-radius:12px;background:#fff;margin:8px}audio{width:100%;margin:14px 0}#status{margin:16px 0;padding:12px;border-radius:10px;background:#f5f5f5;font-size:14px}
+</style>
+</head>
+<body><main>
+<h1>iPhone Audio Test</h1>
+<p>Tap a button once. This tests the actual MP3 files served by GitHub Pages.</p>
+<button id="gentle">▶ Gentle Dreams</button>
+<button id="experience">▶ Experience</button>
+<div id="status">Waiting for a user tap…</div>
+<audio id="player" controls playsinline webkit-playsinline preload="metadata"></audio>
+<script>
+const player=document.getElementById('player'),status=document.getElementById('status');
+function test(name,url){player.pause();player.src=url;player.load();status.textContent='Loading '+name+'…';const p=player.play();if(p)p.then(()=>status.textContent='✅ Playing '+name).catch(e=>status.textContent='❌ '+name+' failed: '+e.name+' — '+e.message)}
+gentle.addEventListener('click',()=>test('Gentle Dreams','./Gentle%2BDreams.mp3'));
+experience.addEventListener('click',()=>test('Experience','./Experience.mp3'));
+player.addEventListener('error',()=>status.textContent='❌ Media error. Safari could not decode/load the selected MP3.');
+</script>
+</main></body></html>
