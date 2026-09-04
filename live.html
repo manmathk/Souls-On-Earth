@@ -1,22 +1,109 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><title>Souls On Earth — Live Population</title><style>*{box-sizing:border-box}:root{--bg:#fff;--panel:#fff;--alt:#fafafa;--text:#222;--muted:#777;--line:#e5e5e5;--row:#ededed;--growth:#179447;--death:#d62c2c}html[data-theme=dark]{--bg:#101010;--panel:#101010;--alt:#1c1c1c;--text:#f1f1f1;--muted:#aaa;--line:#303030;--row:#252525;--growth:#3ddc84;--death:#ff6b6b}html[data-theme=ocean]{--bg:#0b2748;--panel:rgba(5,18,38,.65);--alt:rgba(5,18,38,.8);--text:#eaf3ff;--muted:#a8c6e2;--line:#315274;--row:#24425f;--growth:#5ce8a4;--death:#ff8f8f}html[data-theme=sunset]{--bg:#612b3b;--panel:rgba(30,8,17,.55);--alt:rgba(30,8,17,.72);--text:#fff4ec;--muted:#e6bdac;--line:#805061;--row:#704252;--growth:#8ceeb0;--death:#ffc2b6}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}body{display:flex;justify-content:center}.app{width:100%;max-width:900px;height:100dvh;display:flex;flex-direction:column;background:var(--panel)}.top{display:flex;align-items:center;padding:10px 16px 8px;border-bottom:1px solid var(--line);flex-shrink:0}.brand{font-size:14px;font-weight:800;letter-spacing:.4px;flex:1}.sub{font-size:9px;color:var(--muted);margin-top:3px}.controls{display:flex;gap:5px}.ctrl{width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:var(--alt);color:var(--text);font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}.hero{text-align:center;padding:14px 12px 11px;border-bottom:1px solid var(--line);flex-shrink:0}.label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.8px}.population{font-size:clamp(40px,9vw,72px);line-height:1;font-weight:900;margin:7px 0 5px;letter-spacing:-2px;font-variant-numeric:tabular-nums;white-space:nowrap}.live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800}.dot{width:8px;height:8px;border-radius:50%;background:#ff3030;box-shadow:0 0 10px #ff3030}.details{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:9px 12px;flex-shrink:0}.card{min-width:0;text-align:center;background:var(--alt);border:1px solid var(--line);border-radius:10px;padding:9px 5px}.card .v{font-size:clamp(16px,4vw,25px);font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}.card .k{font-size:9px;color:var(--muted);margin-top:4px;font-weight:700;letter-spacing:.4px}.up{color:var(--growth)}.down{color:var(--death)}.info{text-align:center;color:var(--muted);font-size:10px;line-height:1.35;padding:3px 16px 7px;flex-shrink:0}.tablehead{display:grid;grid-template-columns:28px minmax(0,1fr) 112px;gap:8px;padding:6px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--alt);color:var(--muted);font-size:10px;font-weight:800;flex-shrink:0}.tablehead span:last-child{text-align:right}.rows{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(25,minmax(0,1fr));grid-auto-flow:column;column-gap:18px;padding:4px 16px 7px;overflow:hidden}.row{display:grid;grid-template-columns:26px 24px minmax(0,1fr) 104px;gap:4px;align-items:center;min-width:0;border-bottom:1px solid var(--row);padding:0 2px}.rank{font-size:9px;color:var(--muted);text-align:right}.flag{font-size:15px;text-align:center}.name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.num{font-size:10px;font-weight:800;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;padding-right:2px}.positive{color:var(--growth)}.negative{color:var(--death)}.static{color:var(--muted)}.foot{text-align:center;color:var(--muted);font-size:9px;padding:3px 10px calc(4px + env(safe-area-inset-bottom));flex-shrink:0}.music-error{display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:100;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font-size:11px;text-align:center}@media(max-width:600px){.top{padding:7px 10px 5px}.brand{font-size:12px}.sub{font-size:8px}.ctrl{width:27px;height:27px;font-size:13px}.hero{padding:9px 8px 7px}.population{font-size:clamp(34px,10vw,48px);letter-spacing:-1.5px}.details{gap:5px;padding:6px 7px}.card{padding:6px 2px}.card .v{font-size:15px}.card .k{font-size:8px}.info{font-size:8px;padding:2px 8px 4px}.tablehead{grid-template-columns:20px minmax(0,1fr) 82px;gap:5px;padding:5px 10px;font-size:8px}.rows{column-gap:10px;padding:3px 10px 7px}.row{grid-template-columns:20px 18px minmax(0,1fr) 78px;gap:3px;padding:0 1px}.flag{font-size:12px}.name{font-size:9px}.num{font-size:8px;padding-right:2px}.rank{font-size:8px}}</style></head><body><main class="app"><header class="top"><div><div class="brand">SOULS ON EARTH</div><div class="sub">WORLD POPULATION · LIVE ESTIMATE</div></div><div class="controls"><button id="theme" class="ctrl" aria-label="Change theme">🎨</button><button id="music" class="ctrl" aria-label="Play background music" aria-pressed="false">♫</button></div></header><section class="hero"><div class="label">CURRENT WORLD POPULATION</div><div id="population" class="population">Loading…</div><div class="live"><span class="dot"></span>LIVE ESTIMATE</div></section><section class="details"><div class="card"><div id="births" class="v up">—</div><div class="k">BIRTHS / SEC</div></div><div class="card"><div id="deaths" class="v down">—</div><div class="k">DEATHS / SEC</div></div><div class="card"><div id="net" class="v up">—</div><div class="k">NET GROWTH / SEC</div></div></section><div class="info">Projected from the same baseline and refresh model as the main page. Estimates are not a real-time census.</div><div class="tablehead"><span>RANK</span><span>COUNTRY</span><span>POPULATION</span></div><div id="rows" class="rows"></div><div id="source" class="foot">Built-in UN WPP 2024 + World Bank 2025 snapshot · Ukraine static</div><div id="musicError" class="music-error">Tap the music button again to enable audio on iPhone.</div></main><script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Souls On Earth — Live Population</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#fff;--panel:#fff;--alt:#fafafa;--text:#222;--muted:#777;--line:#e5e5e5;--row:#ededed;--growth:#179447;--death:#d62c2c;--safe-x:18px}
+html[data-theme=dark]{--bg:#101010;--panel:#101010;--alt:#1c1c1c;--text:#f1f1f1;--muted:#aaa;--line:#303030;--row:#252525;--growth:#3ddc84;--death:#ff6b6b}
+html[data-theme=ocean]{--bg:linear-gradient(165deg,#08172e,#0e2f52,#123f63);--panel:rgba(4,16,34,.55);--alt:rgba(4,16,34,.72);--text:#eaf3ff;--muted:#a8c6e2;--line:rgba(255,255,255,.18);--row:rgba(255,255,255,.1);--growth:#5ce8a4;--death:#ff8f8f}
+html[data-theme=sunset]{--bg:linear-gradient(165deg,#210b28,#5c2338,#8d3f2b);--panel:rgba(24,6,14,.55);--alt:rgba(24,6,14,.72);--text:#fff4ec;--muted:#e6bdac;--line:rgba(255,255,255,.18);--row:rgba(255,255,255,.1);--growth:#8ceeb0;--death:#ffc2b6}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{display:flex;justify-content:center}.app{width:100%;max-width:900px;height:100dvh;display:flex;flex-direction:column;background:var(--panel);overflow:hidden}
+.top{display:flex;align-items:center;padding:10px 16px 8px;border-bottom:1px solid var(--line);flex-shrink:0}.brand{font-size:14px;font-weight:800;letter-spacing:.4px;flex:1}.sub{font-size:9px;color:var(--muted);margin-top:3px}.controls{display:flex;gap:5px}.ctrl{width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:var(--alt);color:var(--text);font-size:15px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.hero{text-align:center;padding:14px 12px 11px;border-bottom:1px solid var(--line);flex-shrink:0}.label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.8px}.population{font-size:clamp(40px,9vw,72px);line-height:1;font-weight:900;margin:7px 0 5px;letter-spacing:-2px;font-variant-numeric:tabular-nums;white-space:nowrap}.live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800}.dot{width:8px;height:8px;border-radius:50%;background:#ff3030;box-shadow:0 0 10px #ff3030}
+.details{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:9px 12px;flex-shrink:0}.card{min-width:0;text-align:center;background:var(--alt);border:1px solid var(--line);border-radius:10px;padding:9px 5px}.card .v{font-size:clamp(16px,4vw,25px);font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}.card .k{font-size:9px;color:var(--muted);margin-top:4px;font-weight:700;letter-spacing:.4px}.up{color:var(--growth)}.down{color:var(--death)}.info{text-align:center;color:var(--muted);font-size:10px;line-height:1.35;padding:3px 16px 7px;flex-shrink:0}
+.tablehead{display:grid;grid-template-columns:28px minmax(0,1fr) 112px;gap:8px;padding:6px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--alt);color:var(--muted);font-size:10px;font-weight:800;flex-shrink:0}.tablehead span:last-child{text-align:right}
+.rows{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(25,minmax(0,1fr));grid-auto-flow:column;column-gap:18px;padding:4px 16px 7px;overflow:hidden}.row{display:grid;grid-template-columns:26px 24px minmax(0,1fr) 104px;gap:4px;align-items:center;min-width:0;border-bottom:1px solid var(--row);padding:0 2px}.rank{font-size:9px;color:var(--muted);text-align:right}.flag{font-size:15px;text-align:center}.name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.num{font-size:10px;font-weight:800;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;padding-right:2px}.positive{color:var(--growth)}.negative{color:var(--death)}.static{color:var(--muted)}.foot{text-align:center;color:var(--muted);font-size:9px;padding:3px 10px calc(4px + env(safe-area-inset-bottom));flex-shrink:0}
+@media(max-width:600px){.top{padding:7px 10px 5px}.brand{font-size:12px}.sub{font-size:8px}.ctrl{width:27px;height:27px;font-size:13px}.hero{padding:9px 8px 7px}.population{font-size:clamp(34px,10vw,48px);letter-spacing:-1.5px}.details{gap:5px;padding:6px 7px}.card{padding:6px 2px}.card .v{font-size:15px}.card .k{font-size:8px}.info{font-size:8px;padding:2px 8px 4px}.tablehead{grid-template-columns:20px minmax(0,1fr) 82px;gap:5px;padding:5px 10px;font-size:8px}.rows{column-gap:10px;padding:3px 10px 7px}.row{grid-template-columns:20px 18px minmax(0,1fr) 78px;gap:3px;padding:0 1px}.flag{font-size:12px}.name{font-size:9px}.num{font-size:8px;padding-right:2px}.rank{font-size:8px}}
+.music-error{display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:100;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font-size:11px;text-align:center}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="top"><div><div class="brand">SOULS ON EARTH</div><div class="sub">WORLD POPULATION · LIVE ESTIMATE</div></div><div class="controls"><button id="theme" class="ctrl" aria-label="Change theme">🎨</button><button id="music" class="ctrl" type="button" aria-label="Play background music" aria-pressed="false">♫</button></div></header>
+<section class="hero"><div class="label">CURRENT WORLD POPULATION</div><div id="population" class="population">Loading…</div><div class="live"><span class="dot"></span>LIVE ESTIMATE</div></section>
+<section class="details"><div class="card"><div id="births" class="v up">—</div><div class="k">BIRTHS / SEC</div></div><div class="card"><div id="deaths" class="v down">—</div><div class="k">DEATHS / SEC</div></div><div class="card"><div id="net" class="v up">—</div><div class="k">NET GROWTH / SEC</div></div></section>
+<div class="info">Projected from the same baseline and refresh model as the main page. Estimates are not a real-time census.</div>
+<div class="tablehead"><span>RANK</span><span>COUNTRY</span><span>POPULATION</span></div>
+<div id="rows" class="rows"></div>
+<div id="source" class="foot">Built-in UN WPP 2024 + World Bank 2025 snapshot · Ukraine static</div>
+<div id="musicError" class="music-error">Safari blocked audio. Tap the music button once to enable it.</div>
+</main>
+
+<!-- Same native-audio pattern as index.html. iOS Safari is much more reliable with a real DOM media element than a detached new Audio() object. -->
+<audio id="bgMusic" preload="auto" muted playsinline webkit-playsinline></audio>
+
+<script>
 const YEAR_SEC=365.25*86400,SHOW=50;
 const COUNTRIES=[['🇮🇳','India',1476625576,.87],['🇨🇳','China',1412914089,-.22],['🇺🇸','U.S.A.',349035494,.51],['🇮🇩','Indonesia',287886782,.76],['🇵🇰','Pakistan',259299791,1.6],['🇳🇬','Nigeria',242431832,2.06],['🇧🇷','Brazil',213562666,.35],['🇧🇩','Bangladesh',177818044,1.21],['🇷🇺','Russia',143394458,-.42],['🇪🇹','Ethiopia',138902185,2.53],['🇲🇽','Mexico',132997658,.8],['🇯🇵','Japan',122427731,-.55],['🇪🇬','Egypt',120101175,1.47],['🇵🇭','Philippines',117724471,.8],['🇨🇩','DR Congo',116452162,3.21],['🇻🇳','Vietnam',102177431,.57],['🇮🇷','Iran',93168497,.81],['🇹🇷','Turkey',87926082,.27],['🇩🇪','Germany',83644258,-.51],['🇹🇿','Tanzania',72563780,2.86],['🇹🇭','Thailand',71559614,-.08],['🇬🇧','U.K.',69931528,.55],['🇫🇷','France',66746401,.14],['🇿🇦','South Africa',65453084,1.09],['🇮🇹','Italy',58926166,-.37],['🇰🇪','Kenya',58636412,1.92],['🇲🇲','Myanmar',55184819,.61],['🇨🇴','Colombia',53936226,.96],['🇸🇩','Sudan',53282719,3.14],['🇺🇬','Uganda',52761469,2.68],['🇰🇷','South Korea',51689732,.01],['🇪🇸','Spain',49888179,1.08],['🇩🇿','Algeria',48104150,1.41],['🇮🇶','Iraq',48045827,2.18],['🇦🇷','Argentina',45998102,.32],['🇦🇫','Afghanistan',44988442,2.61],['🇾🇪','Yemen',43031272,3.01],['🇨🇦','Canada',42592980,2.26],['🇦🇴','Angola',40246376,3.09],['🇸🇦','Saudi Arabia',39048102,4.74],['🇺🇦','Ukraine',39000000,0,'static'],['🇲🇦','Morocco',38803548,.97],['🇺🇿','Uzbekistan',37787086,1.98],['🇲🇿','Mozambique',36682787,2.95],['🇲🇾','Malaysia',36416768,1.22],['🇵🇱','Poland',36308335,-.35],['🇬🇭','Ghana',35726987,1.89],['🇵🇪','Peru',34950093,1.08],['🇨🇮','Ivory Coast',33522793,2.48],['🇳🇵','Nepal',29585538,-.11]];
 const WORLD=8300678395,BIRTHS_YEAR=132503469,DEATHS_YEAR=63637314,anchor=Date.UTC(2026,6,1),fmt=n=>new Intl.NumberFormat('en-US').format(Math.max(0,Math.floor(n))),elapsed=()=>Math.max(0,(Date.now()-anchor)/1000),bps=BIRTHS_YEAR/YEAR_SEC,dps=DEATHS_YEAR/YEAR_SEC,nps=bps-dps;
 function cp(c){return c[4]==='static'?c[2]:Math.floor(c[2]*Math.pow(1+c[3]/100,elapsed()/YEAR_SEC))}
 function ranking(){return COUNTRIES.map((c,i)=>i).sort((a,b)=>cp(COUNTRIES[b])-cp(COUNTRIES[a])).slice(0,SHOW)}
-function render(){const o=ranking(),h=Math.ceil(o.length/2);rows.innerHTML=o.slice(0,h).map((i,r)=>rr(COUNTRIES[i],i,r+1)).join('')+o.slice(h).map((i,r)=>rr(COUNTRIES[i],i,r+h+1)).join('')}
 function rr(c,i,r){const s=c[4]==='static',rate=+c[3]||0,cl=s?'static':rate>0?'positive':rate<0?'negative':'';return `<div class="row"><span class="rank">${r}</span><span class="flag">${c[0]}</span><span class="name">${c[1]}</span><span class="num ${cl}" data-i="${i}">${fmt(cp(c))}</span></div>`}
+function render(){const o=ranking(),h=Math.ceil(o.length/2);rows.innerHTML=o.slice(0,h).map((i,r)=>rr(COUNTRIES[i],i,r+1)).join('')+o.slice(h).map((i,r)=>rr(COUNTRIES[i],i,r+h+1)).join('')}
 function update(){const sec=(Date.now()-new Date(new Date().setHours(0,0,0,0)).getTime())/1000;population.textContent=fmt(WORLD+elapsed()*nps);births.textContent=fmt(sec*bps);deaths.textContent=fmt(sec*dps);net.textContent=fmt(sec*nps);document.querySelectorAll('.num').forEach(e=>e.textContent=fmt(cp(COUNTRIES[+e.dataset.i])))}
 render();update();setInterval(update,1000);
+
 const THEMES=['light','dark','ocean','sunset'];let ti=0;try{const s=localStorage.getItem('souls-theme');if(THEMES.includes(s))ti=THEMES.indexOf(s)}catch(e){}function applyTheme(){const n=THEMES[ti];document.documentElement.removeAttribute('data-theme');if(n!=='light')document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('souls-theme',n)}catch(e){}}theme.addEventListener('click',()=>{ti=(ti+1)%THEMES.length;applyTheme()});applyTheme();
 
-/* iOS Safari: create the audio object during the actual touch/click and call play immediately. */
-const musicBtn=document.getElementById('music'),musicError=document.getElementById('musicError'),MUSIC_URL='./Gentle%2BDreams.mp3';let bgm=null,musicOn=false,musicWanted=false,lastTap=0;
-function state(){musicBtn.textContent=musicOn?'🔊':'♫';musicBtn.setAttribute('aria-pressed',String(musicOn));musicBtn.setAttribute('aria-label',musicOn?'Pause background music':'Play background music')}
-function makeAudio(){const a=new Audio(MUSIC_URL);a.preload='auto';a.playsInline=true;a.setAttribute('playsinline','');a.setAttribute('webkit-playsinline','');a.volume=.22;a.addEventListener('play',()=>{musicOn=true;musicError.style.display='none';state()});a.addEventListener('pause',()=>{musicOn=false;state()});a.addEventListener('ended',()=>{if(musicWanted){a.currentTime=0;const p=a.play();if(p)p.catch(()=>{})}});a.addEventListener('error',()=>{musicOn=false;musicError.style.display='block';state()});return a}
-function startMusic(){musicWanted=true;if(!bgm)bgm=makeAudio();bgm.volume=.22;const p=bgm.play();if(p)p.then(()=>{musicOn=true;musicError.style.display='none';state()}).catch(()=>{musicOn=false;musicError.style.display='block';state()})}
-function stopMusic(){musicWanted=false;if(bgm)bgm.pause();musicOn=false;state()}
-function toggle(e){const now=Date.now();if(now-lastTap<500)return;lastTap=now;e&&e.preventDefault&&e.preventDefault();if(bgm&&!bgm.paused)stopMusic();else startMusic()}
-musicBtn.addEventListener('touchstart',toggle,{passive:false});musicBtn.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')toggle(e)},{passive:false});musicBtn.addEventListener('click',e=>{if(Date.now()-lastTap>=500)toggle(e)});
-state();
-</script></body></html>
+/* iOS/Safari audio: intentionally mirrors index.html's architecture.
+   The media element exists in the DOM, starts muted, and is unmuted + played
+   from the same user gesture. This is the key difference from detached
+   new Audio() implementations that can fail silently on iPhone. */
+const audio=document.getElementById('bgMusic'),musicBtn=document.getElementById('music'),musicError=document.getElementById('musicError');
+const MUSIC_URL='./Gentle+Dreams.mp3';
+let musicWanted=false,musicOn=false,loaded=false,lastGesture=0;
+function musicState(){musicOn=!audio.paused&&!audio.ended;musicBtn.textContent=musicOn?'🔊':'♫';musicBtn.setAttribute('aria-pressed',String(musicOn));musicBtn.setAttribute('aria-label',musicOn?'Pause background music':'Play background music')}
+function showMusicError(){musicOn=false;musicError.style.display='block';musicState()}
+function prepareAudio(){
+ if(loaded)return;
+ audio.src=MUSIC_URL;
+ audio.load();
+ loaded=true;
+}
+function startMusic(){
+ musicWanted=true;
+ prepareAudio();
+ audio.muted=false;
+ audio.volume=.22;
+ const p=audio.play();
+ if(p&&typeof p.then==='function')p.then(()=>{musicError.style.display='none';musicState()}).catch(()=>showMusicError());
+ else musicState();
+}
+function stopMusic(){musicWanted=false;audio.pause();musicState()}
+function toggleMusic(e){
+ if(e&&e.preventDefault)e.preventDefault();
+ const now=Date.now();
+ if(now-lastGesture<450)return;
+ lastGesture=now;
+ if(audio.paused||audio.ended)startMusic();else stopMusic();
+}
+/* touchend is the primary iOS path. pointer/click cover desktop and browsers
+   that don't dispatch touchend to buttons. The timestamp prevents one iPhone
+   tap from toggling twice when Safari emits touch + click. */
+musicBtn.addEventListener('touchend',toggleMusic,{passive:false});
+musicBtn.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')toggleMusic(e)},{passive:false});
+musicBtn.addEventListener('click',e=>{if(Date.now()-lastGesture>=450)toggleMusic(e)});
+
+audio.addEventListener('play',()=>{musicOn=true;musicError.style.display='none';musicState()});
+audio.addEventListener('pause',()=>{musicOn=false;musicState()});
+audio.addEventListener('ended',()=>{if(!musicWanted)return;audio.currentTime=0;const p=audio.play();if(p)p.catch(()=>{})});
+audio.addEventListener('error',showMusicError);
+
+/* If the user had enabled music previously, Safari still requires a fresh
+   gesture after a new page load. The first tap anywhere is therefore allowed
+   to unlock the same DOM audio element, exactly like index.html. */
+let wanted=false;try{wanted=localStorage.getItem('souls-music')!=='off'}catch(e){wanted=true}musicWanted=wanted;
+function firstGesture(){if(musicWanted&&audio.paused)startMusic();document.removeEventListener('touchstart',firstGesture);document.removeEventListener('click',firstGesture);document.removeEventListener('keydown',firstGesture)}
+document.addEventListener('touchstart',firstGesture,{once:true,passive:true});
+document.addEventListener('click',firstGesture,{once:true});
+document.addEventListener('keydown',firstGesture,{once:true});
+musicBtn.addEventListener('click',()=>{try{localStorage.setItem('souls-music',audio.paused?'on':'off')}catch(e){}});
+musicState();
+</script>
+</body>
+</html>
