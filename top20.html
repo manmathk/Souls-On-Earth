@@ -1,9 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff">
 <title>Souls On Earth — Top 20 Live Population</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}iframe{display:block;width:100%;height:100dvh;border:0}
@@ -27,6 +25,25 @@ function customize(){
     rows.style.gridTemplateRows='repeat(10,minmax(0,1fr))';
     rows.style.gridAutoFlow='row';
   }
+  const s=d.createElement('style');
+  s.id='top20Sizing';
+  s.textContent=`
+    .tablehead{grid-template-columns:54px minmax(0,1fr) 180px;gap:12px;padding:9px 24px;font-size:13px}
+    .rows{column-gap:28px;row-gap:0;padding:5px 24px 10px}
+    .row{grid-template-columns:42px 36px minmax(0,1fr) 168px;gap:8px;padding:0 6px}
+    .rank{font-size:12px}
+    .flag{font-size:24px}
+    .name{font-size:18px;font-weight:800}
+    .num{font-size:17px;font-weight:900;padding-right:4px}
+    @media(max-width:600px){
+      .tablehead{grid-template-columns:28px minmax(0,1fr) 122px;gap:7px;padding:7px 12px;font-size:10px}
+      .rows{column-gap:16px;padding:4px 12px 8px}
+      .row{grid-template-columns:28px 25px minmax(0,1fr) 114px;gap:5px;padding:0 3px}
+      .rank{font-size:10px}.flag{font-size:18px}.name{font-size:13px}.num{font-size:12px}
+    }
+  `;
+  const old=d.getElementById('top20Sizing'); if(old) old.remove();
+  d.head.appendChild(s);
 }
 frame.addEventListener('load',()=>{customize();setTimeout(customize,250);setTimeout(customize,1000)});
 </script>
