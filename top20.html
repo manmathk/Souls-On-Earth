@@ -2,72 +2,48 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff">
-<title>Souls On Earth — Top 20 Live Population</title>
+<title>Souls On Earth — Top 24 Live Population</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}iframe{display:block;width:100%;height:100dvh;border:0}
 </style>
 </head>
 <body>
-<iframe id="liveFrame" src="live.html" title="Top 20 live world population"></iframe>
+<iframe id="liveFrame" src="live.html" title="Top 24 live world population"></iframe>
 <script>
 const frame=document.getElementById('liveFrame');
 function customize(){
   const d=frame.contentDocument||frame.contentWindow.document;
-  if(!d) return;
-  d.title='Souls On Earth — Top 20 Live Population';
-  const sub=d.querySelector('.sub'); if(sub) sub.textContent='TOP 20 COUNTRIES · LIVE ESTIMATE';
-  const info=d.querySelector('.info'); if(info) info.textContent='Top 20 countries ranked by the same live population model as the main page. Estimates are not a real-time census.';
-  const source=d.querySelector('#source'); if(source) source.textContent='Top 20 live ranking · same model as live.html · Ukraine static';
+  if(!d)return;
+  d.title='Souls On Earth — Top 24 Live Population';
+  const sub=d.querySelector('.sub');if(sub)sub.textContent='TOP 24 COUNTRIES · LIVE ESTIMATE';
+  const info=d.querySelector('.info');if(info)info.textContent='Top 24 countries ranked by the same live population model as the main page. Estimates are not a real-time census.';
+  const source=d.querySelector('#source');if(source)source.textContent='Top 24 live ranking · same model as live.html · Ukraine static';
   const rows=d.querySelector('#rows');
   if(rows){
     rows.style.gridTemplateColumns='minmax(0,1fr) minmax(0,1fr)';
     rows.style.gridAutoFlow='row';
-    rows.style.gridTemplateRows='repeat(10,minmax(0,1fr))';
+    rows.style.gridTemplateRows='repeat(12,minmax(0,1fr))';
   }
-  const s=d.createElement('style');
-  s.id='top20Sizing';
-  s.textContent=`
+  const s=d.createElement('style');s.id='top24Sizing';s.textContent=`
     .tablehead{grid-template-columns:54px minmax(0,1fr) 180px;gap:12px;padding:9px 24px;font-size:13px}
     .rows{column-gap:28px;row-gap:0;padding:5px 24px 10px}
     .row{grid-template-columns:42px 36px minmax(0,1fr) 168px;gap:8px;padding:0 6px}
-    .rank{font-size:12px}
-    .flag{font-size:24px}
-    .name{font-size:18px;font-weight:800}
-    .num{font-size:17px;font-weight:900;padding-right:4px}
+    .rank{font-size:12px}.flag{font-size:24px}.name{font-size:18px;font-weight:800}.num{font-size:17px;font-weight:900;padding-right:4px}
     @media(max-width:600px){
-      .top{padding:8px 10px 6px}
-      .brand{font-size:13px}
-      .sub{font-size:8px}
-      .ctrl{width:29px;height:29px;font-size:13px}
-      .hero{padding:10px 8px 8px}
-      .label{font-size:10px}
-      .population{font-size:clamp(36px,11vw,52px);letter-spacing:-1.5px;margin:6px 0 5px}
-      .live{font-size:10px}
-      .dot{width:8px;height:8px}
-      .details{gap:5px;padding:6px 7px}
-      .card{padding:6px 2px}
-      .card .v{font-size:15px}
-      .card .k{font-size:8px}
-      .info{font-size:8px;line-height:1.25;padding:3px 9px 5px}
+      .top{padding:8px 10px 6px}.brand{font-size:13px}.sub{font-size:8px}.ctrl{width:29px;height:29px;font-size:13px}
+      .hero{padding:10px 8px 8px}.label{font-size:10px}.population{font-size:clamp(36px,11vw,52px);letter-spacing:-1.5px;margin:6px 0 5px}.live{font-size:10px}
+      .details{gap:5px;padding:6px 7px}.card{padding:6px 2px}.card .v{font-size:15px}.card .k{font-size:8px}.info{font-size:8px;line-height:1.25;padding:3px 9px 5px}
       .tablehead{grid-template-columns:24px minmax(0,1fr) 106px;gap:5px;padding:6px 10px;font-size:9px}
-      .rows{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;grid-template-rows:repeat(10,54px)!important;grid-auto-flow:row!important;column-gap:8px;row-gap:4px;align-content:start;padding:5px 9px 8px;overflow:hidden}
-      .row{grid-template-columns:18px 23px minmax(0,1fr) 96px;gap:3px;height:54px;min-height:54px;padding:0 5px;border:1px solid var(--line);border-radius:9px;background:var(--alt)}
-      .rank{font-size:9px;color:var(--muted)}
-      .flag{font-size:16px;line-height:1}
-      .name{font-size:11.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:0}
-      .num{font-size:10.5px;font-weight:900;text-align:right;padding-right:1px}
-      .foot{font-size:8px;padding:3px 8px calc(4px + env(safe-area-inset-bottom))}
+      .rows{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;grid-template-rows:repeat(12,1fr)!important;grid-auto-flow:row!important;column-gap:8px;row-gap:4px;align-content:stretch;padding:5px 9px 8px;overflow:hidden}
+      .row{grid-template-columns:18px 23px minmax(0,1fr) 96px;gap:3px;height:auto;min-height:0;padding:0 5px;border:1px solid var(--line);border-radius:9px;background:var(--alt)}
+      .rank{font-size:9px;color:var(--muted)}.flag{font-size:16px;line-height:1}.name{font-size:11.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:0}.num{font-size:10.5px;font-weight:900;text-align:right;padding-right:1px}.foot{font-size:8px;padding:3px 8px calc(4px + env(safe-area-inset-bottom))}
     }
     @media(max-width:430px){
       .tablehead{grid-template-columns:20px minmax(0,1fr) 96px;gap:4px;padding:5px 8px;font-size:8px}
-      .rows{grid-template-rows:repeat(10,51px)!important;row-gap:3px;column-gap:6px;padding:4px 7px 7px}
-      .row{grid-template-columns:16px 20px minmax(0,1fr) 91px;gap:2px;height:51px;min-height:51px;padding:0 4px;border-radius:8px}
-      .rank{font-size:8px}.flag{font-size:14px}.name{font-size:10.5px}.num{font-size:9.6px}
-      .population{font-size:34px}
+      .rows{grid-template-rows:repeat(12,1fr)!important;row-gap:3px;column-gap:6px;padding:4px 7px 7px}
+      .row{grid-template-columns:16px 20px minmax(0,1fr) 91px;gap:2px;padding:0 4px;border-radius:8px}.rank{font-size:8px}.flag{font-size:14px}.name{font-size:10.5px}.num{font-size:9.6px}.population{font-size:34px}
     }
-  `;
-  const old=d.getElementById('top20Sizing'); if(old) old.remove();
-  d.head.appendChild(s);
+  `;const old=d.getElementById('top24Sizing');if(old)old.remove();d.head.appendChild(s);
 }
 frame.addEventListener('load',()=>{customize();setTimeout(customize,250);setTimeout(customize,1000)});
 </script>
