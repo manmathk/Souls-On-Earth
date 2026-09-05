@@ -1,0 +1,44 @@
+name: Fix index population safety
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Harden index population calculations
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          start = s.find('function countryPopulation(c){')
+          end = s.find('function ranking(){', start)
+          if start < 0 or end < 0:
+              raise SystemExit('population functions not found')
+          replacement = '''function countryPopulation(c){
+            if(!Array.isArray(c)) return 0;
+            const pop=Number(c[2]), rate=Number(c[3]);
+            if(!Number.isFinite(pop)||!Number.isFinite(rate)||pop<0) return 0;
+            const years=elapsed()/SECS_PER_YEAR;
+            const factor=Math.pow(1+rate/100,years);
+            return Number.isFinite(factor)?Math.floor(pop*factor):0;
+          }
+          '''
+          s = s[:start] + replacement + s[end:]
+          p.write_text(s, encoding='utf-8')
+      - name: Commit repaired index
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then
+            echo 'No index changes needed'
+          else
+            git commit -m 'Harden index population calculations'
+            git push
+          fi
