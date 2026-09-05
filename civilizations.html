@@ -1,61 +1,50 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Souls On Earth — Civilizations Age Live</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#f7f7f5;color:#222}.app{width:100%;height:100%;max-width:900px;margin:auto;display:flex;flex-direction:column;overflow:hidden}.channel{height:68px;display:flex;align-items:center;padding:7px 12px;border-bottom:1px solid #e7e7e7;gap:10px;flex-shrink:0;background:#fff}.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #eee}.channel-info{flex:1;min-width:0}.channel-name{font-size:16px;font-weight:800;white-space:nowrap}.channel-sub{font-size:12px;color:#777}.links{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.links a{color:#777;text-decoration:none;margin-left:5px}.hero{min-height:184px;background:#fff;text-align:center;padding:14px 10px 12px;border-bottom:1px solid #eee}.eyebrow{font-size:11px;font-weight:800;letter-spacing:1px;color:#8a6b3f}.hero-title{font-size:24px;color:#555;margin:6px 0}.hero-name{font-size:15px;font-weight:800;color:#8a6b3f}.hero-age{font-size:clamp(34px,8vw,60px);line-height:1;font-weight:800;margin:5px 0;font-variant-numeric:tabular-nums}.hero-note{font-size:10px;color:#777}.comment{height:38px;background:#ff0808;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}.head{min-height:40px;background:#fafafa;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;font-size:12px;font-weight:800;color:#777;text-transform:uppercase}.grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;background:#fff}.col{min-width:0;min-height:0;display:grid;grid-template-rows:repeat(6,minmax(0,1fr));overflow:hidden;background:#fff}.col:first-child{border-right:1px solid #eee}.card{min-width:0;min-height:0;display:grid;grid-template-columns:80px minmax(0,1fr);gap:12px;align-items:center;padding:8px 13px;border-bottom:1px solid #eee;position:relative;overflow:hidden;transition:background 0.2s ease}.card:hover{background:#f5f5f3}.icon{width:80px;height:80px;border-radius:12px;background:#f0eadf;display:flex;align-items:center;justify-content:center;font-size:40px;object-fit:cover;position:relative;overflow:hidden}.icon img{width:100%;height:100%;object-fit:cover;border-radius:12px}.name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.origin{font-size:9px;color:#8a6b3f;margin-top:2px}.age{font-size:12px;font-weight:800;color:#555;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap}.utc{font-size:10px;color:#888;margin-top:5px}.hover-image{position:absolute;width:100%;height:100%;top:0;left:0;opacity:0;transition:opacity 0.3s ease;border-radius:12px}.card:hover .hover-image{opacity:1;z-index:10}@media(max-width:600px){.channel{height:58px;padding:5px 7px}.avatar{width:38px;height:38px}.channel-name{font-size:13px}.channel-sub{font-size:9px}.links{font-size:8px;max-width:45%}.hero{min-height:154px;padding:10px 6px}.hero-title{font-size:18px}.hero-age{font-size:clamp(27px,8.5vw,43px)}.hero-name{font-size:13px}.comment{height:30px;font-size:9px}.head{min-height:34px;font-size:9px}.card{grid-template-columns:26px minmax(0,1fr);gap:5px;padding:0 6px}.icon{width:24px;height:24px;font-size:13px}.name{font-size:min(10px,1.45vh)}.origin{font-size:8px}.age{font-size:min(9px,1.3vh)}.utc{font-size:8px}}</style></head><body><div class="app"><div class="channel"><img class="avatar" src="channels4_profile.jpg" alt="History Warrior"><div class="channel-info"><div class="channel-name">History Warrior</div><div class="channel-sub">🌍 ⏳ 6629 &nbsp; 🔥 820</div></div><div class="links"><a href="index.html">WORLD</a><a href="historical-clock.html">CLOCK</a><a href="historical-events.html">EVENTS</a><a href="civilizations.html">CIVS</a></div></div><div class="hero"><div class="eyebrow">LIVE CIVILIZATION AGE</div><div class="hero-title">How old is this civilization?</div><div class="hero-name" id="heroName">–</div><div class="hero-age" id="heroAge">–</div><div class="hero-note">Approximate ages from commonly used historical start dates.</div><div class="utc" id="utc">–</div></div><div class="comment">🔥 WHICH CIVILIZATION FASCINATES YOU? 🔥</div><div class="head">12 CIVILIZATIONS ⏳ AGE CALCULATED LIVE EVERY SECOND</div><div class="grid"><div class="col" id="left"></div><div class="col" id="right"></div></div></div><script>const civs=[[
-'🏺','Sumer','c. 3500 BCE',-3500],[
-'🏛️','Ancient Egypt','c. 3100 BCE',-3100],[
-'🏞️','Indus Valley Civilization','c. 3300 BCE',-3300],[
-'🏯','Shang Dynasty','c. 1600 BCE',-1600],[
-'🛕','Olmec','c. 1500 BCE',-1500],[
-'⚙️','Ancient Greece','c. 800 BCE',-800],[
-'🦅','Roman Civilization','27 BCE',-27],[
-'🐘','Maurya Empire','322 BCE',-322],[
-'👑','Gupta Empire','c. 320 CE',320],[
-'🏘️','Tang Dynasty','618 CE',618],[
-'☪️','Islamic Golden Age','c. 750 CE',750],[
-'🌙','Mali Empire','c. 1235 CE',1235]];const civilizationImages={
-'Sumer':[
-'https://images.unsplash.com/photo-1579154204601-01d82b27c9d1?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1590080875512-997f6e212c4c?w=200&h=200&fit=crop'
-],
-'Ancient Egypt':[
-'https://images.unsplash.com/photo-1552590582-f7d81b5373e8?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1537326662152-fea64d404d6d?w=200&h=200&fit=crop'
-],
-'Indus Valley Civilization':[
-'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1585986279491-1e3f8dd81ec8?w=200&h=200&fit=crop'
-],
-'Shang Dynasty':[
-'https://images.unsplash.com/photo-1607154471620-c68bb26072b9?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=200&h=200&fit=crop'
-],
-'Olmec':[
-'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1551180328-11266c2a88c7?w=200&h=200&fit=crop'
-],
-'Ancient Greece':[
-'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1570158257570-87e3fa82d2e6?w=200&h=200&fit=crop'
-],
-'Roman Civilization':[
-'https://images.unsplash.com/photo-1552832230-8c2a3f6e8f3f?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1552833706-eec8a4f8e98e?w=200&h=200&fit=crop'
-],
-'Maurya Empire':[
-'https://images.unsplash.com/photo-1599780822fe4e8b748bb487c330b1e5c97ba4c3?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&h=200&fit=crop'
-],
-'Gupta Empire':[
-'https://images.unsplash.com/photo-1575599810694-aceccafb3424?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1566124277074-8a6ee4debe04?w=200&h=200&fit=crop'
-],
-'Tang Dynasty':[
-'https://images.unsplash.com/photo-1564349420154-ac5ed05e4de8?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1584589271051-d98c62a64d27?w=200&h=200&fit=crop'
-],
-'Islamic Golden Age':[
-'https://images.unsplash.com/photo-1564349416176-dfa37f4f8b0e?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1575599810694-aceccafb3428?w=200&h=200&fit=crop'
-],
-'Mali Empire':[
-'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=200&h=200&fit=crop',
-'https://images.unsplash.com/photo-1549887534-f3d1f0f1e7f1?w=200&h=200&fit=crop'
-]};const YEAR=365.2425*86400000;function since(year){const approxYear=year<=0?year+1:year;const diff=Date.now()-Date.UTC(approxYear,0,1);const sec=Math.max(0,diff/1000);const years=Math.floor(sec/(365.2425*86400));const days=Math.floor((sec-years*365.2425*86400)/86400);const hours=Math.floor((sec-years*365.2425*86400-days*86400)/3600);const mins=Math.floor((sec-years*365.2425*86400-days*86400-hours*3600)/60);const s=Math.floor(sec%60);return `${years.toLocaleString()}y ${days}d ${String(hours).padStart(2,'0')}h ${String(mins).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`}function render(){const ranked=[...civs].sort((a,b)=>a[3]-b[3]);const focus=ranked[(Math.floor(Date.now()/12000))%ranked.length];document.getElementById('heroName').textContent=focus[1];document.getElementById('heroAge').textContent=since(focus[3]);const now=new Date();document.getElementById('utc').textContent=now.toISOString().replace('T',' ').slice(0,19)+' UTC';const half=Math.ceil(ranked.length/2);const row=x=>{const images=civilizationImages[x[1]]||[];const primaryImg=images[0]||'';const hoverImg=images[1]||'';return `<div class="card"><div class="icon">${primaryImg?`<img src="${primaryImg}" loading="lazy" alt="${x[1]}">`:'<span>'+x[0]+'</span>'}<div class="hover-image" style="background-image:url('${hoverImg}');background-size:cover;background-position:center;"></div></div><div><div class="name">${x[1]}</div><div class="origin">${x[2]}</div><div class="age">${since(x[3])}</div></div></div>`};document.getElementById('left').innerHTML=ranked.slice(0,half).map(row).join('');document.getElementById('right').innerHTML=ranked.slice(half).map(row).join('')}render();setInterval(render,1000)</script><script type="module" src="js/ambient-ui.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11100f">
+<title>Souls On Earth — Civilizations Age Live</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#0e0d0c;--panel:#171514;--line:#342f2a;--text:#f7f1e8;--muted:#aaa095;--gold:#e3b66b;--gold2:#f4d28f;--red:#d9342b}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}body{overflow:hidden}.app{width:100%;height:100%;max-width:1080px;margin:auto;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(circle at 50% -10%,#2b251e 0,#121110 48%,#0e0d0c 100%)}
+.channel{height:64px;display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--line);background:rgba(14,13,12,.86);backdrop-filter:blur(12px);flex-shrink:0}.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid #4b4339;background:#211e1a}.channel-info{min-width:0;flex:1}.channel-name{font-weight:850;font-size:15px}.channel-sub{font-size:11px;color:var(--muted);margin-top:2px}.links{display:flex;gap:7px;align-items:center}.links a{color:#bdb4aa;text-decoration:none;font-size:9px;font-weight:800;letter-spacing:.55px;padding:6px 7px;border:1px solid transparent;border-radius:7px}.links a:hover,.links a[aria-current=page]{color:var(--gold2);border-color:#4a4034;background:#211d18}
+.hero{position:relative;padding:17px 16px 15px;text-align:center;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(35,31,27,.92),rgba(20,18,16,.97));flex-shrink:0}.hero:after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.65}.eyebrow{font-size:10px;font-weight:900;letter-spacing:1.7px;color:var(--gold);text-transform:uppercase}.hero-title{font-size:clamp(17px,2.8vw,27px);font-weight:750;margin:5px 0 2px}.hero-name{font-size:13px;color:var(--gold2);font-weight:800}.hero-age{font-size:clamp(30px,7vw,62px);line-height:1.02;font-weight:900;letter-spacing:-1.4px;font-variant-numeric:tabular-nums;margin:4px 0 3px}.hero-note{font-size:9px;color:var(--muted)}.utc{font-size:9px;color:#7f766d;margin-top:7px;font-variant-numeric:tabular-nums}
+.comment{height:35px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#9e211c,#dc342b,#9e211c);color:#fff;font-size:11px;font-weight:900;letter-spacing:.35px;flex-shrink:0}.toolbar{min-height:46px;padding:7px 10px;display:flex;gap:8px;align-items:center;background:#121110;border-bottom:1px solid var(--line);flex-shrink:0}.search{flex:1;min-width:0;background:#1b1917;border:1px solid #39342f;color:var(--text);border-radius:9px;padding:8px 10px;outline:none;font-size:11px}.search:focus{border-color:#665744}.sort{background:#1b1917;border:1px solid #39342f;color:#ddd;border-radius:9px;padding:8px 9px;font-size:10px;font-weight:800}.count{font-size:9px;color:#817970;white-space:nowrap}.grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}.col{min-width:0;min-height:0;overflow:auto;scrollbar-width:none;background:linear-gradient(180deg,#141312,#11100f)}.col::-webkit-scrollbar{display:none}.col:first-child{border-right:1px solid var(--line)}
+.card{min-height:96px;display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.055);position:relative;overflow:hidden;cursor:pointer;transition:background .18s ease}.card:hover{background:rgba(255,255,255,.035)}.card.active{background:linear-gradient(90deg,rgba(227,182,107,.12),rgba(227,182,107,.025));box-shadow:inset 3px 0 0 var(--gold)}.icon{width:88px;height:72px;border-radius:10px;overflow:hidden;position:relative;background:#26211b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.icon img{width:100%;height:100%;object-fit:cover;display:block}.icon:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.42));pointer-events:none}.badge{position:absolute;left:5px;top:5px;padding:3px 5px;border-radius:5px;background:rgba(0,0,0,.56);color:#f2e4cf;font-size:7px;font-weight:900;letter-spacing:.6px;z-index:2}.name{font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.origin{font-size:9px;color:var(--gold);margin-top:3px}.age{font-size:12px;font-weight:850;color:#e0d8cf;margin-top:5px;font-variant-numeric:tabular-nums;white-space:nowrap}.meta{font-size:8px;color:#7f776e;margin-top:4px}.arrow{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:13px;color:#5f574e}.empty{padding:30px 15px;color:var(--muted);text-align:center;font-size:11px}
+@media(max-width:700px){.channel{height:55px;padding:6px 8px}.avatar{width:36px;height:36px}.channel-name{font-size:12px}.channel-sub{font-size:8px}.links{gap:2px}.links a{font-size:7px;padding:5px 4px}.hero{padding:11px 8px 10px}.hero-title{font-size:17px}.hero-age{font-size:clamp(27px,8vw,40px);letter-spacing:-.8px}.hero-note{font-size:8px}.comment{height:29px;font-size:8px}.toolbar{min-height:39px;padding:5px 6px}.search,.sort{padding:7px 8px;font-size:9px}.count{font-size:8px}.card{min-height:72px;grid-template-columns:44px minmax(0,1fr);gap:7px;padding:5px 7px}.icon{width:44px;height:52px;border-radius:7px}.badge{font-size:5.5px;padding:2px 3px}.name{font-size:10px}.origin{font-size:7px;margin-top:2px}.age{font-size:9px;margin-top:3px}.meta,.arrow{display:none}}@media(max-width:430px){.links a:nth-child(2),.links a:nth-child(3){display:none}.channel-info{max-width:45%}.card{grid-template-columns:38px minmax(0,1fr);gap:6px}.icon{width:38px;height:46px}.name{font-size:9px}.origin{font-size:6.5px}.age{font-size:8px}.hero-age{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="channel"><img class="avatar" src="channels4_profile.jpg" alt="History Warrior"><div class="channel-info"><div class="channel-name">History Warrior</div><div class="channel-sub">🌍 ⏳ 6629 &nbsp; 🔥 820</div></div><nav class="links" aria-label="Sections"><a href="index.html">WORLD</a><a href="historical-clock.html">CLOCK</a><a href="historical-events.html">EVENTS</a><a href="civilizations.html" aria-current="page">CIVS</a></nav></div>
+<section class="hero"><div class="eyebrow">LIVE CIVILIZATION AGE</div><div class="hero-title">How old is this civilization?</div><div class="hero-name" id="heroName">—</div><div class="hero-age" id="heroAge">—</div><div class="hero-note">Approximate ages from commonly cited start dates · calculated live</div><div class="utc" id="utc">—</div></section>
+<div class="comment">🔥 WHICH CIVILIZATION FASCINATES YOU MOST? COMMENT BELOW 🔥</div>
+<div class="toolbar"><input id="search" class="search" type="search" placeholder="Search civilization…" autocomplete="off"><select id="sort" class="sort" aria-label="Sort civilizations"><option value="oldest">Oldest first</option><option value="newest">Newest first</option><option value="name">A–Z</option></select><span class="count" id="count"></span></div>
+<main class="grid"><div class="col" id="left"></div><div class="col" id="right"></div></main>
+</div>
+<script>
+const commons='https://commons.wikimedia.org/wiki/Special:Redirect/file/';
+const civs=[
+{icon:'🏺',name:'Sumer',origin:'c. 3500 BCE',year:-3500,image:commons+'Ziggurat_of_ur.jpg',label:'MESOPOTAMIA'},
+{icon:'🏞️',name:'Indus Valley Civilization',origin:'c. 3300 BCE',year:-3300,image:commons+'An_afternoon_light_on_Moenjodaro_by_Usman_Ghani.jpg',label:'SOUTH ASIA'},
+{icon:'🏛️',name:'Ancient Egypt',origin:'c. 3100 BCE',year:-3100,image:commons+'Pyramids_of_Giza.jpg',label:'NILE VALLEY'},
+{icon:'🦁',name:'Maurya Empire',origin:'322 BCE',year:-322,image:commons+'Ashoka_Lion_Capital.jpg',label:'SOUTH ASIA'},
+{icon:'🏯',name:'Shang Dynasty',origin:'c. 1600 BCE',year:-1600,image:commons+'Shang_Oracle_Bone_%28Museum_Photo%29_%2845868930051%29.jpg',label:'ANCIENT CHINA'},
+{icon:'🗿',name:'Olmec',origin:'c. 1500 BCE',year:-1500,image:commons+'Olmec_Head_No._1_at_Xalapa,_Veracruz,_Mexico.jpg',label:'MESOAMERICA'},
+{icon:'🏛️',name:'Ancient Greece',origin:'c. 800 BCE',year:-800,image:commons+'Parthenon_from_west.jpg',label:'AEGEAN WORLD'},
+{icon:'🦅',name:'Roman Civilization',origin:'27 BCE',year:-27,image:commons+'Colosseum_in_Rome,_Italy_-_April_2007.jpg',label:'MEDITERRANEAN'},
+{icon:'🪷',name:'Gupta Empire',origin:'c. 320 CE',year:320,image:commons+'Buddha_with_an_elaborate_halo,_circa_5th_century,_Gupta_Period,_Sanchi_Stupa_Complex.jpg',label:'SOUTH ASIA'},
+{icon:'🐉',name:'Tang Dynasty',origin:'618 CE',year:618,image:commons+'三彩建筑模型.jpg',label:'CHINA'},
+{icon:'📜',name:'Islamic Golden Age',origin:'c. 750 CE',year:750,image:commons+'Astrolabe_planisférique_closeup800x600x300.jpg',label:'ISLAMIC WORLD'},
+{icon:'🕌',name:'Mali Empire',origin:'c. 1235 CE',year:1235,image:commons+'Djenné_Great_Mosque.jpg',label:'WEST AFRICA'}];
+const DAY=86400000,Y=365.2425*DAY;let selected=0,sortMode='oldest',query='';
+function ageParts(year){const start=year<=0?Date.UTC(year+1,0,1):Date.UTC(year,0,1),ms=Math.max(0,Date.now()-start),years=Math.floor(ms/Y),days=Math.floor((ms-years*Y)/DAY),hours=Math.floor((ms-years*Y-days*DAY)/3600000),mins=Math.floor((ms-years*Y-days*DAY-hours*3600000)/60000),secs=Math.floor((ms-years*Y-days*DAY-hours*3600000-mins*60000)/1000);return `${years.toLocaleString()}y ${days}d ${String(hours).padStart(2,'0')}h ${String(mins).padStart(2,'0')}m ${String(secs).padStart(2,'0')}s`}
+function list(){let x=[...civs];if(query)x=x.filter(c=>(c.name+' '+c.label).toLowerCase().includes(query));if(sortMode==='newest')x.sort((a,b)=>b.year-a.year);else if(sortMode==='name')x.sort((a,b)=>a.name.localeCompare(b.name));else x.sort((a,b)=>a.year-b.year);return x}
+function renderHero(){const c=civs[selected]||civs[0];heroName.textContent=c.name;heroAge.textContent=ageParts(c.year);utc.textContent=new Date().toISOString().replace('T',' ').slice(0,19)+' UTC'}
+function card(c){const i=civs.indexOf(c);return `<article class="card ${i===selected?'active':''}" data-name="${c.name.replaceAll('"','&quot;')}" tabindex="0"><div class="icon"><span class="badge">${c.label}</span><img src="${c.image}" loading="lazy" alt="${c.name}" onerror="this.remove();this.parentElement.innerHTML+='<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:30px">${c.icon}</span>'"></div><div><div class="name">${c.name}</div><div class="origin">${c.origin}</div><div class="age">${ageParts(c.year)}</div><div class="meta">LIVE AGE · START DATE APPROX.</div></div><div class="arrow">›</div></article>`}
+function renderCards(){const x=list(),h=Math.ceil(x.length/2);left.innerHTML=x.length?x.slice(0,h).map(card).join(''):'<div class="empty">No civilizations found.</div>';right.innerHTML=x.length?x.slice(h).map(card).join(''):'';count.textContent=`${x.length}/12`;document.querySelectorAll('.card').forEach(el=>{el.addEventListener('click',()=>{selected=civs.findIndex(c=>c.name===el.dataset.name);render()});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selected=civs.findIndex(c=>c.name===el.dataset.name);render()}})})}
+function render(){renderHero();renderCards()}search.addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();renderCards()});sort.addEventListener('change',e=>{sortMode=e.target.value;renderCards()});render();setInterval(()=>{renderHero();document.querySelectorAll('.age').forEach((el,i)=>{const x=list();if(x[i])el.textContent=ageParts(x[i].year)})},1000);
+</script><script type="module" src="js/ambient-ui.js"></script>
+</body></html>
