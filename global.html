@@ -1,21 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Souls On Earth — Global Population Count</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080a0b;color:#eee;font-family:Arial,Helvetica,sans-serif}
 .app{width:100%;height:100%;display:grid;grid-template-columns:135px 1fr 135px;background:#111}
-.side{padding:8px 7px;border-right:1px solid #333;border-left:1px solid #333;text-align:center;font-variant-numeric:tabular-nums}.side h2{font-size:16px;margin:0 0 8px;font-weight:800}.clock{font-size:14px;line-height:1.25;padding-bottom:8px;border-bottom:1px solid #333}.metric{padding:5px 0;border-bottom:1px solid #333}.metric b{display:block;font-size:19px;line-height:1.05}.metric span{font-size:11px;color:#bbb}.green{color:#18d65b}.red{color:#ef3030}
-.main{min-width:0;display:flex;flex-direction:column;overflow:hidden}.title{text-align:center;font-size:32px;line-height:1;padding:5px 0 3px;font-weight:400;letter-spacing:.2px;flex-shrink:0}.title span{font-weight:700}
-.grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-flow:column;grid-template-rows:repeat(32,minmax(0,1fr));padding:2px 8px 3px;column-gap:9px;overflow:hidden}.country{display:grid;grid-template-columns:28px 24px minmax(0,1fr);grid-template-rows:1fr 1fr;column-gap:4px;align-items:center;min-width:0;border-bottom:1px solid #292929;font-variant-numeric:tabular-nums}.flag{grid-row:1/3;font-size:22px;text-align:center;line-height:1}.rank{font-size:10px;color:#aaa;align-self:end;line-height:1}.name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;align-self:end}.pop{grid-column:3;font-size:12px;font-weight:700;line-height:1;color:#eee;align-self:start}.pop.up{color:#18d65b}.pop.down{color:#ef3030}.foot{height:16px;text-align:center;font-size:9px;color:#777;flex-shrink:0}.right{border-left:1px solid #333;border-right:0}.legend{font-size:9px;color:#777;margin-top:7px;line-height:1.25}
-@media(max-width:1100px){.app{grid-template-columns:105px 1fr 105px}.grid{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(38,minmax(0,1fr));column-gap:6px}.title{font-size:25px}.country{grid-template-columns:22px 22px minmax(0,1fr)}.flag{font-size:19px}.name,.pop{font-size:10px}}
+.side{padding:8px 7px;border-right:1px solid #333;border-left:1px solid #333;text-align:center;font-variant-numeric:tabular-nums}.side h2{font-size:16px;margin:0 0 8px;font-weight:800}.clock{font-size:14px;line-height:1.25;padding-bottom:8px;border-bottom:1px solid #333}.metric{padding:5px 0;border-bottom:1px solid #333}.metric b{display:block;font-size:19px;line-height:1.05}.metric span{font-size:11px;color:#bbb}.green{color:#18d65b}.red{color:#ef3030}.main{min-width:0;display:flex;flex-direction:column;overflow:hidden}.title{text-align:center;font-size:32px;line-height:1;padding:5px 0 3px;font-weight:400;letter-spacing:.2px;flex-shrink:0}.title span{font-weight:700;display:inline-flex;align-items:center;gap:8px}.earth{display:inline-block;font-size:.96em;line-height:1;transform-origin:50% 50%;animation:earthSpin 5s linear infinite;will-change:transform;filter:drop-shadow(0 0 3px rgba(73,194,255,.35))}@keyframes earthSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-flow:column;grid-template-rows:repeat(32,minmax(0,1fr));padding:2px 8px 3px;column-gap:9px;overflow:hidden}.country{display:grid;grid-template-columns:28px 24px minmax(0,1fr);grid-template-rows:1fr 1fr;column-gap:4px;align-items:center;min-width:0;border-bottom:1px solid #292929;font-variant-numeric:tabular-nums}.flag{grid-row:1/3;font-size:22px;text-align:center;line-height:1}.rank{font-size:10px;color:#aaa;align-self:end;line-height:1}.name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;align-self:end}.pop{grid-column:3;font-size:12px;font-weight:700;line-height:1;color:#eee;align-self:start}.pop.up{color:#18d65b}.pop.down{color:#ef3030}.foot{height:16px;text-align:center;font-size:9px;color:#777;flex-shrink:0}.right{border-left:1px solid #333;border-right:0}.legend{font-size:9px;color:#777;margin-top:7px;line-height:1.25}@media(max-width:1100px){.app{grid-template-columns:105px 1fr 105px}.grid{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(38,minmax(0,1fr));column-gap:6px}.title{font-size:25px}.earth{font-size:.95em}.country{grid-template-columns:22px 22px minmax(0,1fr)}.flag{font-size:19px}.name,.pop{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.earth{animation:none}}
 </style>
 </head>
 <body><div class="app">
 <aside class="side"><h2>UTC</h2><div id="clock" class="clock">Loading…</div><div class="metric"><b id="birthToday" class="green">—</b><span>Births Today</span></div><div class="metric"><b id="deathToday" class="red">—</b><span>Deaths Today</span></div><div class="metric"><b id="growthToday" class="green">—</b><span>Growth Today</span></div><div class="metric"><b id="birthYear" class="green">—</b><span>Births 2026</span></div><div class="metric"><b id="deathYear" class="red">—</b><span>Deaths 2026</span></div><div class="metric"><b id="growthYear" class="green">—</b><span>Growth 2026</span></div></aside>
-<main class="main"><div class="title">🌐 <span>Global Population Count</span></div><div id="grid" class="grid"></div><div id="foot" class="foot">LOADING · World Bank population data</div></main>
+<main class="main"><div class="title"><span><span class="earth" aria-hidden="true">🌍</span>Global Population Count</span></div><div id="grid" class="grid"></div><div id="foot" class="foot">LOADING · World Bank population data</div></main>
 <aside class="side right"><div class="metric"><b id="world" class="green">—</b><span>Global Population</span></div><div class="metric"><b id="asia" class="green">—</b><span>Asia</span></div><div class="metric"><b id="africa" class="green">—</b><span>Africa</span></div><div class="metric"><b id="europe">—</b><span>Europe</span></div><div class="metric"><b id="latam">—</b><span>Latin America</span></div><div class="metric"><b id="na">—</b><span>North America</span></div><div class="metric"><b id="oceania" class="green">—</b><span>Oceania</span></div><div class="metric"><b id="top">—</b><span>Top 10</span></div><div class="legend">Green = growing<br>Red = declining<br><br>Real countries only</div></aside>
 </div>
 <script>
@@ -27,50 +27,9 @@ const grid=document.getElementById('grid'),foot=document.getElementById('foot');
 const $=id=>document.getElementById(id);
 function rate(c){return growthRates[c.iso]??0.006}
 function modeled(c,t){const days=(t-c.ts)/86400000;return c.pop*Math.pow(1+rate(c),days/365.25)}
-function classify(c){const r=c.wbRegion||'';const iso=c.iso;
-  if(r==='NAC')return 'na';
-  if(r==='LCN')return 'latam';
-  if(r==='ECS')return 'europe';
-  if(r==='SSF')return 'africa';
-  if(r==='SAS')return 'asia';
-  if(r==='EAS')return ['AU','NZ','FJ','PG','SB','VU','WS','TO','KI','FM','MH','PW','NR','TV'].includes(iso)?'oceania':'asia';
-  if(r==='MEA')return ['DZ','EG','LY','MA','TN'].includes(iso)?'africa':'asia';
-  return '';
-}
-function render(){
-  countries.sort((a,b)=>b.value-a.value);
-  const shown=countries.slice(0,190);
-  grid.innerHTML=shown.map((c,i)=>{const r=rate(c),cl=r>0?'up':r<0?'down':'';return `<div class="country"><span class="rank">${i+1}.</span><span class="flag">${flags(c.iso)}</span><span class="name" title="${c.name.replace(/"/g,'&quot;')}">${c.name}</span><span class="pop ${cl}">${fmt(c.value)}</span></div>`}).join('');
-}
-function update(t=Date.now()){
-  const dayStart=new Date(t);dayStart.setUTCHours(0,0,0,0);const sec=(t-dayStart.getTime())/1000,bps=132503469/YEAR,dps=63637314/YEAR,nps=bps-dps;
-  $('birthToday').textContent=fmt(sec*bps);$('deathToday').textContent=fmt(sec*dps);$('growthToday').textContent=fmt(sec*nps);
-  const y0=Date.UTC(2026,0,1),ys=Math.max(0,(t-y0)/1000);$('birthYear').textContent=fmt(ys*bps);$('deathYear').textContent=fmt(ys*dps);$('growthYear').textContent=fmt(ys*nps);
-  const d=new Date(t);$('clock').innerHTML=d.toISOString().slice(0,10)+'<br>'+d.toISOString().slice(11,19);
-  countries.forEach(c=>c.value=modeled(c,t));render();
-  const total=countries.reduce((s,c)=>s+c.value,0);$('world').textContent=fmt(total);$('top').textContent=fmt(countries.slice(0,10).reduce((s,c)=>s+c.value,0));
-  const totals={asia:0,africa:0,europe:0,latam:0,na:0,oceania:0};countries.forEach(c=>{const g=classify(c);if(g)totals[g]+=c.value});
-  Object.keys(totals).forEach(k=>$(k).textContent=fmt(totals[k]));
-}
-async function load(){
- try{
-  const [m,p]=await Promise.all([
-   fetch('https://api.worldbank.org/v2/country?format=json&per_page=400',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}),
-   fetch('https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?date=2024&format=json&per_page=400',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()})
-  ]);
-  const metaRows=(m[1]||[]).filter(x=>/^[A-Z]{2}$/.test(x.iso2Code||'')&&x.region&&x.region.id&&x.region.id!=='NA'&&x.incomeLevel&&x.incomeLevel.id!=='NA');
-  const by3=new Map(metaRows.map(x=>[String(x.id).toUpperCase(),x]));
-  const by2=new Map(metaRows.map(x=>[String(x.iso2Code).toUpperCase(),x]));
-  const raw=(p[1]||[]).filter(x=>x.value&&x.countryiso3code);
-  countries=raw.map(x=>{
-    const meta=by3.get(String(x.countryiso3code).toUpperCase())||by2.get(String(x.country?.id||'').toUpperCase());
-    if(!meta)return null;
-    return {iso:meta.iso2Code.toUpperCase(),name:meta.name,pop:+x.value,ts:Date.UTC(2024,0,1),value:+x.value,wbRegion:meta.region.id}
-  }).filter(Boolean);
-  const dedup=new Map();countries.forEach(c=>dedup.set(c.iso,c));countries=[...dedup.values()];
-  foot.textContent=`LIVE ESTIMATE · ${countries.length} real countries · World Bank 2024 population + country growth model`;
-  update();setInterval(update,1000);
- }catch(e){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px;color:#f66">Population data could not be loaded. Check the network connection.</div>';foot.textContent='Population data error';console.error(e)}
-}
+function classify(c){const r=c.wbRegion||'';const iso=c.iso;if(r==='NAC')return 'na';if(r==='LCN')return 'latam';if(r==='ECS')return 'europe';if(r==='SSF')return 'africa';if(r==='SAS')return 'asia';if(r==='EAS')return ['AU','NZ','FJ','PG','SB','VU','WS','TO','KI','FM','MH','PW','NR','TV'].includes(iso)?'oceania':'asia';if(r==='MEA')return ['DZ','EG','LY','MA','TN'].includes(iso)?'africa':'asia';return ''}
+function render(){countries.sort((a,b)=>b.value-a.value);const shown=countries.slice(0,190);grid.innerHTML=shown.map((c,i)=>{const r=rate(c),cl=r>0?'up':r<0?'down':'';return `<div class="country"><span class="rank">${i+1}.</span><span class="flag">${flags(c.iso)}</span><span class="name" title="${c.name.replace(/"/g,'&quot;')}">${c.name}</span><span class="pop ${cl}">${fmt(c.value)}</span></div>`}).join('')}
+function update(t=Date.now()){const dayStart=new Date(t);dayStart.setUTCHours(0,0,0,0);const sec=(t-dayStart.getTime())/1000,bps=132503469/YEAR,dps=63637314/YEAR,nps=bps-dps;$('birthToday').textContent=fmt(sec*bps);$('deathToday').textContent=fmt(sec*dps);$('growthToday').textContent=fmt(sec*nps);const y0=Date.UTC(2026,0,1),ys=Math.max(0,(t-y0)/1000);$('birthYear').textContent=fmt(ys*bps);$('deathYear').textContent=fmt(ys*dps);$('growthYear').textContent=fmt(ys*nps);const d=new Date(t);$('clock').innerHTML=d.toISOString().slice(0,10)+'<br>'+d.toISOString().slice(11,19);countries.forEach(c=>c.value=modeled(c,t));render();const total=countries.reduce((s,c)=>s+c.value,0);$('world').textContent=fmt(total);$('top').textContent=fmt(countries.slice(0,10).reduce((s,c)=>s+c.value,0));const totals={asia:0,africa:0,europe:0,latam:0,na:0,oceania:0};countries.forEach(c=>{const g=classify(c);if(g)totals[g]+=c.value});Object.keys(totals).forEach(k=>$(k).textContent=fmt(totals[k]))}
+async function load(){try{const [m,p]=await Promise.all([fetch('https://api.worldbank.org/v2/country?format=json&per_page=400',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}),fetch('https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?date=2024&format=json&per_page=400',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()})]);const metaRows=(m[1]||[]).filter(x=>/^[A-Z]{2}$/.test(x.iso2Code||'')&&x.region&&x.region.id&&x.region.id!=='NA'&&x.incomeLevel&&x.incomeLevel.id!=='NA');const by3=new Map(metaRows.map(x=>[String(x.id).toUpperCase(),x]));const by2=new Map(metaRows.map(x=>[String(x.iso2Code).toUpperCase(),x]));const raw=(p[1]||[]).filter(x=>x.value&&x.countryiso3code);countries=raw.map(x=>{const meta=by3.get(String(x.countryiso3code).toUpperCase())||by2.get(String(x.country?.id||'').toUpperCase());if(!meta)return null;return {iso:meta.iso2Code.toUpperCase(),name:meta.name,pop:+x.value,ts:Date.UTC(2024,0,1),value:+x.value,wbRegion:meta.region.id}}).filter(Boolean);const dedup=new Map();countries.forEach(c=>dedup.set(c.iso,c));countries=[...dedup.values()];foot.textContent=`LIVE ESTIMATE · ${countries.length} real countries · World Bank 2024 population + country growth model`;update();setInterval(update,1000)}catch(e){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px;color:#f66">Population data could not be loaded. Check the network connection.</div>';foot.textContent='Population data error';console.error(e)}}
 load();
 </script></body></html>
