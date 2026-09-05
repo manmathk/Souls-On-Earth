@@ -25,11 +25,14 @@ const SNAPSHOT={year:2026,asOf:"2026-07-01",world:8300678395,birthsPerYear:13250
 const UN_COUNT=30,SHOW=50,MIN_ROWS=30;const POOL={IND:["🇮🇳","India"],CHN:["🇨🇳","China"],USA:["🇺🇸","U.S.A."],IDN:["🇮🇩","Indonesia"],PAK:["🇵🇰","Pakistan"],NGA:["🇳🇬","Nigeria"],BRA:["🇧🇷","Brazil"],BGD:["🇧🇩","Bangladesh"],RUS:["🇷🇺","Russia"],ETH:["🇪🇹","Ethiopia"],MEX:["🇲🇽","Mexico"],JPN:["🇯🇵","Japan"],EGY:["🇪🇬","Egypt"],PHL:["🇵🇭","Philippines"],COD:["🇨🇩","DR Congo"],VNM:["🇻🇳","Vietnam"],IRN:["🇮🇷","Iran"],TUR:["🇹🇷","Turkey"],DEU:["🇩🇪","Germany"],TZA:["🇹🇿","Tanzania"],THA:["🇹🇭","Thailand"],GBR:["🇬🇧","U.K."],FRA:["🇫🇷","France"],ZAF:["🇿🇦","South Africa"],ITA:["🇮🇹","Italy"],KEN:["🇰🇪","Kenya"],MMR:["🇲🇲","Myanmar"],COL:["🇨🇴","Colombia"],SDN:["🇸🇩","Sudan"],UGA:["🇺🇬","Uganda"],KOR:["🇰🇷","South Korea"],ESP:["🇪🇸","Spain"],DZA:["🇩🇿","Algeria"],IRQ:["🇮🇶","Iraq"],AFG:["🇦🇫","Afghanistan"],ARG:["🇦🇷","Argentina"],YEM:["🇾🇪","Yemen"],CAN:["🇨🇦","Canada"],AGO:["🇦🇴","Angola"],UZB:["🇺🇿","Uzbekistan"],MAR:["🇲🇦","Morocco"],POL:["🇵🇱","Poland"],MOZ:["🇲🇿","Mozambique"],PER:["🇵🇪","Peru"],MYS:["🇲🇾","Malaysia"],SAU:["🇸🇦","Saudi Arabia"],GHA:["🇬🇭","Ghana"],NPL:["🇳🇵","Nepal"],VEN:["🇻🇪","Venezuela"],CIV:["🇨🇮","Ivory Coast"]};
 const CACHE_KEY="souls-baseline-v2",CACHE_TTL=864e5,UN_RATES=new Map(SNAPSHOT.countries.slice(0,UN_COUNT).map(c=>[c[1],c[3]])),nf=new Intl.NumberFormat("en-US");const newer=(a,b)=>b&&b.year>a.year?{...b,countries:b.countries.map(c=>UN_RATES.has(c[1])?[c[0],c[1],c[2],UN_RATES.get(c[1])]:c)}:a;let data=SNAPSHOT;try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");if(c&&c.year&&c.countries?.length)data=newer(data,c)}catch(e){}
 const elapsed=()=>((Date.now()-(data.asOf?Date.parse(data.asOf+"T00:00:00Z"):Date.UTC(data.year,6,1)))/1000),birthsPerSec=()=>data.birthsPerYear/SECS_PER_YEAR,deathsPerSec=()=>data.deathsPerYear/SECS_PER_YEAR,netPerSec=()=>birthsPerSec()-deathsPerSec(),fmt=n=>nf.format(n);function countryPopulation(c){
-  if(!Array.isArray(c)||c.length<4) return 0;
+  if(!Array.isArray(c)) return 0;
   const pop=Number(c[2]), rate=Number(c[3]);
-  if(!Number.isFinite(pop)||!Number.isFinite(rate)) return 0;
-  return Math.floor(pop*Math.pow(1+rate/100,elapsed()/SECS_PER_YEAR));
-}function ranking(){
+  if(!Number.isFinite(pop)||!Number.isFinite(rate)||pop<0) return 0;
+  const years=elapsed()/SECS_PER_YEAR;
+  const factor=Math.pow(1+rate/100,years);
+  return Number.isFinite(factor)?Math.floor(pop*factor):0;
+}
+function ranking(){
   const valid=data.countries.map((c,i)=>Array.isArray(c)&&c.length>=4?i:-1).filter(i=>i>=0);
   const live=data.countries.map(countryPopulation);
   return valid.sort((a,b)=>live[b]-live[a]).slice(0,SHOW);
