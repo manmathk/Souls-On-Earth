@@ -18,15 +18,15 @@ function customize(){
   if(!d) return;
   d.title='Souls On Earth — Top 20 Live Population';
   const sub=d.querySelector('.sub'); if(sub) sub.textContent='TOP 20 COUNTRIES · LIVE ESTIMATE';
-  const head=d.querySelector('.tablehead span:nth-child(2)'); if(head) head.textContent='COUNTRY';
   const info=d.querySelector('.info'); if(info) info.textContent='Top 20 countries ranked by the same live population model as the main page. Estimates are not a real-time census.';
   const source=d.querySelector('#source'); if(source) source.textContent='Top 20 live ranking · same model as live.html · Ukraine static';
   const rows=d.querySelector('#rows');
   if(rows){
     rows.querySelectorAll('.row:nth-child(n+21)').forEach(r=>r.remove());
+    rows.style.gridTemplateColumns='minmax(0,1fr) minmax(0,1fr)';
     rows.style.gridTemplateRows='repeat(10,minmax(0,1fr))';
+    rows.style.gridAutoFlow='row';
   }
-  d.documentElement.style.setProperty('--top20-page','1');
 }
 frame.addEventListener('load',()=>{customize();setTimeout(customize,250);setTimeout(customize,1000)});
 </script>
