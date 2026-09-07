@@ -1,0 +1,28 @@
+name: Fix Top20 iOS Audio
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-top20-ios-audio.yml'
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix audio filename and iOS playback
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('top20-standalone.html')
+          s=p.read_text()
+          s=s.replace("audio.src='./cathedral of stars.mp3';audio.loop=true;audio.volume=.25;let playing=false;async function startMusic(){try{await audio.play();playing=true;musicButton.textContent='🔊'}catch(e){}}musicButton.addEventListener('click',()=>{if(audio.paused)startMusic();else{audio.pause();playing=false;musicButton.textContent='♫'}});['pointerdown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{if(!playing)startMusic()},{once:true}));", "audio.src='./Cathedral%20of%20Stars.mp3';audio.loop=true;audio.volume=.25;let playing=false;async function startMusic(){try{audio.currentTime=audio.currentTime||0;await audio.play();playing=true;musicButton.textContent='🔊'}catch(e){playing=false;musicButton.textContent='⚠️';setTimeout(()=>{musicButton.textContent='♫'},1500)}}musicButton.addEventListener('click',async e=>{e.preventDefault();if(audio.paused)await startMusic();else{audio.pause();playing=false;musicButton.textContent='♫'}});audio.addEventListener('ended',()=>{playing=false;musicButton.textContent='♫'});audio.addEventListener('error',()=>{playing=false;musicButton.textContent='⚠️'});")
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add top20-standalone.html
+          git diff --cached --quiet || git commit -m "Fix Top20 iOS music playback"
+          git push
