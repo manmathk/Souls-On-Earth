@@ -1,0 +1,29 @@
+name: Fix index-new rows
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-index-new-rows.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make country columns explicit grids
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index-new.html')
+          s=p.read_text()
+          s=s.replace('.col{min-width:0;display:flex;flex-direction:column}', '.col{min-width:0;min-height:0;display:grid;grid-template-rows:repeat(12,minmax(0,1fr))}')
+          s=s.replace('.row{min-height:0;display:grid;', '.row{min-height:0;min-width:0;display:grid;')
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index-new.html
+          git commit -m 'Fix index-new country rows rendering'
+          git push
