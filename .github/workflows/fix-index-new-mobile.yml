@@ -1,0 +1,31 @@
+name: Fix index-new mobile rows
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-index-new-mobile.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove conflicting mobile row grid
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index-new.html')
+          s=p.read_text()
+          old='.rows{grid-template-rows:repeat(12,minmax(0,1fr));column-gap:0}'
+          new='.rows{column-gap:0}'
+          if old not in s:
+              raise SystemExit('mobile rows rule not found')
+          p.write_text(s.replace(old,new,1))
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index-new.html
+          git commit -m 'Fix index-new mobile country data layout'
+          git push
