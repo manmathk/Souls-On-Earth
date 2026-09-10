@@ -1,0 +1,35 @@
+name: Tune index country UI
+on:
+  push:
+    paths:
+      - '.github/workflows/tune-index-country-ui.yml'
+permissions:
+  contents: write
+jobs:
+  tune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tune country section
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index-new.html')
+          s=p.read_text()
+          s=s.replace('.metric .v{font-size:14px;', '.metric .v{font-size:12px;', 1)
+          s=s.replace('.metric .k{margin-top:2px;font-size:7px;', '.metric .k{margin-top:2px;font-size:6px;', 1)
+          s=s.replace('.flag{font-size:21px;text-align:center}', '.flag{font-size:24px;text-align:center}', 1)
+          s=s.replace('.name{font-size:15px;font-weight:800;', '.name{font-size:17px;font-weight:850;', 1)
+          s=s.replace('.num{font-size:14px;font-weight:950;', '.num{font-size:13px;font-weight:950;', 1)
+          s=s.replace('.flag{font-size:18px}.name{font-size:12px;font-weight:850}.num{font-size:10px}', '.flag{font-size:21px}.name{font-size:14px;font-weight:900}.num{font-size:11.5px}', 1)
+          s=s.replace('.name{font-size:11px}.num{font-size:9.5px}.flag{font-size:17px}', '.name{font-size:13px}.num{font-size:10.5px}.flag{font-size:20px}', 1)
+          p.write_text(s)
+          PY
+      - name: Commit and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index-new.html
+          git rm .github/workflows/tune-index-country-ui.yml
+          git commit -m 'Improve country visibility on index-new'
+          git push
