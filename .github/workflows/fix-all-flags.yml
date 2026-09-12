@@ -1,5 +1,7 @@
 name: Fix all HTML flags
-on: push
+on:
+  push:
+    branches: [main]
 permissions:
   contents: write
 jobs:
@@ -7,12 +9,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inject flag fixer
-        run: python3 -c "from pathlib import Path; files=list(Path('.').glob('*.html')); changed=0; [((lambda p,s: (p.write_text(s.replace('</body>','<script src=\"./js/flag-fix.js\"></script></body>',1),'utf-8'), globals().__setitem__('changed',changed+1)))(p,p.read_text('utf-8')) if 'js/flag-fix.js' not in p.read_text('utf-8') and '</body>' in p.read_text('utf-8') else None) for p in files]; print('HTML files:',len(files),'changed:',changed)"
-      - name: Commit
+      - name: Inject Windows-compatible flag renderer
+        shell: bash
+        run: |
+          set -e
+          changed=0
+          for file in *.html; do
+            [ -f "$file" ] || continue
+            if ! grep -q 'js/flag-fix.js' "$file"; then
+              python3 - "$file" <<'PY'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1])
+s=p.read_text(encoding='utf-8')
+needle='<script src="./js/flag-fix.js"></script>'
+if needle not in s and '</body>' in s:
+    p.write_text(s.replace('</body>', needle+'</body>', 1), encoding='utf-8')
+PY
+              changed=$((changed+1))
+            fi
+          done
+          echo "HTML files updated: $changed"
+      - name: Commit changes
+        shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add '*.html'
-          git commit -m 'Use Windows-compatible country flags' || exit 0
+          if git diff --cached --quiet; then
+            echo 'No HTML changes needed'
+            exit 0
+          fi
+          git commit -m 'Use Windows-compatible country flags'
           git push
