@@ -1,0 +1,41 @@
+name: Emphasize country data
+on:
+  push:
+    paths:
+      - '.github/workflows/emphasize-country-ui.yml'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Emphasize country data
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index-new.html')
+          s=p.read_text()
+          s=s.replace('.metric-panel{min-height:56px;padding:4px;gap:4px}', '.metric-panel{min-height:48px;padding:3px;gap:3px}')
+          s=s.replace('.metric{padding:4px 7px}', '.metric{padding:3px 6px}')
+          s=s.replace('.metric .v{font-size:10px}', '.metric .v{font-size:9px}')
+          s=s.replace('.metric .k{font-size:5px}', '.metric .k{font-size:5px;letter-spacing:.45px}')
+          s=s.replace('.list-head{height:29px;grid-template-columns:18px 31px minmax(0,1fr) 86px;padding:0 6px;font-size:6.5px;letter-spacing:.7px}', '.list-head{height:27px;grid-template-columns:17px 34px minmax(0,1fr) 88px;padding:0 6px;font-size:6px;letter-spacing:.6px}')
+          s=s.replace('.row{grid-template-columns:18px 31px minmax(0,1fr) 86px;padding:0 6px}', '.row{grid-template-columns:17px 34px minmax(0,1fr) 88px;padding:0 6px}')
+          s=s.replace('.flag{font-size:21px}', '.flag{font-size:24px}')
+          s=s.replace('.name{font-size:13px;font-weight:900}', '.name{font-size:14px;font-weight:950}')
+          s=s.replace('.num{font-size:9.5px}', '.num{font-size:10.5px;font-weight:950}')
+          s=s.replace('.rank{font-size:7px}', '.rank{font-size:7px}')
+          s=s.replace('@media(max-width:390px){.list-head,.row{grid-template-columns:17px 28px minmax(0,1fr) 82px}.name{font-size:12.5px}.num{font-size:9px}.flag{font-size:20px}}', '@media(max-width:390px){.list-head,.row{grid-template-columns:16px 31px minmax(0,1fr) 84px}.name{font-size:13px}.num{font-size:10px}.flag{font-size:22px}}')
+          p.write_text(s)
+          PY
+      - name: Commit and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index-new.html
+          git commit -m 'Make country data more prominent' || true
+          git push
+          git rm .github/workflows/emphasize-country-ui.yml
+          git commit -m 'Remove temporary country UI workflow'
+          git push
