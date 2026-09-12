@@ -40,4 +40,4 @@ setInterval(render,1000);
 // Country data is already projected continuously and refreshed by the source
 // page, so a hard reload here is unnecessary and harmful to the audio session.
 }catch(e){console.error('Horizontal live page:',e);const s=frame.contentDocument?.getElementById('h100Status');if(s){s.textContent='Country data could not be loaded. Refresh the page to try again.';s.style.display='flex'}}});
-</script></body></html>
+</script><script src="./js/flag-fix.js"></script></body></html>

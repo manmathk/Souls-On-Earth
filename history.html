@@ -55,5 +55,5 @@ canvas.addEventListener('mousemove',hover);canvas.addEventListener('mouseleave',
 $('theme').addEventListener('click',()=>{const dark=document.documentElement.getAttribute('data-theme')==='dark';if(dark)document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme','dark');try{localStorage.setItem('souls-history-theme',dark?'light':'dark')}catch(e){}});try{if(localStorage.getItem('souls-history-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}
 (async function(){try{const text=await fetch(DATA_URL,{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(r.status);return r.text()});raw=parseCSV(text);countries=group(raw);renderCountries();const preferred=countries.find(c=>c.name==='India')||countries[0];selected=preferred;renderCountries();renderSelected()}catch(e){countEl.textContent='Data load failed';selectedEl.textContent='Could not load population data';rangeEl.textContent='Check connection and reload';console.error(e)}})();
 </script>
-</body>
+<script src="./js/flag-fix.js"></script></body>
 </html>

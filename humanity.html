@@ -34,5 +34,5 @@ function showEvent(){if(!DATA||!DATA.countries.length)return;const pool=DATA.cou
 async function init(){drawStars();try{DATA=await HumanityData.load();renderActive();updateStats();try{const r=await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson',{cache:'no-store'});if(r.ok){geo=await r.json();renderMap();addEventListener('resize',renderMap)}}catch(e){console.warn('Map data unavailable; statistics remain active.',e)}showEvent();eventTimer=setInterval(showEvent,9000);setInterval(updateStats,1000);setInterval(async()=>{try{DATA=await HumanityData.load();renderActive();updateStats();renderMap()}catch(e){console.warn('Hourly refresh failed',e)}},3600000)}catch(e){console.error('Humanity data load failed',e);document.getElementById('error').hidden=false;document.getElementById('errorText').textContent='The data source did not return a usable country dataset. Please refresh and try again.'}}
 init();
 </script>
-</body>
+<script src="./js/flag-fix.js"></script></body>
 </html>

@@ -89,5 +89,5 @@ function render(){renderHero();renderCards()}
 search.addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();renderCards()});sort.addEventListener('change',e=>{sortMode=e.target.value;renderCards()});render();resetCarousel();setInterval(()=>{heroAge.textContent=ageParts(civs[selected].year);utc.textContent=new Date().toISOString().replace('T',' ').slice(0,19)+' UTC';document.querySelectorAll('.age').forEach((el,i)=>{const x=list();if(x[i])el.textContent=ageParts(x[i].year)})},1000);
 </script>
 <script type="module" src="js/ambient-ui.js"></script>
-</body>
+<script src="./js/flag-fix.js"></script></body>
 </html>

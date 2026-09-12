@@ -44,4 +44,4 @@ musicBtn.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')toggleMusic
 musicBtn.addEventListener('click',e=>{if(Date.now()-lastTap>=650)toggleMusic(e)});
 try{manualOff=localStorage.getItem('souls-music')==='off';musicWanted=!manualOff}catch(e){musicWanted=true}musicState();
 </script>
-</body></html>
+<script src="./js/flag-fix.js"></script></body></html>
