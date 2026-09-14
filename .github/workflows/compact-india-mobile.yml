@@ -1,0 +1,28 @@
+name: Compact India Mobile Cards
+on:
+  push:
+    branches: [main]
+jobs:
+  compact:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compact mobile cards
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('india-states-live.html')
+          s=p.read_text()
+          s=s.replace('}.grid{grid-template-columns:repeat(4,1fr);gap:3px}.card{height:calc((100vh - 108px)/7);min-height:52px;padding:4px 5px}', '}.grid{grid-template-columns:repeat(4,1fr);gap:3px}.card{height:82px;min-height:0;padding:4px 5px}')
+          s=s.replace('}.grid{gap:2px}.card{height:calc((100vh - 94px)/7);min-height:45px;padding:3px 4px}', '}.grid{gap:2px}.card{height:72px;min-height:0;padding:3px 4px}')
+          p.write_text(s)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add india-states-live.html .github/workflows/compact-india-mobile.yml
+          git commit -m 'Compact mobile India state cards' || exit 0
+          git rm .github/workflows/compact-india-mobile.yml
+          git commit -m 'Remove temporary mobile workflow'
+          git push
