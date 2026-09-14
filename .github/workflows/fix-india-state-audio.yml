@@ -1,0 +1,31 @@
+name: Fix India state counter audio
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix-audio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix local music source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('india-states-live.html')
+          s=p.read_text()
+          old='https://cdn.pixabay.com/audio/2022/10/16/audio_12d3e6f2e6.mp3'
+          new='./Felt%20Keys%20for%20Marchers.mp3'
+          if old in s:
+              s=s.replace(old,new)
+          s=s.replace("audio.volume=.16;try{await audio.play()}catch(e){}", "audio.volume=.16;audio.load();try{await audio.play()}catch(e){fact.textContent='🎵 Music blocked — tap MUSIC + HINDI FACTS again.'}")
+          p.write_text(s)
+          PY
+      - name: Commit and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add india-states-live.html .github/workflows/fix-india-state-audio.yml
+          git commit -m "Fix India state counter background music [skip ci]"
+          git push
