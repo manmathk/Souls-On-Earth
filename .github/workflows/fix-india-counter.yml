@@ -1,0 +1,42 @@
+name: Fix India state live counter
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair counter JavaScript
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('india-states-live.html')
+          s = p.read_text(encoding='utf-8')
+          start = s.index('<script>') + len('<script>')
+          end = s.index('</script>', start)
+          js = r'''\nconst S=[['Uttar Pradesh',243466000,.91,'UP'],['Bihar',132850000,1.38,'BR'],['Maharashtra',129584000,.72,'MH'],['West Bengal',100631000,.43,'WB'],['Madhya Pradesh',89965000,1.10,'MP'],['Rajasthan',83879000,.99,'RJ'],['Tamil Nadu',77582000,.24,'TN'],['Gujarat',74343000,1.13,'GJ'],['Karnataka',69074000,.58,'KA'],['Andhra Pradesh',53740000,.29,'AP'],['Odisha',47221000,.57,'OD'],['Jharkhand',41108000,1.19,'JH'],['Telangana',38665000,.43,'TS'],['Assam',36815000,.88,'AS'],['Kerala',36239000,.35,'KL'],['Haryana',31409000,1.13,'HR'],['Punjab',31370000,.58,'PB'],['Chhattisgarh',31311000,1.06,'CG'],['Uttarakhand',12028000,.97,'UK'],['Himachal Pradesh',7588000,.44,'HP'],['Tripura',4268000,.85,'TR'],['Meghalaya',3447000,.88,'ML'],['Manipur',3318000,.88,'MN'],['Nagaland',2299000,.88,'NL'],['Arunachal Pradesh',1608000,.88,'AR'],['Goa',1601000,.50,'GA'],['Mizoram',1275000,.87,'MZ'],['Sikkim',709000,.85,'SK']];
+const YEAR=365.2425*86400000,BASE=Date.parse('2026-07-01T00:00:00Z'),DEATH_RATE=.0067,fmt=n=>new Intl.NumberFormat('en-IN').format(Math.floor(n));
+const grid=document.getElementById('grid');
+function population(s,now=Date.now()){return s[1]*Math.pow(1+s[2]/100,Math.max(0,now-BASE)/YEAR)}
+function flow(s,now){const p=population(s,now),net=p*s[2]/100,deaths=p*DEATH_RATE,births=net+deaths;return{p,births,deaths,net}}
+function render(){const max=S[0][1];grid.innerHTML=S.map((s,i)=>`<article class="card"><span class="rank">${String(i+1).padStart(2,'0')}</span><span class="flag">🇮🇳</span><div class="state">${s[0]}</div><div class="pop" data-pop="${i}">${fmt(s[1])}</div><div class="flow"><span class="inc">↑ <b data-b="${i}">0</b></span><span class="dec">↓ <b data-d="${i}">0</b></span></div><div class="bar"><i style="--w:${Math.max(5,s[1]/max*100)}%"></i></div><div class="rate">+${s[2].toFixed(2)}% / year</div></article>`).join('')}
+function update(){const now=Date.now();let total=0,b=0,d=0;S.forEach((s,i)=>{const f=flow(s,now);total+=f.p;b+=f.births;d+=f.deaths;document.querySelector(`[data-pop="${i}"]`).textContent=fmt(f.p);document.querySelector(`[data-b="${i}"]`).textContent=f.births.toFixed(2);document.querySelector(`[data-d="${i}"]`).textContent=f.deaths.toFixed(2)});document.getElementById('total').textContent=fmt(total);document.getElementById('births').textContent=b.toFixed(2);document.getElementById('deaths').textContent=d.toFixed(2);document.getElementById('net').textContent=(b-d).toFixed(2);document.getElementById('clock').textContent=new Date(now).toLocaleTimeString([], {hour12:false})}
+render();update();setInterval(update,250);
+const facts=['भारत दुनिया का सातवाँ सबसे बड़ा देश है और इसका क्षेत्रफल लगभग 3.29 मिलियन वर्ग किलोमीटर है।','भारत में 28 राज्य हैं और यह लाइव काउंटर उन्हीं 28 राज्यों को दिखाता है।','उत्तर प्रदेश भारत का सबसे अधिक आबादी वाला राज्य है।','महाराष्ट्र भारत के सबसे बड़े राज्यों में से एक है और इसकी राजधानी मुंबई है।','भारत की राजधानी नई दिल्ली है।','भारत में हिमालय उत्तर दिशा में एक विशाल प्राकृतिक पर्वत श्रृंखला बनाता है।','गंगा भारत की सबसे प्रसिद्ध नदियों में से एक है और उत्तर भारत के जीवन में इसका बड़ा महत्व है।','राजस्थान क्षेत्रफल के हिसाब से भारत का सबसे बड़ा राज्य है।','गोवा क्षेत्रफल के हिसाब से भारत का सबसे छोटा राज्य है।'];
+let audioOn=false,factIndex=0,speaking=false,timer=null;const audio=document.getElementById('bgMusic'),btn=document.getElementById('audioBtn'),fact=document.getElementById('fact');
+function speakFact(){if(!audioOn||speaking||!('speechSynthesis'in window))return;speaking=true;const text=facts[factIndex++%facts.length];fact.textContent='🎙️ '+text;const u=new SpeechSynthesisUtterance(text);u.lang='hi-IN';u.rate=.92;u.pitch=1;u.volume=1;const voices=speechSynthesis.getVoices();const hi=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith('hi'));if(hi)u.voice=hi;u.onend=()=>{speaking=false};u.onerror=()=>{speaking=false};speechSynthesis.cancel();speechSynthesis.speak(u)}
+btn.addEventListener('click',async()=>{audioOn=!audioOn;if(audioOn){audio.volume=.16;audio.load();try{await audio.play()}catch(e){fact.textContent='🎵 Music blocked — tap MUSIC + HINDI FACTS again.'}btn.textContent='🔊 MUSIC + HINDI FACTS ON';speakFact();clearInterval(timer);timer=setInterval(speakFact,26000)}else{audio.pause();speechSynthesis.cancel();speaking=false;clearInterval(timer);btn.textContent='🔇 START MUSIC + HINDI FACTS';fact.textContent='🎙️ हिंदी भारत तथ्य: ऑडियो बंद है।'}});
+'''
+          s = s[:start] + js + s[end:]
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add india-states-live.html .github/workflows/fix-india-counter.yml
+          git commit -m "Fix live state counter update loop [skip ci]"
+          git push
