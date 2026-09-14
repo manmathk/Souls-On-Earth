@@ -23,19 +23,15 @@
 </section>
 <div class="section"><h2>LIVE STATE RANKING</h2><span>POPULATION • FLOW • GROWTH</span></div>
 <section class="grid" id="grid"></section>
-<div class="note">Baseline: 1 July 2026 state projections. The counter continuously models population change from the published annual growth rates; births/deaths are an estimated event-flow visualization, not a live registration feed. citeturn2search0turn2search5</div>
+<div class="note">Baseline: 1 July 2026 state projections. The counter continuously models population change from published annual growth rates; births/deaths are estimated event-flow values, not a live registration feed. Source: 2025–26 Report of the Technical Group on Population Projections.</div>
 <div class="footer">INDIA • 28 STATES • LIVE POPULATION VISUALIZATION</div>
 </main>
 <script>
 const S=[['Uttar Pradesh',243466000,.91,'UP'],['Bihar',132850000,1.38,'BR'],['Maharashtra',129584000,.72,'MH'],['West Bengal',100631000,.43,'WB'],['Madhya Pradesh',89965000,1.10,'MP'],['Rajasthan',83879000,.99,'RJ'],['Tamil Nadu',77582000,.24,'TN'],['Gujarat',74343000,1.13,'GJ'],['Karnataka',69074000,.58,'KA'],['Andhra Pradesh',53740000,.29,'AP'],['Odisha',47221000,.57,'OD'],['Jharkhand',41108000,1.19,'JH'],['Telangana',38665000,.43,'TS'],['Assam',36815000,.88,'AS'],['Kerala',36239000,.35,'KL'],['Haryana',31409000,1.13,'HR'],['Punjab',31370000,.58,'PB'],['Chhattisgarh',31311000,1.06,'CG'],['Uttarakhand',12028000,.97,'UK'],['Himachal Pradesh',7588000,.44,'HP'],['Tripura',4268000,.85,'TR'],['Meghalaya',3447000,.88,'ML'],['Manipur',3318000,.88,'MN'],['Nagaland',2299000,.88,'NL'],['Arunachal Pradesh',1608000,.88,'AR'],['Goa',1601000,.50,'GA'],['Mizoram',1275000,.87,'MZ'],['Sikkim',709000,.85,'SK']];
-const YEAR=365.2425*86400000;
-const BASE=new Date('2026-07-01T00:00:00Z').getTime();
-const fmt=n=>new Intl.NumberFormat('en-IN').format(Math.floor(n));
-const deathRate=.0067;
-const nowBase=Date.now();
+const YEAR=365.2425*86400000;const BASE=new Date('2026-07-01T00:00:00Z').getTime();const fmt=n=>new Intl.NumberFormat('en-IN').format(Math.floor(n));const deathRate=.0067;
 function population(s){return s[1]*Math.pow(1+s[2]/100,(Date.now()-BASE)/YEAR)}
-function flow(s){const p=population(s);const deaths=p*deathRate;const net=p*(s[2]/100);const births=deaths+net;return{p,births,deaths,net}}
-function render(){const max=S[0][1];document.getElementById('grid').innerHTML=S.map((s,i)=>{const w=Math.max(5,s[1]/max*100);return `<article class="card" data-i="${i}"><span class="rank">${String(i+1).padStart(2,'0')}</span><span class="flag">🇮🇳</span><div class="state">${s[0]}</div><div class="pop">${fmt(s[1])}</div><div class="flow"><span class="inc">↑ <b class="b"></b>/s</span><span class="dec">↓ <b class="d"></b>/s</span></div><div class="bar"><i style="--w:${w}%"></i></div><div class="rate">+${s[2].toFixed(2)}% annual growth model</div></article>`}).join('')}
+function flow(s){const p=population(s),deaths=p*deathRate,net=p*(s[2]/100),births=deaths+net;return{p,births,deaths,net}}
+function render(){const max=S[0][1];document.getElementById('grid').innerHTML=S.map((s,i)=>{const w=Math.max(5,s[1]/max*100);return `<article class="card"><span class="rank">${String(i+1).padStart(2,'0')}</span><span class="flag">🇮🇳</span><div class="state">${s[0]}</div><div class="pop">${fmt(s[1])}</div><div class="flow"><span class="inc">↑ <b class="b"></b>/s</span><span class="dec">↓ <b class="d"></b>/s</span></div><div class="bar"><i style="--w:${w}%"></i></div><div class="rate">+${s[2].toFixed(2)}% annual growth model</div></article>`}).join('')}
 function update(){let total=0,births=0,deaths=0;document.querySelectorAll('.card').forEach((e,i)=>{const f=flow(S[i]);total+=f.p;births+=f.births;deaths+=f.deaths;e.querySelector('.pop').textContent=fmt(f.p);e.querySelector('.b').textContent=f.births.toFixed(2);e.querySelector('.d').textContent=f.deaths.toFixed(2);e.classList.remove('flash-up','flash-down');e.classList.add(f.net>=0?'flash-up':'flash-down');setTimeout(()=>e.classList.remove('flash-up','flash-down'),180)});document.getElementById('total').textContent=fmt(total);document.getElementById('births').textContent=births.toFixed(2);document.getElementById('deaths').textContent=deaths.toFixed(2);document.getElementById('net').textContent=(births-deaths).toFixed(2);document.getElementById('clock').textContent=new Date().toLocaleTimeString([], {hour12:false})}
 render();update();setInterval(update,1000);
 </script>
