@@ -12,9 +12,11 @@ body{min-height:100vh}
 .app{width:min(100%,720px);margin:0 auto;background:#000;min-height:100vh}
 .header{padding:10px 12px 9px;border-bottom:1px solid #333;background:#000}
 .kicker{font-size:11px;color:#9b9b9b;text-transform:uppercase;letter-spacing:1.8px;font-weight:700}
+.title-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .title{margin-top:2px;font-size:25px;line-height:1;font-weight:800;color:#fff}
 .title span{color:#f5df35}
 .subtitle{margin-top:4px;font-size:11px;color:#8d8d8d}
+.music{width:30px;height:30px;flex:0 0 30px;border:1px solid #35b85a;border-radius:50%;background:#111;color:#fff;padding:0;font-size:14px;display:grid;place-items:center;cursor:pointer;box-shadow:0 0 12px rgba(53,184,90,.22)}
 .world-total{margin:8px 9px 6px;padding:9px 11px;border:1px solid #525252;border-radius:4px;background:#050505;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .world-total .label{font-size:14px;font-weight:700;color:#fff}
 .world-total .label small{display:block;margin-top:2px;font-size:9px;color:#777;font-weight:400}
@@ -47,6 +49,7 @@ body{min-height:100vh}
  .kicker{font-size:9px}
  .title{font-size:22px}
  .subtitle{font-size:10px}
+ .music{width:27px;height:27px;flex-basis:27px;font-size:13px}
  .world-total{margin:6px 7px 5px;padding:8px 9px}
  .world-total .label{font-size:12px}.world-total .label small{font-size:8px}.world-total .num{font-size:18px}
  .tools{gap:7px;padding:7px}
@@ -65,7 +68,7 @@ body{min-height:100vh}
 <div class="app">
 <header class="header">
   <div class="kicker">World Population Data</div>
-  <div class="title">WORLD <span>POPULATION</span></div>
+  <div class="title-row"><div class="title">WORLD <span>POPULATION</span></div><button class="music" id="musicBtn" aria-label="Toggle music" title="Music">🎵</button></div>
   <div class="subtitle">Live population counter • 1 January 2026 baseline</div>
 </header>
 <section class="world-total">
@@ -83,6 +86,7 @@ body{min-height:100vh}
 <div class="rows" id="rows"></div>
 <div class="foot">Population values are modeled continuously from the displayed 2026 baseline and annual growth rates. They are estimates for visualization, not official real-time registrations.</div>
 </div>
+<audio id="bgMusic" loop preload="auto" src="./Midnight_Highway_Run.mp3"></audio>
 <script>
 const data=[
 ['in','India',1479199731,.00857],['cn','China',1412286004,-.0021],['us','United States of America',349384191,.0028],['id','Indonesia',288320505,.0092],['pk','Pakistan',260138918,.0215],['ng','Nigeria',243433896,.0230],['br','Brazil',213709288,.0050],['bd','Bangladesh',178249724,.0110],['ru','Russian Federation',143327332,-.0042],['et','Ethiopia',139602709,.0248],['mx','Mexico',133208097,.0090],['jp','Japan',122287705,-.0052],['eg','Egypt',120453875,.0160],['ph','Philippines',117914319,.0152],['cd','Democratic Republic of the Congo',117193758,.0320],['vn','Viet Nam',102291484,.0060],['ir','Iran',93312390,.0070],['tr','Türkiye',87979422,.0055],['de','Germany',83604823,-.0025],['tz','United Republic of Tanzania',72976205,.0300],['th','Thailand',71546073,-.0010],['gb','United Kingdom of Great Britain and Northern Ireland',70005624,.0022],['fr','France',66764980,.0020],['za','South Africa',65593358,.0120],['it','Italy',58879090,-.0040],['ke','Kenya',58861226,.0200],['mm','Myanmar',55251197,-.0015],['co','Colombia',54037071,.0060],['sd','Sudan',53611215,.0200],['ug','Uganda',53041978,.0320],['kr','Republic of Korea',51585513,-.0020],['iq','Iraq',48207524,.0220]
@@ -100,6 +104,8 @@ function toggle(){paused=!live.checked;document.getElementById('play').textConte
 live.addEventListener('change',toggle);
 document.getElementById('play').addEventListener('click',()=>{live.checked=!live.checked;toggle()});
 render();update();setInterval(update,250);
+const audio=document.getElementById('bgMusic'),musicBtn=document.getElementById('musicBtn');let musicOn=false;
+musicBtn.addEventListener('click',async()=>{musicOn=!musicOn;if(musicOn){audio.volume=.25;audio.load();try{await audio.play();musicBtn.textContent='🔊'}catch(e){musicOn=false;musicBtn.textContent='🎵'}}else{audio.pause();musicBtn.textContent='🎵'}});
 </script>
 </body>
 </html>
