@@ -94,6 +94,7 @@ clippable into Shorts:
 | `focus.html` | One country per segment with doubling time, crossover estimate and world share |
 | `scale.html` | A day's births, deaths or net growth climbing past real place populations |
 | `chronicle.html` | Authored history moments with live elapsed-time counters |
+| `demographics.html` | Futuristic world population command center in responsive 16:9 + 9:16 layouts |
 
 ### How the frame works
 
