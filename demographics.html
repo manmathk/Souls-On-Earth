@@ -249,14 +249,6 @@ const short = n => {
 const continentSeeds=[
   ['🌏','Asia'],['🌍','Africa'],['🌍','Europe'],['🌎','North America'],['🌎','South America'],['🗺️','Oceania']
 ];
-const regionBuckets={
-  'Asia':['EAS','ECS','SAS','MEA'],
-  'Africa':['SSF'],
-  'Europe':['ECS'],
-  'North America':['NAC'],
-  'South America':['LCN'],
-  'Oceania':['EAP']
-};
 const fallbackShares=[.586,.191,.089,.075,.054,.005];
 const metricTemplate=[
   ['Age 0–14','24.0%','share of world'],
@@ -270,7 +262,7 @@ const metricTemplate=[
   ['Population Density','62','people / km²'],
   ['Land Area','149.0M','km²']
 ];
-let state={countries:[],world:null,world2000:null,regions:new Map(),ready:false};
+let state={countries:[],world:null,world2000:null,ready:false};
 
 function renderShell(){
   document.getElementById('continents').innerHTML=continentSeeds.map((x,i)=>
@@ -282,21 +274,6 @@ function renderShell(){
   document.getElementById('trends').innerHTML=[
     ['↗','Annual Growth','—','cyan'],['◉','Growth Since 2000','—','cyan'],['◌','2050 Projection','—','gold'],['◎','Humans Ever Born','~117B','gold']
   ].map((m,i)=>'<div class="trend '+(m[3]==='gold'?'gold':'')+'"><div class="trend-icon">'+m[0]+'</div><div><div class="trend-label">'+m[1]+'</div><div class="trend-value" id="trend'+i+'">'+m[2]+'</div></div></div>').join('');
-}
-
-async function loadRegions(){
-  try{
-    const r=await fetch('https://api.worldbank.org/v2/country?format=json&per_page=400',{cache:'no-store'});
-    if(!r.ok)throw new Error('region '+r.status);
-    const j=await r.json();
-    for(const item of (j?.[1]||[])){
-      const iso=String(item.id||'').toUpperCase();
-      const name=String(item.region?.value||'').toLowerCase();
-      let c='other';
-      if(name.includes('east asia')||name.includes('south asia')||name.includes('middle east')||name.includes('europe & central asia')) c='Asia/Europe';
-      state.regions.set(iso,name);
-    }
-  }catch(e){}
 }
 
 function buildContinentShares(){
@@ -385,7 +362,7 @@ function update(){
 async function bootstrap(){
   renderShell();
   try{
-    const [data]=await Promise.all([window.HumanityData.load(),loadRegions()]);
+    const data=await window.HumanityData.load();
     state.countries=data.countries||[];
     state.world=data.world;
     const wb2000=await fetch('https://api.worldbank.org/v2/country/WLD/indicator/SP.POP.TOTL?format=json&date=2000&per_page=5',{cache:'no-store'});
