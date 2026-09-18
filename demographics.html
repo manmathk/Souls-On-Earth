@@ -63,7 +63,7 @@ html,body{overflow:hidden}
   .hero-kicker{font-size:6px;letter-spacing:.55px}
   .hero-number{max-width:100%;font-size:clamp(29px,8.2vw,54px);letter-spacing:0;overflow:hidden;text-overflow:clip}
   .live{font-size:6.5px;padding:3px 7px;margin-top:2px;letter-spacing:.55px}
-  .year-grid{gap:4px;padding:4px}
+  .year-grid{gap:3px;padding:3px}
   .year-card{min-width:0;padding:4px;border-radius:5px;overflow:hidden}
   .year-card .label{font-size:5.7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .year-card .value{font-size:clamp(10px,2.75vw,15px);overflow:hidden}
@@ -121,6 +121,6 @@ function update(){if(!state.ready)return;const now=Date.now(),pop=worldPop(now),
 async function bootstrap(){renderShell();try{const data=await window.HumanityData.load();state.countries=data.countries||[];state.world=data.world;const wb2000=await fetch('https://api.worldbank.org/v2/country/WLD/indicator/SP.POP.TOTL?format=json&date=2000&per_page=5',{cache:'no-store'});if(wb2000.ok){const j=await wb2000.json(),v=Number(j?.[1]?.[0]?.value);if(Number.isFinite(v))state.world2000=v}state.ready=true;renderCountries();document.getElementById('status').innerHTML='<span class="status">● LIVE BASELINE • WORLD BANK</span>';update()}catch(e){document.getElementById('status').textContent='Baseline unavailable • retrying';setTimeout(bootstrap,15000)}}
 function updateMode(){const portrait=matchMedia('(orientation:portrait)').matches||innerWidth<=820;document.getElementById('modeLabel').textContent=portrait?'PORTRAIT 9:16 STREAM':'LANDSCAPE COMMAND CENTER'}updateMode();addEventListener('resize',updateMode);addEventListener('orientationchange',updateMode);setInterval(update,1000);bootstrap();
 </script>
-<script src="./js/flag-fix.js"></script>
+
 </body>
 </html>
