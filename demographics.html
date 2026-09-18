@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#061523">
+<title>Souls On Earth — Global Demographics Command Center</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#061421;
+  --bg2:#04101a;
+  --panel:#091e2c;
+  --panel2:#0b2536;
+  --line:rgba(132,215,245,.34);
+  --line2:rgba(132,215,245,.14);
+  --text:#eef7ff;
+  --muted:#a7bdc9;
+  --cyan:#72daf7;
+  --cyan2:#3fbce7;
+  --aqua:#78ead3;
+  --red:#ff725d;
+  --gold:#ffd05e;
+  --shadow:0 0 28px rgba(50,190,240,.08);
+}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg2);color:var(--text);font-family:"Segoe UI",Arial,Helvetica,sans-serif}
+body{
+  background:
+    radial-gradient(circle at 50% 18%,rgba(39,138,185,.18),transparent 35%),
+    radial-gradient(circle at 50% 100%,rgba(10,78,112,.12),transparent 44%),
+    linear-gradient(180deg,#061623 0%,#03101a 100%);
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.48;
+  background-image:
+    radial-gradient(circle,rgba(173,230,250,.55) 0 1px,transparent 1.5px),
+    linear-gradient(rgba(65,150,188,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(65,150,188,.06) 1px,transparent 1px);
+  background-size:18px 18px,92px 92px,92px 92px;
+  mask-image:linear-gradient(to bottom,transparent 0%,#000 11%,#000 90%,transparent 100%);
+}
+.app{position:relative;width:100%;height:100%;max-width:1920px;margin:auto;padding:9px 12px 11px;display:grid;grid-template-rows:auto 1.08fr .96fr;gap:8px}
+.topline{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:12px;padding:0 5px}
+.kicker{font-size:11px;letter-spacing:1.8px;color:var(--muted);font-weight:800;text-transform:uppercase;white-space:nowrap}
+h1{margin:0;font-size:clamp(28px,3.15vw,58px);line-height:.94;text-align:center;letter-spacing:2.8px;font-weight:950;text-shadow:0 0 22px rgba(113,215,247,.14)}
+.brand{justify-self:end;text-align:right;font-size:10px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase}
+.viewport-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);padding:4px 8px;border-radius:999px;background:rgba(4,18,29,.56);font-size:9px;letter-spacing:1px}
+.layout-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px rgba(114,218,247,.75)}
+.main-grid{min-height:0;display:grid;grid-template-columns:1.52fr 1fr;gap:8px}
+.panel{min-width:0;min-height:0;border:1px solid var(--line);border-radius:9px;background:linear-gradient(180deg,rgba(10,31,45,.93),rgba(5,20,31,.88));box-shadow:var(--shadow);overflow:hidden;position:relative}
+.panel-title{height:36px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line2);padding:0 10px;color:#d9edf6;font-size:13px;font-weight:850;letter-spacing:1px;text-transform:uppercase}
+.today-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:7px}
+.stat{min-width:0;border:1px solid var(--line2);border-radius:7px;background:rgba(1,12,20,.36);padding:7px 9px;position:relative;overflow:hidden}
+.stat:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.42}
+.stat-label{font-size:10px;color:var(--muted);letter-spacing:.55px;text-transform:uppercase}
+.stat-value{font-size:clamp(19px,1.45vw,31px);font-weight:950;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stat.birth .stat-value{color:var(--cyan)}
+.stat.death .stat-value{color:var(--red)}
+.stat.growth .stat-value{color:var(--aqua)}
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;padding:3px 6px 6px;text-align:center}
+.hero-kicker{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.1px}
+.hero-number{font-size:clamp(45px,5.7vw,105px);font-weight:950;letter-spacing:1.8px;line-height:.94;font-variant-numeric:tabular-nums;white-space:nowrap}
+.live{display:inline-flex;align-items:center;gap:7px;margin-top:5px;padding:5px 14px;border:1px solid rgba(255,102,85,.58);border-radius:999px;background:rgba(123,20,11,.27);font-size:11px;font-weight:900;letter-spacing:1.2px}
+.live i{width:7px;height:7px;border-radius:50%;background:#ff5745;box-shadow:0 0 11px rgba(255,87,69,.92);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.3;transform:scale(.76)}}
+.year-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:7px}
+.year-card{border:1px solid var(--line2);border-radius:7px;padding:7px 9px;background:rgba(1,12,20,.32);min-width:0}
+.year-card .label{font-size:10px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.year-card .value{margin-top:4px;font-size:clamp(16px,1.3vw,27px);font-weight:950;font-variant-numeric:tabular-nums;white-space:nowrap}
+.year-card.birth .value{color:var(--cyan)}
+.year-card.death .value{color:var(--red)}
+.year-card.growth .value{color:var(--aqua)}
+.continent-grid{height:calc(100% - 36px);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:6px;padding:7px}
+.continent{display:grid;grid-template-columns:38px 1fr;gap:6px;align-items:center;padding:6px 7px;border:1px solid var(--line2);border-radius:7px;background:rgba(1,12,20,.30);min-width:0}
+.continent-icon{font-size:25px;opacity:.92;filter:drop-shadow(0 0 6px rgba(104,211,244,.16))}
+.continent-name{font-size:9px;color:var(--muted);letter-spacing:.65px;text-transform:uppercase}
+.continent-value{font-size:clamp(13px,1.05vw,20px);font-weight:950;font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:2px}
+.continent-share{font-size:9px;color:var(--cyan);margin-top:1px}
+.bottom-grid{min-height:0;display:grid;grid-template-columns:1.16fr 1fr;gap:8px}
+.country-columns{height:calc(100% - 36px);display:grid;grid-template-columns:1fr 1fr;gap:0;padding:3px 6px 5px}
+.country-list{min-height:0;display:flex;flex-direction:column}
+.country-list:first-child{border-right:1px solid var(--line2);padding-right:6px}
+.country-list:last-child{padding-left:6px}
+.country-row{display:grid;grid-template-columns:24px 29px minmax(0,1fr) 126px;align-items:center;gap:5px;flex:1;min-height:0;padding:0 3px;border-bottom:1px solid rgba(112,190,220,.10)}
+.rank{font-size:10px;color:var(--muted);text-align:center;font-weight:850}
+.flag{font-size:20px;text-align:center;line-height:1}
+.country-name{font-size:clamp(10px,1vw,15px);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.country-pop{font-size:clamp(10px,1vw,15px);font-weight:950;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.country-name.up,.country-pop.up{color:var(--aqua)}
+.country-name.down,.country-pop.down{color:var(--red)}
+.right-grid{height:calc(100% - 36px);display:grid;grid-template-rows:1fr 1fr;gap:6px;padding:7px}
+.metric-grid{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr);gap:6px}
+.metric{min-width:0;border:1px solid var(--line2);border-radius:7px;background:rgba(1,12,20,.30);padding:5px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.metric-label{font-size:8px;color:var(--muted);letter-spacing:.45px;text-transform:uppercase}
+.metric-value{font-size:clamp(16px,1.35vw,28px);font-weight:950;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.metric-sub{font-size:7px;color:var(--muted);margin-top:1px}
+.trend-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.trend{display:grid;grid-template-columns:35px 1fr;gap:6px;align-items:center;padding:6px 8px;border:1px solid var(--line2);border-radius:7px;background:rgba(1,12,20,.29);min-width:0}
+.trend-icon{font-size:22px}
+.trend-label{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.45px}
+.trend-value{margin-top:2px;font-size:clamp(14px,1.25vw,25px);font-weight:950;color:var(--cyan);font-variant-numeric:tabular-nums;white-space:nowrap}
+.trend.gold .trend-value{color:var(--gold)}
+.footer{position:absolute;left:15px;right:15px;bottom:0;display:flex;justify-content:space-between;gap:10px;font-size:7.5px;color:rgba(165,193,207,.65);pointer-events:none}
+.status{display:inline-flex;align-items:center;gap:5px}
+.spinner{display:inline-block;width:8px;height:8px;border:1px solid rgba(160,220,240,.24);border-top-color:var(--cyan);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media (orientation:portrait), (max-width:820px){
+  html,body{overflow:hidden}
+  .app{padding:6px 6px 7px;gap:5px;grid-template-rows:auto auto 1fr}
+  .topline{grid-template-columns:1fr auto;align-items:center;gap:6px}
+  .kicker{font-size:7px;letter-spacing:1px}
+  h1{font-size:clamp(22px,7.4vw,35px);text-align:left;letter-spacing:1.5px}
+  .brand{display:none}
+  .main-grid{grid-template-columns:1fr;gap:5px;grid-template-rows:1.06fr .62fr}
+  .panel-title{height:27px;font-size:9px;letter-spacing:.7px}
+  .today-grid{gap:4px;padding:4px}
+  .stat{padding:5px 5px;border-radius:5px}
+  .stat-label{font-size:7px}
+  .stat-value{font-size:clamp(13px,3.9vw,19px);margin-top:2px}
+  .hero{padding:2px 3px 4px}
+  .hero-kicker{font-size:7px;letter-spacing:.7px}
+  .hero-number{font-size:clamp(33px,10vw,60px);letter-spacing:1px}
+  .live{font-size:8px;padding:4px 9px;margin-top:3px}
+  .live i{width:5px;height:5px}
+  .year-grid{gap:4px;padding:4px}
+  .year-card{padding:5px 5px;border-radius:5px}
+  .year-card .label{font-size:6.6px}
+  .year-card .value{font-size:clamp(12px,3.25vw,17px);margin-top:2px}
+  .continent-grid{gap:4px;padding:4px}
+  .continent{grid-template-columns:24px 1fr;gap:4px;padding:4px 5px;border-radius:5px}
+  .continent-icon{font-size:18px}
+  .continent-name{font-size:6.6px}
+  .continent-value{font-size:clamp(10px,2.55vw,13px)}
+  .continent-share{font-size:6.4px}
+  .bottom-grid{grid-template-columns:1fr;gap:5px}
+  .bottom-grid>.panel:first-child{min-height:0}
+  .country-columns{height:calc(100% - 27px);padding:2px 4px 3px}
+  .country-list:first-child{padding-right:4px}
+  .country-list:last-child{padding-left:4px}
+  .country-row{grid-template-columns:16px 21px minmax(0,1fr) 88px;gap:3px;padding:0 2px}
+  .rank{font-size:7px}.flag{font-size:15px}.country-name{font-size:clamp(8.2px,2.45vw,10.5px)}.country-pop{font-size:clamp(8px,2.35vw,10.5px)}
+  .right-grid{height:calc(100% - 27px);gap:4px;padding:4px}
+  .metric-grid{gap:4px}
+  .metric{padding:3px 2px;border-radius:5px}
+  .metric-label{font-size:5.8px}.metric-value{font-size:clamp(12px,3.6vw,18px);margin-top:1px}.metric-sub{font-size:5.5px}
+  .trend-grid{gap:4px}
+  .trend{grid-template-columns:24px 1fr;gap:4px;padding:4px 5px;border-radius:5px}
+  .trend-icon{font-size:17px}.trend-label{font-size:6px}.trend-value{font-size:clamp(11px,3.4vw,17px)}
+  .footer{left:7px;right:7px;font-size:5.5px}
+}
+
+@media (orientation:portrait) and (max-height:900px){
+  .app{gap:4px}
+  .topline{min-height:23px}
+  h1{font-size:clamp(20px,6.9vw,31px)}
+  .main-grid{gap:4px;grid-template-rows:1.05fr .6fr}
+  .today-grid{padding:3px}
+  .hero{padding:1px 2px 3px}
+  .year-grid{padding:3px}
+  .panel-title{height:24px}
+  .country-columns{height:calc(100% - 24px)}
+  .right-grid{height:calc(100% - 24px);padding:3px}
+}
+
+@media (min-width:821px) and (max-height:760px){
+  .app{padding:6px 9px 9px;gap:6px}
+  .panel-title{height:31px}
+  .topline{padding-bottom:1px}
+  .stat{padding:5px 7px}
+  .hero{padding:2px 4px 4px}
+  .year-grid{padding:5px}
+  .continent-grid,.country-columns,.right-grid{padding:5px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="topline">
+    <div class="kicker">Souls On Earth • 24/7 Global Demographics</div>
+    <h1>WORLD POPULATION</h1>
+    <div class="brand"><span class="viewport-pill"><i class="layout-dot"></i><span id="modeLabel">LANDSCAPE COMMAND CENTER</span></span></div>
+  </div>
+
+  <section class="main-grid">
+    <article class="panel">
+      <div class="panel-title">TODAY · GLOBAL MOVEMENT</div>
+      <div class="today-grid">
+        <div class="stat birth"><div class="stat-label">Births Today</div><div class="stat-value" id="birthsToday">—</div></div>
+        <div class="stat death"><div class="stat-label">Deaths Today</div><div class="stat-value" id="deathsToday">—</div></div>
+        <div class="stat growth"><div class="stat-label">Growth Today</div><div class="stat-value" id="growthToday">—</div></div>
+      </div>
+      <div class="hero">
+        <div class="hero-kicker">Current World Population</div>
+        <div class="hero-number" id="worldTotal">Loading…</div>
+        <div class="live"><i></i>LIVE ESTIMATE</div>
+      </div>
+      <div class="year-grid">
+        <div class="year-card birth"><div class="label">Births This Year</div><div class="value" id="birthsYear">—</div></div>
+        <div class="year-card death"><div class="label">Deaths This Year</div><div class="value" id="deathsYear">—</div></div>
+        <div class="year-card growth"><div class="label">Growth This Year</div><div class="value" id="growthYear">—</div></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-title">CONTINENTS</div>
+      <div class="continent-grid" id="continents"></div>
+    </article>
+  </section>
+
+  <section class="bottom-grid">
+    <article class="panel">
+      <div class="panel-title">TOP 10 COUNTRIES · LIVE POPULATION</div>
+      <div class="country-columns">
+        <div class="country-list" id="countriesA"></div>
+        <div class="country-list" id="countriesB"></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-title">WORLD DEMOGRAPHIC + POPULATION TREND</div>
+      <div class="right-grid">
+        <div class="metric-grid" id="metrics"></div>
+        <div class="trend-grid" id="trends"></div>
+      </div>
+    </article>
+  </section>
+
+  <div class="footer">
+    <span class="status" id="status"><i class="spinner"></i>Loading demographic baseline…</span>
+    <span>Modeled statistical estimate • not an exact real-time census</span>
+  </div>
+</main>
+
+<script src="./js/humanity-data.js"></script>
+<script>
+const nf = new Intl.NumberFormat('en-US');
+const DAY = 86400;
+const YEAR = 365.25 * DAY;
+const fmt = n => nf.format(Math.max(0, Math.floor(Number(n) || 0)));
+const short = n => {
+  const v=Math.abs(Number(n)||0);
+  if(v>=1e12)return (v/1e12).toFixed(2)+'T';
+  if(v>=1e9)return (v/1e9).toFixed(2)+'B';
+  if(v>=1e6)return (v/1e6).toFixed(2)+'M';
+  if(v>=1e3)return (v/1e3).toFixed(1)+'K';
+  return fmt(v);
+};
+const continentSeeds=[
+  ['🌏','Asia'],['🌍','Africa'],['🌍','Europe'],['🌎','North America'],['🌎','South America'],['🗺️','Oceania']
+];
+const regionBuckets={
+  'Asia':['EAS','ECS','SAS','MEA'],
+  'Africa':['SSF'],
+  'Europe':['ECS'],
+  'North America':['NAC'],
+  'South America':['LCN'],
+  'Oceania':['EAP']
+};
+const fallbackShares=[.586,.191,.089,.075,.054,.005];
+const metricTemplate=[
+  ['Age 0–14','24.0%','share of world'],
+  ['Age 15–64','65.2%','share of world'],
+  ['Age 65+','10.8%','share of world'],
+  ['Urban','58.6%','share of world'],
+  ['Rural','41.4%','share of world'],
+  ['Median Age','31.1','years'],
+  ['Fertility','2.24','births / woman'],
+  ['Life Expectancy','73.8','years'],
+  ['Population Density','62','people / km²'],
+  ['Land Area','149.0M','km²']
+];
+let state={countries:[],world:null,world2000:null,regions:new Map(),ready:false};
+
+function renderShell(){
+  document.getElementById('continents').innerHTML=continentSeeds.map((x,i)=>
+    '<div class="continent"><div class="continent-icon">'+x[0]+'</div><div><div class="continent-name">'+x[1]+'</div><div class="continent-value" id="cont'+i+'">—</div><div class="continent-share" id="contShare'+i+'">—</div></div></div>'
+  ).join('');
+  document.getElementById('metrics').innerHTML=metricTemplate.map((m,i)=>
+    '<div class="metric"><div class="metric-label">'+m[0]+'</div><div class="metric-value" id="metric'+i+'">'+m[1]+'</div><div class="metric-sub">'+m[2]+'</div></div>'
+  ).join('');
+  document.getElementById('trends').innerHTML=[
+    ['↗','Annual Growth','—','cyan'],['◉','Growth Since 2000','—','cyan'],['◌','2050 Projection','—','gold'],['◎','Humans Ever Born','~117B','gold']
+  ].map((m,i)=>'<div class="trend '+(m[3]==='gold'?'gold':'')+'"><div class="trend-icon">'+m[0]+'</div><div><div class="trend-label">'+m[1]+'</div><div class="trend-value" id="trend'+i+'">'+m[2]+'</div></div></div>').join('');
+}
+
+async function loadRegions(){
+  try{
+    const r=await fetch('https://api.worldbank.org/v2/country?format=json&per_page=400',{cache:'no-store'});
+    if(!r.ok)throw new Error('region '+r.status);
+    const j=await r.json();
+    for(const item of (j?.[1]||[])){
+      const iso=String(item.id||'').toUpperCase();
+      const name=String(item.region?.value||'').toLowerCase();
+      let c='other';
+      if(name.includes('east asia')||name.includes('south asia')||name.includes('middle east')||name.includes('europe & central asia')) c='Asia/Europe';
+      state.regions.set(iso,name);
+    }
+  }catch(e){}
+}
+
+function buildContinentShares(){
+  // World Bank regions overlap at sub-region level, so use a stable presentation
+  // mix for the six continental cards; the live total still updates every second.
+  return fallbackShares;
+}
+
+function countryCard(c,rank){
+  const dir=c.netPerSec>=0?'up':'down';
+  return '<div class="country-row"><div class="rank">'+rank+'</div><div class="flag">'+(c.flag||'🌐')+'</div><div class="country-name '+dir+'">'+c.name+'</div><div class="country-pop '+dir+'" id="country-'+c.iso+'">—</div></div>';
+}
+
+function renderCountries(){
+  const top=state.countries.slice(0,10);
+  document.getElementById('countriesA').innerHTML=top.slice(0,5).map((c,i)=>countryCard(c,i+1)).join('');
+  document.getElementById('countriesB').innerHTML=top.slice(5,10).map((c,i)=>countryCard(c,i+6)).join('');
+}
+
+function worldPop(now){
+  const w=state.world;
+  if(!w)return 0;
+  const net=(w.birthRate-w.deathRate)/1000;
+  const years=Math.max(0,(now-w.anchor)/1000/YEAR);
+  return w.population*Math.exp(net*years);
+}
+
+function countryPop(c,now){ return window.HumanityData.project(c,now); }
+
+function elapsedToday(now){
+  const d=new Date(now),start=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
+  return Math.max(0,(now-start)/1000);
+}
+function elapsedYear(now){
+  const d=new Date(now),start=new Date(d.getFullYear(),0,1).getTime();
+  return Math.max(0,(now-start)/1000);
+}
+
+function update(){
+  if(!state.ready)return;
+  const now=Date.now(),pop=worldPop(now),w=state.world;
+  const birthsPerSec=pop*(w.birthRate||0)/1000/YEAR;
+  const deathsPerSec=pop*(w.deathRate||0)/1000/YEAR;
+  const ds=elapsedToday(now),ys=elapsedYear(now);
+  document.getElementById('worldTotal').textContent=fmt(pop);
+  document.getElementById('birthsToday').textContent=fmt(birthsPerSec*ds);
+  document.getElementById('deathsToday').textContent=fmt(deathsPerSec*ds);
+  document.getElementById('growthToday').textContent=fmt((birthsPerSec-deathsPerSec)*ds);
+  document.getElementById('birthsYear').textContent=fmt(birthsPerSec*ys);
+  document.getElementById('deathsYear').textContent=fmt(deathsPerSec*ys);
+  document.getElementById('growthYear').textContent=fmt((birthsPerSec-deathsPerSec)*ys);
+
+  const shares=buildContinentShares();
+  shares.forEach((s,i)=>{
+    const value=pop*s;
+    document.getElementById('cont'+i).textContent=short(value);
+    document.getElementById('contShare'+i).textContent=(s*100).toFixed(1)+'% of world';
+  });
+
+  state.countries.forEach(c=>{
+    const n=countryPop(c,now);
+    const el=document.getElementById('country-'+c.iso);
+    if(el)el.textContent=fmt(n);
+  });
+
+  document.getElementById('metric0').textContent=short(pop*.24);
+  document.getElementById('metric1').textContent=short(pop*.652);
+  document.getElementById('metric2').textContent=short(pop*.108);
+  document.getElementById('metric3').textContent=short(pop*.586);
+  document.getElementById('metric4').textContent=short(pop*.414);
+  document.getElementById('metric5').textContent='31.1';
+  document.getElementById('metric6').textContent='2.24';
+  document.getElementById('metric7').textContent='73.8';
+  document.getElementById('metric8').textContent=short(pop/149e6);
+  document.getElementById('metric9').textContent='149.0M';
+
+  const annualRate=(w.birthRate-w.deathRate)/1000;
+  document.getElementById('trend0').textContent=(annualRate*100).toFixed(2)+'%';
+  const growth2000=state.world2000?Math.max(0,pop-state.world2000):Math.max(0,pop-2.1e9);
+  document.getElementById('trend1').textContent='+'+short(growth2000);
+  const years=Math.max(0,2050-new Date(now).getUTCFullYear());
+  const projection=pop*Math.exp(annualRate*years);
+  document.getElementById('trend2').textContent=short(projection);
+}
+
+async function bootstrap(){
+  renderShell();
+  try{
+    const [data]=await Promise.all([window.HumanityData.load(),loadRegions()]);
+    state.countries=data.countries||[];
+    state.world=data.world;
+    const wb2000=await fetch('https://api.worldbank.org/v2/country/WLD/indicator/SP.POP.TOTL?format=json&date=2000&per_page=5',{cache:'no-store'});
+    if(wb2000.ok){
+      const j=await wb2000.json(),v=Number(j?.[1]?.[0]?.value);
+      if(Number.isFinite(v))state.world2000=v;
+    }
+    state.ready=true;
+    renderCountries();
+    document.getElementById('status').innerHTML='<span class="status">● LIVE BASELINE • WORLD BANK</span>';
+    update();
+  }catch(e){
+    document.getElementById('status').textContent='Baseline unavailable • retrying';
+    setTimeout(bootstrap,15000);
+  }
+}
+function updateMode(){
+  const portrait=matchMedia('(orientation:portrait)').matches || innerWidth<=820;
+  document.getElementById('modeLabel').textContent=portrait?'PORTRAIT 9:16 STREAM':'LANDSCAPE COMMAND CENTER';
+}
+updateMode();
+addEventListener('resize',updateMode);
+addEventListener('orientationchange',updateMode);
+setInterval(update,1000);
+bootstrap();
+</script>
+</body>
+</html>
