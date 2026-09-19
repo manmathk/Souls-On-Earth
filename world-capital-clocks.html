@@ -3,57 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#08090b" />
   <title>World Capital Clocks</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --obsidian: #0a0807;
-      --obsidian-2: #140f0c;
-      --ember: #ff6a2b;
-      --ember-hot: #ffc257;
+      --ink: #08090b;
+      --ink-2: #0e1014;
+      --ink-3: #15181d;
+      --paper: #f7f1e5;
+      --muted: #a69d8f;
       --gold: #e8b86d;
-      --bone: #f4ecdb;
-      --smoke: #6b6459;
-      --panel: rgba(18, 12, 10, 0.62);
-      --panel-border: rgba(232, 184, 109, 0.25);
-      --shadow: rgba(0, 0, 0, 0.35);
+      --gold-hot: #ffd37a;
+      --ember: #ff6a2b;
+      --line: rgba(232, 184, 109, 0.16);
+      --line-soft: rgba(255, 255, 255, 0.08);
+      --glass: rgba(17, 19, 24, 0.74);
+      --glass-strong: rgba(21, 23, 28, 0.92);
     }
 
     * { box-sizing: border-box; }
 
     html, body {
       margin: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      color: var(--bone);
+      min-width: 100%;
+      min-height: 100%;
+      background: #030405;
+      color: var(--paper);
       font-family: 'JetBrains Mono', monospace;
     }
 
     body {
+      min-height: 100dvh;
       display: grid;
       place-items: center;
       overflow: hidden;
       background:
-        radial-gradient(circle at 50% 120%, rgba(255, 106, 43, 0.18), transparent 30%),
-        radial-gradient(circle at 20% 0%, rgba(232, 184, 109, 0.10), transparent 30%),
-        linear-gradient(180deg, #050505 0%, #0a0807 100%);
+        radial-gradient(circle at 50% -10%, rgba(255, 180, 90, 0.14), transparent 30%),
+        radial-gradient(circle at 90% 100%, rgba(255, 106, 43, 0.12), transparent 34%),
+        radial-gradient(circle at 5% 85%, rgba(113, 88, 54, 0.10), transparent 30%),
+        linear-gradient(180deg, #050607 0%, #090a0d 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 92%);
     }
 
     .stage {
       position: relative;
-      width: 100vw;
-      height: 100dvh;
-      max-width: calc(100dvh * 0.5625);
-      max-height: 100dvh;
-      aspect-ratio: 9 / 16;
+      width: min(1480px, 100vw);
+      height: min(100dvh, 960px);
       overflow: hidden;
       background:
-        linear-gradient(180deg, rgba(20, 15, 12, 0.96) 0%, rgba(8, 8, 8, 0.98) 100%);
+        linear-gradient(180deg, rgba(17, 18, 22, 0.96), rgba(7, 8, 10, 0.99)),
+        var(--ink);
       border: 1px solid rgba(232, 184, 109, 0.12);
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.42);
+      box-shadow:
+        0 30px 100px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+      isolation: isolate;
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255, 200, 120, 0.055), transparent 34%),
+        linear-gradient(115deg, transparent 0 44%, rgba(255,255,255,0.018) 45%, transparent 46%);
+      z-index: 0;
     }
 
     .stage::after {
@@ -61,182 +92,328 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
+      z-index: 9;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.02), transparent 20%, transparent 80%, rgba(255,255,255,0.02)),
-        radial-gradient(circle at center, transparent 58%, rgba(0,0,0,0.22) 100%);
+        linear-gradient(180deg, rgba(255,255,255,0.025), transparent 18%, transparent 82%, rgba(0,0,0,0.28)),
+        radial-gradient(circle at center, transparent 62%, rgba(0,0,0,0.34) 100%);
       mix-blend-mode: screen;
     }
 
-    .fault {
+    .topbar,
+    .hero,
+    .grid-wrap,
+    .footer {
       position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.48;
-      background-image:
-        linear-gradient(118deg, transparent 46%, rgba(255, 140, 60, 0.08) 47%, transparent 48%),
-        linear-gradient(122deg, transparent 49%, rgba(255, 255, 255, 0.04) 50%, transparent 51%),
-        linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.015) 100%);
-      mix-blend-mode: screen;
-    }
-
-    .vignette {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      box-shadow: inset 0 0 140px 40px rgba(0, 0, 0, 0.78);
+      z-index: 4;
     }
 
     .topbar {
-      position: absolute;
       top: 0;
       left: 0;
       right: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: calc(env(safe-area-inset-top, 0px) + 12px) 14px 0;
-      z-index: 3;
+      padding: max(18px, env(safe-area-inset-top, 0px)) 26px 0;
+      gap: 14px;
+    }
+
+    .brand-lockup,
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(232,184,109,0.28);
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,211,122,0.2), transparent 35%),
+        rgba(12,13,16,0.76);
+      box-shadow: inset 0 0 18px rgba(255,255,255,0.03);
+    }
+
+    .brand-mark::before {
+      content: "◎";
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: var(--gold-hot);
+      transform: translateY(-1px);
+    }
+
+    .tag,
+    .global-clock {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      border: 1px solid var(--line);
+      background: rgba(8, 9, 11, 0.68);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
     }
 
     .tag {
-      display: inline-flex;
-      align-items: center;
       gap: 8px;
-      padding: 6px 10px;
-      font-size: 10px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 9px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--bone);
-      background: rgba(10, 8, 7, 0.7);
-      border: 1px solid rgba(232, 184, 109, 0.22);
-      border-radius: 999px;
-      box-shadow: 0 0 18px rgba(0,0,0,0.28);
+      color: var(--paper);
     }
 
     .tag .dot {
-      width: 8px;
-      height: 8px;
-      background: var(--ember);
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      box-shadow: 0 0 10px rgba(255, 106, 43, 0.8);
+      background: #77df86;
+      box-shadow: 0 0 12px rgba(119,223,134,0.7);
+      animation: pulse 1.8s ease-in-out infinite;
     }
 
     .global-clock {
-      padding: 6px 10px;
-      border-radius: 999px;
+      padding: 0 12px;
+      border-radius: 11px;
+      color: var(--gold-hot);
       font-size: 11px;
-      background: rgba(8, 6, 5, 0.72);
-      border: 1px solid rgba(232, 184, 109, 0.15);
-      color: var(--gold);
-      letter-spacing: 0.12em;
-      box-shadow: 0 0 18px rgba(0,0,0,0.24);
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      white-space: nowrap;
     }
 
     .hero {
-      position: absolute;
-      top: 36px;
+      top: 82px;
       left: 0;
       right: 0;
-      z-index: 3;
+      padding: 0 24px;
       text-align: center;
-      padding: 0 18px;
     }
 
     .eyebrow {
-      font-family: 'Cinzel', serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       color: var(--gold);
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
+      font-family: 'Cinzel', serif;
       font-size: 10px;
-      opacity: 0.88;
+      font-weight: 600;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: "";
+      width: clamp(18px, 8vw, 54px);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(232,184,109,0.52));
+    }
+
+    .eyebrow::after {
+      transform: rotate(180deg);
     }
 
     h1 {
-      margin: 7px 0 0;
+      margin: 8px 0 0;
       font-family: 'Bebas Neue', sans-serif;
-      letter-spacing: 0.08em;
-      font-size: clamp(34px, 7vw, 52px);
-      line-height: 0.94;
+      font-size: clamp(42px, 5.6vw, 78px);
       font-weight: 400;
-      color: #f8f0e2;
-      text-shadow: 0 4px 22px rgba(0,0,0,0.38);
+      letter-spacing: 0.085em;
+      line-height: 0.9;
+      color: #fff8ea;
+      text-shadow:
+        0 2px 0 rgba(255,255,255,0.05),
+        0 12px 36px rgba(0,0,0,0.38);
+    }
+
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .hero-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .hero-meta span + span::before {
+      content: "•";
+      color: rgba(232,184,109,0.45);
     }
 
     .grid-wrap {
-      position: absolute;
-      inset: 108px 10px 14px 10px;
-      z-index: 3;
-      overflow: hidden;
+      top: 208px;
+      left: 26px;
+      right: 26px;
+      bottom: 66px;
+      overflow: auto;
+      scrollbar-width: none;
     }
+
+    .grid-wrap::-webkit-scrollbar { display: none; }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
       width: 100%;
-      height: 100%;
-      align-content: start;
+      padding: 2px;
     }
 
     .card {
       position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 7px;
-      min-height: 0;
-      padding: 7px 7px 5px 7px;
-      background: linear-gradient(180deg, rgba(28, 20, 16, 0.42), rgba(11, 10, 9, 0.26));
-      border: 1px solid rgba(232, 184, 109, 0.12);
-      border-radius: 16px;
+      min-width: 0;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(30, 29, 27, 0.54), rgba(11, 12, 15, 0.78));
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.03),
-        inset 0 0 0 1px rgba(255,255,255,0.02),
-        0 10px 18px rgba(0,0,0,0.15);
+        inset 0 1px 0 rgba(255,255,255,0.035),
+        inset 0 0 0 1px rgba(255,255,255,0.018),
+        0 16px 32px rgba(0,0,0,0.18);
+      overflow: hidden;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 25% 0%, rgba(255,211,122,0.09), transparent 38%),
+        linear-gradient(135deg, transparent 0 58%, rgba(255,106,43,0.035));
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(232,184,109,0.32);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 20px 38px rgba(0,0,0,0.28),
+        0 0 0 1px rgba(232,184,109,0.05);
+    }
+
+    .card-head,
+    .card-body,
+    .meta {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 22px;
+    }
+
+    .index {
+      color: rgba(232,184,109,0.55);
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .state {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.18);
+      color: #bfb7aa;
+      font-size: 7px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .state::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #f3c977;
+      box-shadow: 0 0 8px rgba(243,201,119,0.42);
+    }
+
+    .card[data-night="true"] .state::before {
+      background: #9da9c7;
+      box-shadow: 0 0 8px rgba(157,169,199,0.5);
     }
 
     .flag {
       position: relative;
+      margin-top: 8px;
       width: 100%;
-      aspect-ratio: 1.08;
-      border-radius: 12px;
+      aspect-ratio: 1.18;
+      border-radius: 14px;
       overflow: hidden;
       background: var(--flag-bg);
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: inset 0 0 18px rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow:
+        inset 0 0 24px rgba(0,0,0,0.16),
+        0 10px 20px rgba(0,0,0,0.15);
+      isolation: isolate;
     }
 
     .flag::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.14));
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.13), transparent 34%, rgba(0,0,0,0.15) 100%),
+        linear-gradient(125deg, rgba(255,255,255,0.05), transparent 34%, rgba(255,255,255,0.02) 70%);
       pointer-events: none;
+      z-index: 2;
     }
 
     .flag::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.04), transparent 50%, rgba(0,0,0,0.06));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: inherit;
       pointer-events: none;
+      z-index: 4;
     }
 
     .clock-face {
       position: absolute;
       left: 50%;
       top: 50%;
-      width: 58%;
-      height: 58%;
+      width: 57%;
+      aspect-ratio: 1;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      background: rgba(9, 10, 12, 0.22);
-      border: 2px solid rgba(255,255,255,0.75);
+      border: 2px solid rgba(255,255,255,0.78);
+      background: radial-gradient(circle at 34% 28%, rgba(255,255,255,0.14), rgba(10,11,14,0.26) 56%, rgba(4,5,6,0.42) 100%);
       box-shadow:
-        inset 0 0 0 2px rgba(0,0,0,0.15),
-        0 0 18px rgba(255,255,255,0.10),
-        inset 0 0 28px rgba(0,0,0,0.22);
-      backdrop-filter: blur(0.5px);
+        inset 0 0 0 3px rgba(0,0,0,0.14),
+        inset 0 0 30px rgba(0,0,0,0.3),
+        0 0 22px rgba(255,255,255,0.09);
+      backdrop-filter: blur(1px);
+      -webkit-backdrop-filter: blur(1px);
+      z-index: 3;
     }
 
     .clock-face::before {
@@ -245,7 +422,7 @@
       inset: 9%;
       border-radius: 50%;
       border: 1px solid rgba(255,255,255,0.15);
-      background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.05) 58%, rgba(0,0,0,0.16) 75%, transparent 76%);
+      background: radial-gradient(circle, rgba(255,255,255,0.08), rgba(255,255,255,0.02) 58%, transparent 60%);
     }
 
     .tick {
@@ -253,15 +430,14 @@
       left: 50%;
       top: 50%;
       width: 2px;
-      height: 10.5%;
+      height: 10%;
       margin-left: -1px;
-      margin-top: -5.25%;
+      margin-top: -5%;
       border-radius: 999px;
-      background: rgba(255,255,255,0.72);
-      transform-origin: center 200%;
+      background: rgba(255,255,255,0.68);
+      transform-origin: 50% 200%;
       transform: translate(-50%, -50%) rotate(var(--angle));
-      box-shadow: 0 0 4px rgba(255,255,255,0.15);
-      opacity: 0.9;
+      box-shadow: 0 0 4px rgba(255,255,255,0.16);
     }
 
     .hand {
@@ -269,30 +445,30 @@
       left: 50%;
       bottom: 50%;
       transform-origin: 50% 100%;
-      border-radius: 999px;
       transform: translateX(-50%) rotate(var(--rotation));
-      box-shadow: 0 0 4px rgba(0,0,0,0.18);
+      border-radius: 999px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.18);
     }
 
     .hour {
       width: 4px;
       height: 25%;
-      background: rgba(17, 17, 18, 0.96);
-      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(10, 11, 13, 0.96);
+      border: 1px solid rgba(255,255,255,0.24);
     }
 
     .minute {
       width: 3px;
       height: 34%;
-      background: rgba(17, 17, 18, 0.9);
+      background: rgba(10, 11, 13, 0.93);
       border: 1px solid rgba(255,255,255,0.18);
     }
 
     .second {
       width: 2px;
       height: 40%;
-      background: rgba(255, 205, 118, 0.95);
-      box-shadow: 0 0 8px rgba(255, 205, 118, 0.5);
+      background: var(--gold-hot);
+      box-shadow: 0 0 9px rgba(255,211,122,0.56);
     }
 
     .center {
@@ -301,67 +477,242 @@
       top: 50%;
       width: 10px;
       height: 10px;
-      margin-left: -5px;
-      margin-top: -5px;
+      margin: -5px 0 0 -5px;
       border-radius: 50%;
-      background: rgba(17, 17, 18, 0.95);
-      border: 1px solid rgba(255,255,255,0.5);
-      box-shadow: 0 0 8px rgba(255,255,255,0.18);
+      background: rgba(10,11,13,0.96);
+      border: 1px solid rgba(255,255,255,0.52);
+      box-shadow: 0 0 8px rgba(255,255,255,0.17);
+    }
+
+    .card-body {
+      padding: 10px 2px 2px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: end;
     }
 
     .meta {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      text-align: center;
-      padding: 0 4px 3px;
+      min-width: 0;
     }
 
     .city {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(18px, 3vw, 22px);
-      line-height: 1;
-      letter-spacing: 0.06em;
+      font-size: clamp(20px, 2vw, 28px);
+      line-height: 0.92;
+      letter-spacing: 0.07em;
+      color: var(--paper);
+      text-shadow: 0 4px 14px rgba(0,0,0,0.22);
       text-transform: uppercase;
-      color: var(--bone);
-      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
 
     .country {
-      font-size: 8px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      opacity: 0.82;
+      margin-top: 5px;
       color: var(--gold);
+      opacity: 0.9;
+      font-size: 7px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .digital {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .digital-time {
+      color: #fff7e9;
+      font-size: clamp(14px, 1.55vw, 18px);
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.035em;
+    }
+
+    .offset {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 7px;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .footer {
+      left: 26px;
+      right: 26px;
+      bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: rgba(166,157,143,0.72);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .footer strong {
+      color: rgba(232,184,109,0.84);
+      font-weight: 500;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.92); opacity: 0.72; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    @media (max-width: 1050px) {
+      .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid-wrap { top: 194px; }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .stage {
+        width: 100vw;
+        height: 100dvh;
+        border: 0;
+        border-radius: 0;
+      }
+
+      .topbar {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .brand-mark {
+        width: 31px;
+        height: 31px;
+        border-radius: 10px;
+      }
+
+      .hero {
+        top: 70px;
+      }
+
+      .hero-meta {
+        font-size: 8px;
+      }
+
+      .grid-wrap {
+        top: 160px;
+        left: 12px;
+        right: 12px;
+        bottom: 52px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+      }
+
+      .card {
+        padding: 7px;
+        border-radius: 14px;
+      }
+
+      .flag {
+        margin-top: 6px;
+        border-radius: 11px;
+      }
+
+      .card-body {
+        padding-top: 8px;
+        gap: 6px;
+      }
+
+      .city {
+        font-size: clamp(17px, 5.5vw, 23px);
+      }
+
+      .digital-time {
+        font-size: clamp(12px, 4vw, 16px);
+      }
+
+      .footer {
+        left: 14px;
+        right: 14px;
+        bottom: 12px;
+        font-size: 7px;
+      }
     }
 
     @media (max-width: 360px) {
-      .grid { gap: 8px; }
-      .tag { letter-spacing: 0.15em; }
-      .country { letter-spacing: 0.1em; }
+      .brand-lockup .tag {
+        display: none;
+      }
+
+      .global-clock {
+        font-size: 10px;
+        padding: 0 9px;
+      }
+
+      .grid {
+        gap: 7px;
+      }
+
+      .card-head {
+        min-height: 18px;
+      }
+
+      .state,
+      .index {
+        font-size: 6px;
+      }
+
+      .country,
+      .offset {
+        font-size: 6px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+      }
     }
   </style>
 </head>
-<body>
-  <div class="stage" aria-label="World capital clocks">
-    <div class="fault"></div>
-    <div class="vignette"></div>
 
+<body>
+  <main class="stage" aria-label="Live world capital clocks">
     <header class="topbar">
-      <div class="tag"><span class="dot"></span> Live</div>
-      <div class="global-clock" id="globalClock">--:--:--</div>
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="tag"><span class="dot"></span> Live world time</div>
+      </div>
+      <div class="top-actions">
+        <div class="global-clock" id="globalClock" aria-live="polite">UTC --:--:--</div>
+      </div>
     </header>
 
-    <div class="hero">
+    <section class="hero">
       <div class="eyebrow">Souls on Earth</div>
       <h1>WORLD CAPITALS</h1>
-    </div>
+      <div class="hero-meta">
+        <span>12 capitals</span>
+        <span>local time</span>
+        <span>auto synchronised</span>
+      </div>
+    </section>
 
     <div class="grid-wrap">
-      <div class="grid" id="cardGrid"></div>
+      <section class="grid" id="cardGrid"></section>
     </div>
-  </div>
+
+    <footer class="footer">
+      <span><strong>GLOBAL CLOCK GRID</strong> · live local times</span>
+      <span>24 / 7</span>
+    </footer>
+  </main>
 
   <script>
     const capitals = [
@@ -381,25 +732,32 @@
 
     const grid = document.getElementById('cardGrid');
     const globalClock = document.getElementById('globalClock');
+    const shortTime = new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23'
+    });
 
     function makeTickMarks() {
       const marks = [];
       for (let i = 0; i < 12; i += 1) {
         const tick = document.createElement('span');
         tick.className = 'tick';
-        tick.style.setProperty('--angle', `${i * 30}deg`);
+        tick.style.setProperty('--angle', i * 30 + 'deg');
         marks.push(tick);
       }
       return marks;
     }
 
     function timeParts(zone) {
-      const parts = new Intl.DateTimeFormat('en-US', {
+      const parts = new Intl.DateTimeFormat('en-GB', {
         timeZone: zone,
         hour12: false,
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
+        second: '2-digit',
+        timeZoneName: 'shortOffset'
       }).formatToParts(new Date());
 
       const values = {};
@@ -410,13 +768,27 @@
       return {
         hour: Number(values.hour),
         minute: Number(values.minute),
-        second: Number(values.second)
+        second: Number(values.second),
+        offset: values.timeZoneName || ''
       };
     }
 
-    function buildCard(item) {
+    function makeText(className, text) {
+      const element = document.createElement('div');
+      element.className = className;
+      element.textContent = text;
+      return element;
+    }
+
+    function buildCard(item, index) {
       const article = document.createElement('article');
       article.className = 'card';
+
+      const head = document.createElement('div');
+      head.className = 'card-head';
+      const indexLabel = makeText('index', String(index + 1).padStart(2, '0'));
+      const state = makeText('state', 'local time');
+      head.append(indexLabel, state);
 
       const flag = document.createElement('div');
       flag.className = 'flag';
@@ -424,6 +796,7 @@
 
       const clockFace = document.createElement('div');
       clockFace.className = 'clock-face';
+
       makeTickMarks().forEach((mark) => clockFace.appendChild(mark));
 
       const hour = document.createElement('span');
@@ -444,50 +817,63 @@
       clockFace.append(hour, minute, second, center);
       flag.appendChild(clockFace);
 
+      const body = document.createElement('div');
+      body.className = 'card-body';
+
       const meta = document.createElement('div');
       meta.className = 'meta';
+      meta.append(
+        makeText('city', item.city),
+        makeText('country', item.country)
+      );
 
-      const city = document.createElement('div');
-      city.className = 'city';
-      city.textContent = item.city;
+      const digital = document.createElement('div');
+      digital.className = 'digital';
+      const digitalTime = makeText('digital-time', '--:--:--');
+      const offset = makeText('offset', item.zone);
+      digital.append(digitalTime, offset);
 
-      const country = document.createElement('div');
-      country.className = 'country';
-      country.textContent = item.country;
-
-      meta.append(city, country);
-      article.append(flag, meta);
+      body.append(meta, digital);
+      article.append(head, flag, body);
 
       article._zone = item.zone;
       article._hands = { hour, minute, second };
+      article._digitalTime = digitalTime;
+      article._offset = offset;
+
       return article;
     }
 
     function updateCard(card) {
-      const { hour, minute, second } = timeParts(card._zone);
+      const { hour, minute, second, offset } = timeParts(card._zone);
       const hourRotation = ((hour % 12) + minute / 60 + second / 3600) * 30;
       const minuteRotation = (minute + second / 60) * 6;
       const secondRotation = second * 6;
 
-      card._hands.hour.style.setProperty('--rotation', `${hourRotation}deg`);
-      card._hands.minute.style.setProperty('--rotation', `${minuteRotation}deg`);
-      card._hands.second.style.setProperty('--rotation', `${secondRotation}deg`);
+      card._hands.hour.style.setProperty('--rotation', hourRotation + 'deg');
+      card._hands.minute.style.setProperty('--rotation', minuteRotation + 'deg');
+      card._hands.second.style.setProperty('--rotation', secondRotation + 'deg');
+
+      card._digitalTime.textContent =
+        String(hour).padStart(2, '0') + ':' +
+        String(minute).padStart(2, '0') + ':' +
+        String(second).padStart(2, '0');
+
+      card._offset.textContent = offset || card._zone;
+      card.dataset.night = String(hour < 6 || hour >= 18);
     }
 
     function formatUtcTime() {
-      const now = new Date();
-      return now.toLocaleTimeString('en-US', { hour12: false });
+      return 'UTC ' + shortTime.format(new Date());
     }
 
     function render() {
       globalClock.textContent = formatUtcTime();
-      for (const card of grid.children) {
-        updateCard(card);
-      }
+      for (const card of grid.children) updateCard(card);
     }
 
-    capitals.forEach((item) => {
-      grid.appendChild(buildCard(item));
+    capitals.forEach((item, index) => {
+      grid.appendChild(buildCard(item, index));
     });
 
     render();
