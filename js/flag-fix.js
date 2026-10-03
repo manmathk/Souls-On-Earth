@@ -32,4 +32,45 @@
   document.head.appendChild(style);
   function start(){replaceFlags();new MutationObserver(replaceFlags).observe(document.body,{childList:true,subtree:true});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+
+  // Top 24 standalone page: rotate through every unique root-level music track.
+  // Voice narration files under /voice are intentionally excluded.
+  if(document.title.includes('Top 24 Live Population')){
+    const audio=document.getElementById('audio'),button=document.getElementById('music');
+    if(audio&&button){
+      const tracks=[
+        'Cathedral of Stars.mp3','Experience.mp3','Faith build up.mp3','Felt Keys for Marchers.mp3',
+        'Gentle+Dreams (1).mp3','Gentle+Dreams.mp3','Midnight_Highway_Run.mp3',
+        'Through+the+Foggy+Gates.mp3','Warriyo, LXNGVX - Mortals Funk Remix [NCS Release].mp3','hw 1.mp3'
+      ].map(name=>({name,url:new URL('./'+encodeURIComponent(name),document.baseURI).href}));
+      let index=Math.max(0,Number(localStorage.getItem('top24-track-index'))||0);
+      let advancing=false;
+      audio.loop=false;
+      audio.volume=.25;
+      function setTrack(i){
+        index=(i+tracks.length)%tracks.length;
+        const t=tracks[index];
+        audio.src=t.url;
+        audio.load();
+        button.title='Play: '+t.name;
+      }
+      function next(){
+        if(advancing)return;
+        advancing=true;
+        index=(index+1)%tracks.length;
+        localStorage.setItem('top24-track-index',String(index));
+        setTrack(index);
+        if(localStorage.getItem('top24-music')==='on'){
+          const p=audio.play();
+          if(p)p.catch(()=>{}).finally(()=>{advancing=false});
+          else advancing=false;
+        }else advancing=false;
+      }
+      audio.addEventListener('ended',next);
+      audio.addEventListener('error',()=>{setTimeout(next,250)});
+      audio.addEventListener('play',()=>{button.textContent='🔊';button.title='Pause: '+tracks[index].name;localStorage.setItem('top24-music','on');localStorage.setItem('top24-track-index',String(index));});
+      audio.addEventListener('pause',()=>{if(!audio.ended)button.textContent='♫'});
+      setTrack(index);
+    }
+  }
 })();
