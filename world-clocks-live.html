@@ -3,311 +3,56 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07090d">
-<title>Souls On Earth — World Clock Live</title>
+<meta name="theme-color" content="#05070a">
+<title>Souls On Earth — World Clock</title>
 <style>
 *{box-sizing:border-box}
-:root{
-  --bg:#07090d;--panel:#10141b;--panel2:#151b24;--text:#f7f3ea;--muted:#9aa4b2;
-  --gold:#f2c36b;--gold2:#ffe3a4;--line:rgba(255,255,255,.11);--glass:rgba(10,13,18,.68)
-}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-body{display:flex;justify-content:center}
-.app{width:100%;height:100dvh;max-width:1200px;display:flex;flex-direction:column;overflow:hidden;background:
-  radial-gradient(circle at 50% -10%,rgba(242,195,107,.13),transparent 28%),
-  linear-gradient(180deg,#0a0d12 0%,#06080b 100%)}
-header{height:58px;flex:0 0 58px;display:flex;align-items:center;justify-content:space-between;padding:7px 13px;border-bottom:1px solid var(--line)}
-.brand{font-size:16px;font-weight:900;letter-spacing:1px}
-.sub{margin-top:2px;font-size:8px;color:var(--muted);letter-spacing:.9px;text-transform:uppercase}
-.utc{font-size:13px;font-weight:900;color:var(--gold2);font-variant-numeric:tabular-nums;white-space:nowrap}
-.hero{flex:0 0 auto;text-align:center;padding:7px 12px 8px;border-bottom:1px solid rgba(255,255,255,.07)}
-.kicker{font-size:8px;font-weight:900;color:var(--gold);letter-spacing:1.8px;text-transform:uppercase}
-h1{margin:4px 0 3px;font-size:clamp(27px,5vw,54px);line-height:.88;letter-spacing:3px}
-.hero-meta{font-size:8px;color:var(--muted);letter-spacing:.9px;text-transform:uppercase}
-.grid{
-  flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  grid-template-rows:repeat(4,minmax(0,1fr));gap:6px;padding:7px;overflow:hidden
-}
-.card{
-  position:relative;min-width:0;min-height:0;overflow:hidden;border:1px solid rgba(255,255,255,.13);border-radius:11px;
-  background:linear-gradient(145deg,#171d27,#0b0e13 70%);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 20px rgba(0,0,0,.23)
-}
-.card:before{
-  content:"";position:absolute;inset:0;background:
-  radial-gradient(circle at 25% 20%,rgba(255,255,255,.07),transparent 28%),
-  linear-gradient(180deg,rgba(255,255,255,.035),transparent 30%,rgba(0,0,0,.18) 100%)
-}
-.watermark{position:absolute;right:-6px;bottom:-10px;font-size:clamp(70px,15vw,145px);opacity:.09;filter:grayscale(1);transform:rotate(-8deg)}
-.content{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;padding:7px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:6px}
-.rank{font-size:7px;font-weight:900;color:var(--gold);letter-spacing:1px}
-.badges{display:flex;gap:4px;align-items:center}
-.badge{padding:3px 6px;border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(0,0,0,.23);font-size:6px;color:#e9edf2;letter-spacing:.7px;text-transform:uppercase}
-.flag-badge{font-size:14px;line-height:1;padding:1px 3px;border:1px solid rgba(255,255,255,.13);border-radius:6px;background:rgba(0,0,0,.25)}
-.clock{
-  width:min(58%,190px);aspect-ratio:1;position:relative;margin:auto;border-radius:50%;
-  border:2px solid rgba(255,255,255,.88);
-  background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.2),rgba(16,20,27,.72) 55%,rgba(3,5,8,.96) 100%);
-  box-shadow:inset 0 0 0 3px rgba(0,0,0,.18),inset 0 0 25px rgba(0,0,0,.4),0 0 18px rgba(255,255,255,.06)
-}
-.clock:before{content:"";position:absolute;inset:9%;border:1px solid rgba(255,255,255,.16);border-radius:50%}
-.num{position:absolute;font-size:clamp(7px,1vw,11px);font-weight:900;color:rgba(255,255,255,.72);transform:translate(-50%,-50%)}
-.n12{left:50%;top:10%}.n3{left:90%;top:50%}.n6{left:50%;top:90%}.n9{left:10%;top:50%}
-.tick{position:absolute;left:50%;top:50%;width:2px;height:8%;border-radius:2px;background:rgba(255,255,255,.72);transform-origin:50% 200%;transform:translate(-50%,-50%) rotate(var(--a))}
-.hand{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;transform:translateX(-50%) rotate(var(--r));border-radius:99px}
-.hr{width:4px;height:25%;background:#101216;border:1px solid rgba(255,255,255,.24)}
-.mn{width:3px;height:34%;background:#0d1014;border:1px solid rgba(255,255,255,.2)}
-.sc{width:2px;height:40%;background:var(--gold2);box-shadow:0 0 9px rgba(255,211,122,.65)}
-.pin{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:#11151a;border:1px solid rgba(255,255,255,.68)}
-.bottom{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:end}
-.city{font-size:clamp(15px,2.7vw,28px);font-weight:900;line-height:.95;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.country{margin-top:3px;color:var(--gold);font-size:6px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.timebox{text-align:right}
-.time{font-size:clamp(16px,3vw,31px);font-weight:900;line-height:.95;font-variant-numeric:tabular-nums;white-space:nowrap}
-.day{margin-top:3px;color:#c6cdd6;font-size:6px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
-.offset{margin-top:2px;color:var(--muted);font-size:6px;white-space:nowrap}
-.controls{position:relative;flex:0 0 auto;height:31px;border-top:1px solid rgba(255,255,255,.06);padding:0 9px;display:flex;align-items:center;justify-content:space-between}
-.next{font-size:6px;color:var(--muted);letter-spacing:.7px;text-transform:uppercase}
-.progress{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.06)}
-.progress i{display:block;height:100%;width:100%;background:var(--gold);transform-origin:left center}
-.music{border:1px solid var(--line);background:#11161e;color:var(--text);border-radius:7px;width:27px;height:23px;font-size:13px;cursor:pointer}
-.swap{animation:swapIn .45s ease both}
-@keyframes swapIn{from{opacity:0;transform:scale(.985) translateY(6px)}to{opacity:1;transform:none}}
-@media (min-aspect-ratio:1.1/1){
-  .grid{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}
-}
-@media (max-width:520px){
-  header{height:51px;flex-basis:51px;padding:6px 9px}.brand{font-size:13px}.sub{font-size:6.5px}.utc{font-size:10px}
-  .hero{padding:6px 8px 7px}.kicker{font-size:7px;letter-spacing:1.4px}h1{font-size:28px;letter-spacing:2px}.hero-meta{font-size:6.5px}
-  .grid{gap:4px;padding:4px}.card{border-radius:8px}.content{padding:5px}.clock{width:58%}
-  .city{font-size:clamp(13px,4.2vw,18px)}.country{font-size:5.5px}.time{font-size:clamp(13px,4vw,18px)}.day,.offset,.rank,.badge{font-size:5px}.flag-badge{font-size:12px}
-  .controls{height:27px}.music{width:25px;height:21px;font-size:12px}
-}
-@media (max-width:390px){
-  .grid{gap:3px;padding:3px}.content{padding:4px}.clock{width:60%}.city{font-size:12px}.time{font-size:13px}.hero-meta{font-size:6px}
-}
-@media (prefers-reduced-motion:reduce){.swap{animation:none}}
+:root{--bg:#05070a;--card:#11161d;--card2:#0b0f14;--text:#f7f5ef;--muted:#8f98a5;--gold:#f4c96b;--gold2:#ffe5a8;--line:rgba(255,255,255,.14)}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{display:flex;justify-content:center}.app{width:100%;height:100dvh;max-width:1200px;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(circle at 50% -15%,rgba(244,201,107,.11),transparent 30%),#05070a}
+.header{height:58px;flex:0 0 58px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--line)}
+.brand{font-size:15px;font-weight:900;letter-spacing:1.8px}.tag{font-size:8px;color:var(--muted);letter-spacing:1.2px;margin-top:2px;text-transform:uppercase}.utc{font-size:15px;font-weight:900;color:var(--gold2);font-variant-numeric:tabular-nums}
+.hero{height:91px;flex:0 0 91px;text-align:center;padding:9px 10px 7px;border-bottom:1px solid rgba(255,255,255,.08)}
+.set{font-size:9px;color:var(--gold);font-weight:900;letter-spacing:2.2px;text-transform:uppercase}.hero h1{margin:3px 0 3px;font-size:clamp(31px,6vw,58px);line-height:.9;letter-spacing:4px}.hero p{margin:0;color:var(--muted);font-size:8px;letter-spacing:1.4px;text-transform:uppercase}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:6px;padding:6px;overflow:hidden}
+.card{position:relative;min-width:0;min-height:0;overflow:hidden;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:linear-gradient(145deg,#171d26 0%,#0a0e13 100%);box-shadow:0 7px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06)}
+.card:after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.035),transparent 42%,rgba(0,0,0,.25));pointer-events:none}.flag-bg{position:absolute;right:-28px;bottom:-18px;font-size:clamp(100px,22vw,210px);line-height:1;opacity:.075;filter:saturate(.8) grayscale(.15);transform:rotate(-8deg);pointer-events:none}
+.card-inner{position:absolute;inset:0;z-index:2;padding:8px 9px 7px;display:grid;grid-template-rows:auto 1fr auto;min-height:0}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:7px}.city-wrap{min-width:0}.city{font-size:clamp(14px,2.8vw,22px);font-weight:900;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.country{margin-top:3px;font-size:6.5px;color:var(--muted);font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.head-right{display:flex;align-items:center;gap:5px;flex-shrink:0}.flag{font-size:17px;line-height:1;padding:4px 6px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(0,0,0,.22)}.state{font-size:6.5px;letter-spacing:1px;font-weight:900;color:#dce2ea;border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 7px;text-transform:uppercase}
+.clock-wrap{min-height:0;display:flex;align-items:center;justify-content:center}.clock{position:relative;width:min(47%,175px);aspect-ratio:1;border-radius:50%;border:3px solid rgba(255,255,255,.9);background:radial-gradient(circle at 36% 28%,#303741 0,#181d24 43%,#090c10 100%);box-shadow:inset 0 0 0 4px rgba(0,0,0,.28),inset 0 0 28px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.08),0 7px 18px rgba(0,0,0,.3)}
+.clock:before{content:"";position:absolute;inset:8%;border:1px solid rgba(255,255,255,.16);border-radius:50%}.clock:after{content:"";position:absolute;inset:15%;border-radius:50%;background:radial-gradient(circle,transparent 0 62%,rgba(255,255,255,.025) 63% 64%,transparent 65%)}
+.num{position:absolute;transform:translate(-50%,-50%);font-size:clamp(8px,1.4vw,12px);font-weight:900;color:#e9edf2;text-shadow:0 1px 2px #000}.n12{left:50%;top:10%}.n3{left:90%;top:50%}.n6{left:50%;top:90%}.n9{left:10%;top:50%}
+.tick{position:absolute;left:50%;top:50%;width:1px;height:6%;background:rgba(255,255,255,.34);transform-origin:50% 50%;border-radius:1px}.tick.major{height:8%;width:2px;background:rgba(255,255,255,.55)}
+.hand{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;transform:translateX(-50%) rotate(var(--r));border-radius:99px;z-index:4}.hr{width:5px;height:25%;background:#f4f5f2;box-shadow:0 0 3px #000}.mn{width:4px;height:35%;background:#ffffff;box-shadow:0 0 3px #000}.sc{width:2px;height:40%;background:var(--gold2);box-shadow:0 0 8px rgba(255,220,145,.7)}.pin{position:absolute;left:50%;top:50%;width:11px;height:11px;margin:-5.5px;border-radius:50%;background:#090b0e;border:2px solid #f1f3ef;z-index:6}
+.card-foot{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:6px}.digital{font-size:clamp(17px,3.8vw,29px);font-weight:950;line-height:.95;letter-spacing:.2px;font-variant-numeric:tabular-nums;white-space:nowrap}.date{margin-top:4px;font-size:6.5px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase}.zone{text-align:right;color:var(--gold);font-size:6.5px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;white-space:nowrap}.offset{margin-top:3px;color:var(--muted);font-size:6px}
+.footer{height:31px;flex:0 0 31px;position:relative;display:flex;align-items:center;justify-content:space-between;padding:0 11px;border-top:1px solid rgba(255,255,255,.08)}.next{font-size:7px;color:var(--muted);font-weight:800;letter-spacing:1px;text-transform:uppercase}.music{width:28px;height:23px;border:1px solid var(--line);border-radius:8px;background:#10151c;color:#fff;font-size:13px}.bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.06)}.bar i{display:block;height:100%;width:100%;background:var(--gold)}
+.swap{animation:swap .38s ease both}@keyframes swap{from{opacity:0;transform:translateY(5px) scale(.99)}to{opacity:1;transform:none}}
+@media(min-aspect-ratio:1.1/1){.grid{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.header{height:52px;flex-basis:52px;padding:0 11px}.brand{font-size:13px}.tag{font-size:6.5px}.utc{font-size:11px}.hero{height:78px;flex-basis:78px;padding:7px 6px}.set{font-size:7px}.hero h1{font-size:29px;letter-spacing:2.5px}.hero p{font-size:6.5px;letter-spacing:.8px}.grid{gap:5px;padding:5px}.card{border-radius:10px}.card-inner{padding:7px 8px 6px}.city{font-size:clamp(13px,4vw,17px)}.country{font-size:5.5px}.flag{font-size:14px;padding:3px 5px}.state{font-size:5.5px;padding:4px 6px}.clock{width:min(50%,150px);border-width:2px}.digital{font-size:clamp(14px,4.2vw,19px)}.date,.zone,.offset{font-size:5px}.footer{height:27px;flex-basis:27px}.next{font-size:6px}}
+@media(max-width:390px){.grid{gap:4px;padding:4px}.card-inner{padding:6px}.clock{width:min(48%,130px)}.city{font-size:12px}.digital{font-size:14px}.hero{height:72px;flex-basis:72px}}
+@media(prefers-reduced-motion:reduce){.swap{animation:none}}
 </style>
 </head>
 <body>
 <main class="app">
-<header>
-  <div><div class="brand">SOULS ON EARTH</div><div class="sub">WORLD CLOCK • 8 CITIES PER SET</div></div>
-  <div class="utc" id="utc">UTC --:--:--</div>
-</header>
-<section class="hero">
-  <div class="kicker" id="iteration">SET 01 / 15</div>
-  <h1>WORLD CLOCK</h1>
-  <div class="hero-meta">8 cities • local time • synchronized every second</div>
-</section>
-<section class="grid" id="grid" aria-label="Eight live world clocks"></section>
-<div class="controls">
-  <div class="next" id="next">NEXT SET IN 10s</div>
-  <button class="music" id="music" type="button" aria-label="Toggle background music">♫</button>
-  <div class="progress"><i id="progress"></i></div>
-</div>
+<header class="header"><div><div class="brand">SOULS ON EARTH</div><div class="tag">LIVE WORLD CLOCKS • 8 CITIES</div></div><div class="utc" id="utc">UTC --:--:--</div></header>
+<section class="hero"><div class="set" id="setLabel">SET 01 / 10</div><h1>WORLD CLOCK</h1><p>8 cities • local time • synchronized every second</p></section>
+<section class="grid" id="grid" aria-label="Live world clock grid"></section>
+<footer class="footer"><div class="next" id="next">NEXT SET IN 10s</div><button class="music" id="music" aria-label="Toggle music">♫</button><div class="bar"><i id="progress"></i></div></footer>
 </main>
-
 <audio id="audio" preload="auto" loop></audio>
-
 <script>
-const CITIES=[
-{city:"Vancouver",country:"Canada",zone:"America/Vancouver",flag:"🇨🇦"},
-{city:"Los Angeles",country:"USA",zone:"America/Los_Angeles",flag:"🇺🇸"},
-{city:"Mexico City",country:"Mexico",zone:"America/Mexico_City",flag:"🇲🇽"},
-{city:"New York",country:"USA",zone:"America/New_York",flag:"🇺🇸"},
-{city:"Toronto",country:"Canada",zone:"America/Toronto",flag:"🇨🇦"},
-{city:"São Paulo",country:"Brazil",zone:"America/Sao_Paulo",flag:"🇧🇷"},
-{city:"Buenos Aires",country:"Argentina",zone:"America/Argentina/Buenos_Aires",flag:"🇦🇷"},
-{city:"Santiago",country:"Chile",zone:"America/Santiago",flag:"🇨🇱"},
-
-{city:"Anchorage",country:"USA",zone:"America/Anchorage",flag:"🇺🇸"},
-{city:"Honolulu",country:"USA",zone:"Pacific/Honolulu",flag:"🇺🇸"},
-{city:"Lima",country:"Peru",zone:"America/Lima",flag:"🇵🇪"},
-{city:"Bogotá",country:"Colombia",zone:"America/Bogota",flag:"🇨🇴"},
-{city:"Panama City",country:"Panama",zone:"America/Panama",flag:"🇵🇦"},
-{city:"Caracas",country:"Venezuela",zone:"America/Caracas",flag:"🇻🇪"},
-{city:"Rio de Janeiro",country:"Brazil",zone:"America/Sao_Paulo",flag:"🇧🇷"},
-{city:"Montevideo",country:"Uruguay",zone:"America/Montevideo",flag:"🇺🇾"},
-
-{city:"Reykjavik",country:"Iceland",zone:"Atlantic/Reykjavik",flag:"🇮🇸"},
-{city:"London",country:"United Kingdom",zone:"Europe/London",flag:"🇬🇧"},
-{city:"Dublin",country:"Ireland",zone:"Europe/Dublin",flag:"🇮🇪"},
-{city:"Lisbon",country:"Portugal",zone:"Europe/Lisbon",flag:"🇵🇹"},
-{city:"Madrid",country:"Spain",zone:"Europe/Madrid",flag:"🇪🇸"},
-{city:"Paris",country:"France",zone:"Europe/Paris",flag:"🇫🇷"},
-{city:"Amsterdam",country:"Netherlands",zone:"Europe/Amsterdam",flag:"🇳🇱"},
-{city:"Brussels",country:"Belgium",zone:"Europe/Brussels",flag:"🇧🇪"},
-
-{city:"Berlin",country:"Germany",zone:"Europe/Berlin",flag:"🇩🇪"},
-{city:"Copenhagen",country:"Denmark",zone:"Europe/Copenhagen",flag:"🇩🇰"},
-{city:"Stockholm",country:"Sweden",zone:"Europe/Stockholm",flag:"🇸🇪"},
-{city:"Oslo",country:"Norway",zone:"Europe/Oslo",flag:"🇳🇴"},
-{city:"Helsinki",country:"Finland",zone:"Europe/Helsinki",flag:"🇫🇮"},
-{city:"Warsaw",country:"Poland",zone:"Europe/Warsaw",flag:"🇵🇱"},
-{city:"Prague",country:"Czechia",zone:"Europe/Prague",flag:"🇨🇿"},
-{city:"Vienna",country:"Austria",zone:"Europe/Vienna",flag:"🇦🇹"},
-
-{city:"Rome",country:"Italy",zone:"Europe/Rome",flag:"🇮🇹"},
-{city:"Athens",country:"Greece",zone:"Europe/Athens",flag:"🇬🇷"},
-{city:"Istanbul",country:"Türkiye",zone:"Europe/Istanbul",flag:"🇹🇷"},
-{city:"Bucharest",country:"Romania",zone:"Europe/Bucharest",flag:"🇷🇴"},
-{city:"Sofia",country:"Bulgaria",zone:"Europe/Sofia",flag:"🇧🇬"},
-{city:"Kyiv",country:"Ukraine",zone:"Europe/Kyiv",flag:"🇺🇦"},
-{city:"Moscow",country:"Russia",zone:"Europe/Moscow",flag:"🇷🇺"},
-{city:"Tbilisi",country:"Georgia",zone:"Asia/Tbilisi",flag:"🇬🇪"},
-
-{city:"Casablanca",country:"Morocco",zone:"Africa/Casablanca",flag:"🇲🇦"},
-{city:"Dakar",country:"Senegal",zone:"Africa/Dakar",flag:"🇸🇳"},
-{city:"Accra",country:"Ghana",zone:"Africa/Accra",flag:"🇬🇭"},
-{city:"Lagos",country:"Nigeria",zone:"Africa/Lagos",flag:"🇳🇬"},
-{city:"Abidjan",country:"Côte d'Ivoire",zone:"Africa/Abidjan",flag:"🇨🇮"},
-{city:"Nairobi",country:"Kenya",zone:"Africa/Nairobi",flag:"🇰🇪"},
-{city:"Addis Ababa",country:"Ethiopia",zone:"Africa/Addis_Ababa",flag:"🇪🇹"},
-{city:"Cairo",country:"Egypt",zone:"Africa/Cairo",flag:"🇪🇬"},
-
-{city:"Johannesburg",country:"South Africa",zone:"Africa/Johannesburg",flag:"🇿🇦"},
-{city:"Cape Town",country:"South Africa",zone:"Africa/Johannesburg",flag:"🇿🇦"},
-{city:"Maputo",country:"Mozambique",zone:"Africa/Maputo",flag:"🇲🇿"},
-{city:"Harare",country:"Zimbabwe",zone:"Africa/Harare",flag:"🇿🇼"},
-{city:"Lusaka",country:"Zambia",zone:"Africa/Lusaka",flag:"🇿🇲"},
-{city:"Kinshasa",country:"DR Congo",zone:"Africa/Kinshasa",flag:"🇨🇩"},
-{city:"Luanda",country:"Angola",zone:"Africa/Luanda",flag:"🇦🇴"},
-{city:"Dar es Salaam",country:"Tanzania",zone:"Africa/Dar_es_Salaam",flag:"🇹🇿"},
-
-{city:"Riyadh",country:"Saudi Arabia",zone:"Asia/Riyadh",flag:"🇸🇦"},
-{city:"Jeddah",country:"Saudi Arabia",zone:"Asia/Riyadh",flag:"🇸🇦"},
-{city:"Doha",country:"Qatar",zone:"Asia/Qatar",flag:"🇶🇦"},
-{city:"Dubai",country:"UAE",zone:"Asia/Dubai",flag:"🇦🇪"},
-{city:"Abu Dhabi",country:"UAE",zone:"Asia/Dubai",flag:"🇦🇪"},
-{city:"Muscat",country:"Oman",zone:"Asia/Muscat",flag:"🇴🇲"},
-{city:"Kuwait City",country:"Kuwait",zone:"Asia/Kuwait",flag:"🇰🇼"},
-{city:"Baghdad",country:"Iraq",zone:"Asia/Baghdad",flag:"🇮🇶"},
-
-{city:"Tehran",country:"Iran",zone:"Asia/Tehran",flag:"🇮🇷"},
-{city:"Baku",country:"Azerbaijan",zone:"Asia/Baku",flag:"🇦🇿"},
-{city:"Yerevan",country:"Armenia",zone:"Asia/Yerevan",flag:"🇦🇲"},
-{city:"Tashkent",country:"Uzbekistan",zone:"Asia/Tashkent",flag:"🇺🇿"},
-{city:"Almaty",country:"Kazakhstan",zone:"Asia/Almaty",flag:"🇰🇿"},
-{city:"Kabul",country:"Afghanistan",zone:"Asia/Kabul",flag:"🇦🇫"},
-{city:"Islamabad",country:"Pakistan",zone:"Asia/Karachi",flag:"🇵🇰"},
-{city:"Karachi",country:"Pakistan",zone:"Asia/Karachi",flag:"🇵🇰"},
-
-{city:"Delhi",country:"India",zone:"Asia/Kolkata",flag:"🇮🇳"},
-{city:"Mumbai",country:"India",zone:"Asia/Kolkata",flag:"🇮🇳"},
-{city:"Bengaluru",country:"India",zone:"Asia/Kolkata",flag:"🇮🇳"},
-{city:"Kolkata",country:"India",zone:"Asia/Kolkata",flag:"🇮🇳"},
-{city:"Dhaka",country:"Bangladesh",zone:"Asia/Dhaka",flag:"🇧🇩"},
-{city:"Kathmandu",country:"Nepal",zone:"Asia/Kathmandu",flag:"🇳🇵"},
-{city:"Colombo",country:"Sri Lanka",zone:"Asia/Colombo",flag:"🇱🇰"},
-{city:"Malé",country:"Maldives",zone:"Indian/Maldives",flag:"🇲🇻"},
-
-{city:"Yangon",country:"Myanmar",zone:"Asia/Yangon",flag:"🇲🇲"},
-{city:"Bangkok",country:"Thailand",zone:"Asia/Bangkok",flag:"🇹🇭"},
-{city:"Ho Chi Minh City",country:"Vietnam",zone:"Asia/Ho_Chi_Minh",flag:"🇻🇳"},
-{city:"Kuala Lumpur",country:"Malaysia",zone:"Asia/Kuala_Lumpur",flag:"🇲🇾"},
-{city:"Singapore",country:"Singapore",zone:"Asia/Singapore",flag:"🇸🇬"},
-{city:"Jakarta",country:"Indonesia",zone:"Asia/Jakarta",flag:"🇮🇩"},
-{city:"Manila",country:"Philippines",zone:"Asia/Manila",flag:"🇵🇭"},
-{city:"Phnom Penh",country:"Cambodia",zone:"Asia/Phnom_Penh",flag:"🇰🇭"},
-
-{city:"Beijing",country:"China",zone:"Asia/Shanghai",flag:"🇨🇳"},
-{city:"Shanghai",country:"China",zone:"Asia/Shanghai",flag:"🇨🇳"},
-{city:"Hong Kong",country:"Hong Kong",zone:"Asia/Hong_Kong",flag:"🇭🇰"},
-{city:"Taipei",country:"Taiwan",zone:"Asia/Taipei",flag:"🇹🇼"},
-{city:"Seoul",country:"South Korea",zone:"Asia/Seoul",flag:"🇰🇷"},
-{city:"Tokyo",country:"Japan",zone:"Asia/Tokyo",flag:"🇯🇵"},
-{city:"Ulaanbaatar",country:"Mongolia",zone:"Asia/Ulaanbaatar",flag:"🇲🇳"},
-{city:"Pyongyang",country:"North Korea",zone:"Asia/Pyongyang",flag:"🇰🇵"},
-
-{city:"Perth",country:"Australia",zone:"Australia/Perth",flag:"🇦🇺"},
-{city:"Adelaide",country:"Australia",zone:"Australia/Adelaide",flag:"🇦🇺"},
-{city:"Darwin",country:"Australia",zone:"Australia/Darwin",flag:"🇦🇺"},
-{city:"Brisbane",country:"Australia",zone:"Australia/Brisbane",flag:"🇦🇺"},
-{city:"Sydney",country:"Australia",zone:"Australia/Sydney",flag:"🇦🇺"},
-{city:"Melbourne",country:"Australia",zone:"Australia/Melbourne",flag:"🇦🇺"},
-{city:"Hobart",country:"Australia",zone:"Australia/Hobart",flag:"🇦🇺"},
-{city:"Auckland",country:"New Zealand",zone:"Pacific/Auckland",flag:"🇳🇿"},
-
-{city:"Wellington",country:"New Zealand",zone:"Pacific/Auckland",flag:"🇳🇿"},
-{city:"Suva",country:"Fiji",zone:"Pacific/Fiji",flag:"🇫🇯"},
-{city:"Port Moresby",country:"Papua New Guinea",zone:"Pacific/Port_Moresby",flag:"🇵🇬"},
-{city:"Nouméa",country:"New Caledonia",zone:"Pacific/Noumea",flag:"🇳🇨"},
-{city:"Honiara",country:"Solomon Islands",zone:"Pacific/Guadalcanal",flag:"🇸🇧"},
-{city:"Apia",country:"Samoa",zone:"Pacific/Apia",flag:"🇼🇸"},
-{city:"Nuku'alofa",country:"Tonga",zone:"Pacific/Tongatapu",flag:"🇹🇴"},
-{city:"Papeete",country:"French Polynesia",zone:"Pacific/Tahiti",flag:"🇵🇫"},
-
-{city:"Nuuk",country:"Greenland",zone:"America/Nuuk",flag:"🇬🇱"},
-{city:"St. John's",country:"Canada",zone:"America/St_Johns",flag:"🇨🇦"},
-{city:"Guatemala City",country:"Guatemala",zone:"America/Guatemala",flag:"🇬🇹"},
-{city:"Havana",country:"Cuba",zone:"America/Havana",flag:"🇨🇺"},
-{city:"San José",country:"Costa Rica",zone:"America/Costa_Rica",flag:"🇨🇷"},
-{city:"Kingston",country:"Jamaica",zone:"America/Jamaica",flag:"🇯🇲"},
-{city:"Quito",country:"Ecuador",zone:"America/Guayaquil",flag:"🇪🇨"},
-{city:"La Paz",country:"Bolivia",zone:"America/La_Paz",flag:"🇧🇴"}
-];
-
-const SET_SIZE=8,sets=[];
-for(let i=0;i<CITIES.length;i+=SET_SIZE)sets.push(CITIES.slice(i,i+SET_SIZE));
-
-const grid=document.getElementById('grid'),iteration=document.getElementById('iteration'),utc=document.getElementById('utc'),next=document.getElementById('next'),progress=document.getElementById('progress');
-let setIndex=0,remaining=10;
-
-function ticks(){const out=[];for(let i=0;i<12;i++){const t=document.createElement('span');t.className='tick';t.style.setProperty('--a',i*30+'deg');out.push(t)}return out}
-function getParts(zone){
-  const f=new Intl.DateTimeFormat('en-US',{timeZone:zone,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,weekday:'short',month:'short',day:'numeric',timeZoneName:'shortOffset'});
-  const p={};for(const x of f.formatToParts(new Date()))if(x.type!=='literal')p[x.type]=x.value;
-  return {h12:+p.hour,m:+p.minute,s:+p.second,ampm:p.dayPeriod||'',weekday:p.weekday||'',month:p.month||'',day:p.day||'',offset:p.timeZoneName||''};
-}
-function getHour24(zone){
-  const f=new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',hourCycle:'h23'});
-  return +f.format(new Date());
-}
-function buildCity(c,i){
-  const card=document.createElement('article');card.className='card swap';
-  card.innerHTML='<div class="watermark">'+c.flag+'</div><div class="content"><div class="top"><div class="rank">'+String(i+1).padStart(2,'0')+'</div><div class="badges"><span class="flag-badge">'+c.flag+'</span><span class="badge" data-state>LOCAL</span></div></div><div class="clock"><span class="num n12">12</span><span class="num n3">3</span><span class="num n6">6</span><span class="num n9">9</span></div><div class="bottom"><div><div class="city">'+c.city+'</div><div class="country">'+c.country+'</div></div><div class="timebox"><div class="time">--:--:-- --</div><div class="day">---</div><div class="offset">---</div></div></div></div>';
-  const clock=card.querySelector('.clock');ticks().forEach(t=>clock.appendChild(t));
-  ['hr','mn','sc'].forEach(cls=>{const x=document.createElement('span');x.className='hand '+cls;x.style.setProperty('--r','0deg');clock.appendChild(x);});
-  const pin=document.createElement('span');pin.className='pin';clock.appendChild(pin);
-  card._zone=c.zone;card._hr=clock.querySelector('.hr');card._mn=clock.querySelector('.mn');card._sc=clock.querySelector('.sc');
-  card._time=card.querySelector('.time');card._day=card.querySelector('.day');card._offset=card.querySelector('.offset');card._state=card.querySelector('[data-state]');
-  return card;
-}
-function renderSet(){
-  grid.innerHTML='';
-  const set=sets[setIndex];
-  set.forEach((c,i)=>grid.appendChild(buildCity(c,i)));
-  iteration.textContent='SET '+String(setIndex+1).padStart(2,'0')+' / '+String(sets.length).padStart(2,'0');
-  remaining=10;
-}
-function update(){
-  const now=new Date();
-  utc.textContent='UTC '+new Intl.DateTimeFormat('en-GB',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(now);
-  for(const card of grid.children){
-    const p=getParts(card._zone),h24=getHour24(card._zone);
-    const hourRot=((h24%12)+p.m/60+p.s/3600)*30;
-    const minRot=(p.m+p.s/60)*6;
-    const secRot=p.s*6;
-    card._hr.style.setProperty('--r',hourRot+'deg');card._mn.style.setProperty('--r',minRot+'deg');card._sc.style.setProperty('--r',secRot+'deg');
-    card._time.textContent=String(p.h12).padStart(2,'0')+':'+String(p.m).padStart(2,'0')+':'+String(p.s).padStart(2,'0')+' '+p.ampm;
-    card._day.textContent=p.weekday+' • '+p.month+' '+p.day;
-    card._offset.textContent=p.offset||card._zone;
-    card._state.textContent=(h24<6||h24>=18)?'NIGHT':'DAY';
-  }
-  next.textContent='NEXT SET IN '+remaining+'s';
-  progress.style.width=(remaining/10*100)+'%';
-}
-renderSet();update();
-setInterval(()=>{update();remaining--;if(remaining<=0){setIndex=(setIndex+1)%sets.length;renderSet()}},1000);
-
-const audio=document.getElementById('audio'),music=document.getElementById('music');
-audio.src=new URL('./Cathedral%20of%20Stars.mp3',document.baseURI).href;audio.volume=.16;
-function playMusic(){audio.play().then(()=>music.textContent='🔊').catch(()=>music.textContent='♫')}
-music.addEventListener('click',()=>{if(audio.paused)playMusic();else{audio.pause();music.textContent='♫'}});
-document.addEventListener('pointerdown',()=>{if(localStorage.getItem('world-clock-music')!=='off')playMusic()},{once:true});
-audio.addEventListener('play',()=>{try{localStorage.setItem('world-clock-music','on')}catch(e){}music.textContent='🔊'});
-audio.addEventListener('pause',()=>music.textContent='♫');
+const raw=`Vancouver|Canada|America/Vancouver|🇨🇦\nLos Angeles|USA|America/Los_Angeles|🇺🇸\nMexico City|Mexico|America/Mexico_City|🇲🇽\nNew York|USA|America/New_York|🇺🇸\nToronto|Canada|America/Toronto|🇨🇦\nSao Paulo|Brazil|America/Sao_Paulo|🇧🇷\nBuenos Aires|Argentina|America/Argentina/Buenos_Aires|🇦🇷\nSantiago|Chile|America/Santiago|🇨🇱\nAnchorage|USA|America/Anchorage|🇺🇸\nHonolulu|USA|Pacific/Honolulu|🇺🇸\nLima|Peru|America/Lima|🇵🇪\nBogota|Colombia|America/Bogota|🇨🇴\nPanama City|Panama|America/Panama|🇵🇦\nCaracas|Venezuela|America/Caracas|🇻🇪\nMontevideo|Uruguay|America/Montevideo|🇺🇾\nReykjavik|Iceland|Atlantic/Reykjavik|🇮🇸\nLondon|United Kingdom|Europe/London|🇬🇧\nDublin|Ireland|Europe/Dublin|🇮🇪\nLisbon|Portugal|Europe/Lisbon|🇵🇹\nMadrid|Spain|Europe/Madrid|🇪🇸\nParis|France|Europe/Paris|🇫🇷\nAmsterdam|Netherlands|Europe/Amsterdam|🇳🇱\nBrussels|Belgium|Europe/Brussels|🇧🇪\nBerlin|Germany|Europe/Berlin|🇩🇪\nCopenhagen|Denmark|Europe/Copenhagen|🇩🇰\nStockholm|Sweden|Europe/Stockholm|🇸🇪\nOslo|Norway|Europe/Oslo|🇳🇴\nHelsinki|Finland|Europe/Helsinki|🇫🇮\nWarsaw|Poland|Europe/Warsaw|🇵🇱\nPrague|Czechia|Europe/Prague|🇨🇿\nVienna|Austria|Europe/Vienna|🇦🇹\nRome|Italy|Europe/Rome|🇮🇹\nAthens|Greece|Europe/Athens|🇬🇷\nIstanbul|Türkiye|Europe/Istanbul|🇹🇷\nBucharest|Romania|Europe/Bucharest|🇷🇴\nSofia|Bulgaria|Europe/Sofia|🇧🇬\nKyiv|Ukraine|Europe/Kyiv|🇺🇦\nMoscow|Russia|Europe/Moscow|🇷🇺\nCasablanca|Morocco|Africa/Casablanca|🇲🇦\nAccra|Ghana|Africa/Accra|🇬🇭\nLagos|Nigeria|Africa/Lagos|🇳🇬\nCairo|Egypt|Africa/Cairo|🇪🇬\nNairobi|Kenya|Africa/Nairobi|🇰🇪\nAddis Ababa|Ethiopia|Africa/Addis_Ababa|🇪🇹\nJohannesburg|South Africa|Africa/Johannesburg|🇿🇦\nCape Town|South Africa|Africa/Johannesburg|🇿🇦\nRiyadh|Saudi Arabia|Asia/Riyadh|🇸🇦\nDoha|Qatar|Asia/Qatar|🇶🇦\nDubai|UAE|Asia/Dubai|🇦🇪\nAbu Dhabi|UAE|Asia/Dubai|🇦🇪\nMuscat|Oman|Asia/Muscat|🇴🇲\nKuwait City|Kuwait|Asia/Kuwait|🇰🇼\nBaghdad|Iraq|Asia/Baghdad|🇮🇶\nTehran|Iran|Asia/Tehran|🇮🇷\nBaku|Azerbaijan|Asia/Baku|🇦🇿\nTashkent|Uzbekistan|Asia/Tashkent|🇺🇿\nIslamabad|Pakistan|Asia/Karachi|🇵🇰\nKarachi|Pakistan|Asia/Karachi|🇵🇰\nDelhi|India|Asia/Kolkata|🇮🇳\nMumbai|India|Asia/Kolkata|🇮🇳\nBengaluru|India|Asia/Kolkata|🇮🇳\nKolkata|India|Asia/Kolkata|🇮🇳\nDhaka|Bangladesh|Asia/Dhaka|🇧🇩\nKathmandu|Nepal|Asia/Kathmandu|🇳🇵\nColombo|Sri Lanka|Asia/Colombo|🇱🇰\nBangkok|Thailand|Asia/Bangkok|🇹🇭\nHo Chi Minh City|Vietnam|Asia/Ho_Chi_Minh|🇻🇳\nKuala Lumpur|Malaysia|Asia/Kuala_Lumpur|🇲🇾\nSingapore|Singapore|Asia/Singapore|🇸🇬\nJakarta|Indonesia|Asia/Jakarta|🇮🇩\nManila|Philippines|Asia/Manila|🇵🇭\nBeijing|China|Asia/Shanghai|🇨🇳\nShanghai|China|Asia/Shanghai|🇨🇳\nHong Kong|Hong Kong|Asia/Hong_Kong|🇭🇰\nTaipei|Taiwan|Asia/Taipei|🇹🇼\nSeoul|South Korea|Asia/Seoul|🇰🇷\nTokyo|Japan|Asia/Tokyo|🇯🇵\nUlaanbaatar|Mongolia|Asia/Ulaanbaatar|🇲🇳\nPerth|Australia|Australia/Perth|🇦🇺\nAdelaide|Australia|Australia/Adelaide|🇦🇺\nBrisbane|Australia|Australia/Brisbane|🇦🇺\nSydney|Australia|Australia/Sydney|🇦🇺\nMelbourne|Australia|Australia/Melbourne|🇦🇺\nAuckland|New Zealand|Pacific/Auckland|🇳🇿\nSuva|Fiji|Pacific/Fiji|🇫🇯\nPapeete|French Polynesia|Pacific/Tahiti|🇵🇫`;
+const cities=raw.split('\n').map(x=>{const [city,country,zone,flag]=x.split('|');return{city,country,zone,flag}}),SIZE=8,sets=[];for(let i=0;i<cities.length;i+=SIZE)sets.push(cities.slice(i,i+SIZE));
+const grid=document.getElementById('grid'),utc=document.getElementById('utc'),setLabel=document.getElementById('setLabel'),next=document.getElementById('next'),progress=document.getElementById('progress');let setIndex=0,remaining=10;
+function makeClock(){const c=document.createElement('div');c.className='clock';c.innerHTML='<span class="num n12">12</span><span class="num n3">3</span><span class="num n6">6</span><span class="num n9">9</span>';for(let i=0;i<12;i++){const t=document.createElement('span');t.className='tick'+(i%3===0?' major':'');t.style.transform=`translate(-50%,-50%) rotate(${i*30}deg) translateY(-39%)`;c.appendChild(t)}for(const k of ['hr','mn','sc']){const h=document.createElement('span');h.className='hand '+k;h.style.setProperty('--r','0deg');c.appendChild(h)}const p=document.createElement('span');p.className='pin';c.appendChild(p);return c}
+function build(c,i){const card=document.createElement('article');card.className='card swap';card.innerHTML=`<div class="flag-bg">${c.flag}</div><div class="card-inner"><div class="card-head"><div class="city-wrap"><div class="city">${c.city}</div><div class="country">${c.country}</div></div><div class="head-right"><span class="flag">${c.flag}</span><span class="state" data-state>DAY</span></div></div><div class="clock-wrap"></div><div class="card-foot"><div><div class="digital" data-time>--:--:-- --</div><div class="date" data-date>---</div></div><div class="zone"><div data-zone>LOCAL</div><div class="offset" data-offset>---</div></div></div></div>`;card.querySelector('.clock-wrap').appendChild(makeClock());card._zone=c.zone;card._hr=card.querySelector('.hr');card._mn=card.querySelector('.mn');card._sc=card.querySelector('.sc');card._time=card.querySelector('[data-time]');card._date=card.querySelector('[data-date]');card._state=card.querySelector('[data-state]');card._offset=card.querySelector('[data-offset]');return card}
+function parts(zone){const f=new Intl.DateTimeFormat('en-US',{timeZone:zone,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true,weekday:'short',month:'short',day:'numeric',timeZoneName:'shortOffset'});const p={};for(const x of f.formatToParts(new Date()))if(x.type!=='literal')p[x.type]=x.value;return p}
+function hour24(zone){return +new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',hourCycle:'h23'}).format(new Date())}
+function render(){grid.innerHTML='';sets[setIndex].forEach((c,i)=>grid.appendChild(build(c,i)));setLabel.textContent=`SET ${String(setIndex+1).padStart(2,'0')} / ${String(sets.length).padStart(2,'0')}`;remaining=10}
+function update(){const now=new Date();utc.textContent='UTC '+new Intl.DateTimeFormat('en-GB',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(now);for(const card of grid.children){const p=parts(card._zone),h=hour24(card._zone),m=+p.minute,s=+p.second;card._hr.style.setProperty('--r',(((h%12)+m/60+s/3600)*30)+'deg');card._mn.style.setProperty('--r',((m+s/60)*6)+'deg');card._sc.style.setProperty('--r',(s*6)+'deg');card._time.textContent=`${String(p.hour).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${p.dayPeriod}`;card._date.textContent=`${p.weekday} • ${p.month} ${p.day}`;card._offset.textContent=p.timeZoneName||card._zone;card._state.textContent=(h<6||h>=18)?'NIGHT':'DAY'}next.textContent=`NEXT SET IN ${remaining}s`;progress.style.width=(remaining/10*100)+'%'}
+render();update();setInterval(()=>{update();remaining--;if(remaining<=0){setIndex=(setIndex+1)%sets.length;render()}},1000);
+const audio=document.getElementById('audio'),music=document.getElementById('music');audio.src=new URL('./Cathedral%20of%20Stars.mp3',document.baseURI).href;audio.volume=.16;function play(){audio.play().then(()=>music.textContent='🔊').catch(()=>{})}music.onclick=()=>audio.paused?play():audio.pause();document.addEventListener('pointerdown',()=>play(),{once:true});audio.onplay=()=>music.textContent='🔊';audio.onpause=()=>music.textContent='♫';
 </script>
 </body>
 </html>
