@@ -312,15 +312,31 @@ function updateMusicButton(){
  musicBtn.setAttribute('aria-pressed',String(playing));
  musicBtn.setAttribute('aria-label',playing?'Pause background music':'Play background music');
 }
+function removeMusicGestureFallback(){
+ document.removeEventListener('pointerdown',startMusicFromGesture);
+ document.removeEventListener('keydown',startMusicFromGesture);
+}
+async function startMusicFromGesture(event){
+ if(event&&event.target&&event.target.closest&&event.target.closest('#musicBtn'))return;
+ try{await bgMusic.play();removeMusicGestureFallback();}
+ catch(error){/* Browser still requires an explicit tap on the music control. */}
+}
 musicBtn.addEventListener('click',async()=>{
  if(bgMusic.paused){
-  try{await bgMusic.play();}catch(error){musicBtn.textContent='⚠ MUSIC';musicBtn.setAttribute('aria-label','Music could not be played');}
+  try{await bgMusic.play();removeMusicGestureFallback();}
+  catch(error){musicBtn.textContent='⚠ MUSIC';musicBtn.setAttribute('aria-label','Tap to allow background music');}
  }else{bgMusic.pause();}
  updateMusicButton();
 });
 bgMusic.addEventListener('play',updateMusicButton);
 bgMusic.addEventListener('pause',updateMusicButton);
 bgMusic.addEventListener('ended',updateMusicButton);
+/* Attempt audible autoplay on page load; if blocked, start on the first eligible user gesture. */
+bgMusic.volume=0.22;
+bgMusic.play().then(removeMusicGestureFallback).catch(()=>{
+ document.addEventListener('pointerdown',startMusicFromGesture,{passive:true});
+ document.addEventListener('keydown',startMusicFromGesture);
+});
 
 </script>
 </body>
