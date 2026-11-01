@@ -139,6 +139,49 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;bac
  .pop{font-size:10px;letter-spacing:-.45px}
 }
 
+
+/* Tablet and in-app browser widths: switch before the leaderboard can overflow */
+@media(max-width:900px){
+ html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+ .app{height:auto;min-height:100svh;grid-template-rows:auto auto auto auto auto;padding:10px 10px calc(14px + env(safe-area-inset-bottom));gap:9px}
+ .topbar{min-height:32px;justify-content:center;position:relative;padding:2px 0}
+ .kicker{display:none}
+ .title{font-size:clamp(20px,4.8vw,32px);letter-spacing:1px;white-space:normal;line-height:1.1}
+ .status{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:clamp(6px,.95vw,9px);letter-spacing:0}
+ .hero{padding:15px 8px 13px}
+ .hero-number{font-size:clamp(30px,7vw,52px);letter-spacing:-1.6px}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .card{padding:10px;min-width:0}
+ .card-label{font-size:9px}
+ .card-value{font-size:clamp(17px,3.4vw,24px)}
+ .card-hint{font-size:7px}
+ .card.country{grid-column:1/-1}
+ .country-inner{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .country-name{font-size:13px}
+ .country-stat small{font-size:8px}
+ .country-stat strong{font-size:17px}
+ .board{min-height:0;overflow:hidden}
+ .board-head{padding:10px 12px;font-size:10px}
+ .world-row{padding:9px 12px}
+ .world-row strong{font-size:clamp(13px,2vw,17px)}
+ .rows{display:flex;flex-direction:column;padding:0 8px}
+ .country-row{width:100%;min-width:0;min-height:43px;flex:0 0 43px;overflow:hidden;grid-template-columns:20px 27px minmax(0,1fr) minmax(0,max-content);gap:6px;padding:0 4px}
+ .country-row .meter,.country-row .change{display:none}
+ .rank{font-size:9px}
+ .flag{font-size:18px}
+ .cname{min-width:0;font-size:clamp(11px,1.7vw,14px)}
+ .pop{min-width:0;font-size:clamp(10px,1.55vw,13px);letter-spacing:-.35px;text-align:right;white-space:nowrap}
+ .footer{flex-wrap:wrap;justify-content:center;text-align:center;gap:6px 10px;padding:9px 10px;font-size:7px;line-height:1.4}
+ .progress{order:3;flex:0 0 100%;max-width:none}
+}
+@media(max-width:390px){
+ .app{padding-left:7px;padding-right:7px}
+ .status{font-size:6px}
+ .hero-number{font-size:clamp(26px,7.6vw,35px)}
+ .country-row{grid-template-columns:17px 22px minmax(0,1fr) minmax(0,max-content);gap:4px}
+ .pop{font-size:10px;letter-spacing:-.45px}
+}
+
 </style>
 </head>
 <body>
