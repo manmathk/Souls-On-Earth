@@ -233,6 +233,13 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;bac
  .footer{padding:5px 7px}
 }
 
+
+.music-btn{appearance:none;border:1px solid rgba(96,216,255,.35);border-radius:20px;background:rgba(15,37,58,.7);color:#8fe5ff;padding:5px 10px;font:800 10px/1 inherit;letter-spacing:.6px;white-space:nowrap;cursor:pointer}
+.music-btn.on{color:#48e6bc;border-color:rgba(72,230,188,.55);box-shadow:0 0 10px rgba(72,230,188,.12)}
+.music-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+@media(max-width:900px){.music-btn{padding:4px 8px;font-size:8px;letter-spacing:.2px;flex:0 0 auto}}
+@media(max-width:390px){.music-btn{padding:4px 6px;font-size:7px}}
+
 </style>
 </head>
 <body>
@@ -264,8 +271,9 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;bac
   <div class="world-row"><span>🌍 WORLD</span><strong id="worldBoard">—</strong></div>
   <div class="rows" id="countryRows"></div>
  </section>
- <footer class="footer"><span>● <strong>GLOBAL POPULATION</strong> · LIVE MODEL</span><div class="progress"><i></i></div><span>STATISTICAL ESTIMATE · NOT A REAL-TIME CENSUS</span></footer>
+ <footer class="footer"><span>● <strong>GLOBAL POPULATION</strong> · LIVE MODEL</span><button class="music-btn" id="musicBtn" type="button" aria-label="Play background music" aria-pressed="false">♫ MUSIC</button><div class="progress"><i></i></div><span>STATISTICAL ESTIMATE · NOT A REAL-TIME CENSUS</span></footer>
 </main>
+<audio id="bgMusic" src="./Midnight_Highway_Run.mp3" loop preload="none"></audio>
 <script type="module">
 import { projectPopulation, dayFraction } from './js/vertical-math.js';
 const WORLD_POP_2026=8300678395,WORLD_ANNUAL_CHANGE_2026=69065325;
@@ -295,6 +303,25 @@ function update(){
  document.getElementById('countryDeaths').textContent=(focus[3]>=0?'+':'')+focus[3].toFixed(2)+'%';
 }
 renderRows(Date.now());update();setInterval(update,250);
+
+const bgMusic=document.getElementById('bgMusic'),musicBtn=document.getElementById('musicBtn');
+function updateMusicButton(){
+ const playing=!bgMusic.paused&&!bgMusic.ended;
+ musicBtn.textContent=playing?'🔊 MUSIC':'♫ MUSIC';
+ musicBtn.classList.toggle('on',playing);
+ musicBtn.setAttribute('aria-pressed',String(playing));
+ musicBtn.setAttribute('aria-label',playing?'Pause background music':'Play background music');
+}
+musicBtn.addEventListener('click',async()=>{
+ if(bgMusic.paused){
+  try{await bgMusic.play();}catch(error){musicBtn.textContent='⚠ MUSIC';musicBtn.setAttribute('aria-label','Music could not be played');}
+ }else{bgMusic.pause();}
+ updateMusicButton();
+});
+bgMusic.addEventListener('play',updateMusicButton);
+bgMusic.addEventListener('pause',updateMusicButton);
+bgMusic.addEventListener('ended',updateMusicButton);
+
 </script>
 </body>
 </html>
